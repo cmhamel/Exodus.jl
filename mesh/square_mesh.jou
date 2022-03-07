@@ -1,0 +1,21 @@
+reset
+
+#element_length = {element_length = 1.0 / 128}
+create surface rectangle width 1 zplane
+surface 1 size {element_length}
+mesh surface 1
+
+block 1 add surface 1
+block 1 element type quad4
+
+sideset 1 add curve 1
+sideset 2 add curve 2
+sideset 3 add curve 3
+sideset 4 add curve 4
+
+nodeset 1 add curve in sideset 1
+nodeset 2 add curve in sideset 2
+nodeset 3 add curve in sideset 3
+nodeset 4 add curve in sideset 4
+
+export genesis 'mesh_test_{element_length}.g' overwrite
