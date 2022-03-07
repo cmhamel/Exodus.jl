@@ -27,8 +27,7 @@ function create_exodus_database(file_name::ExoFileName)
     """
     For some reason #define statements are not picked up by ccall
     """
-    exo_id = ccall((:ex_create_int, exo_lib_path),
-                   Int,
+    exo_id = ccall((:ex_create_int, exo_lib_path), Int,
                    (Base.Cstring, Int64, Ref{Int64}, Ref{Int64}, Int64),
                    file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
                    version_number_2)
@@ -40,8 +39,7 @@ function close_exodus_database(exo_id::ExoID)
 end
 
 function open_exodus_database(file_name::ExoFileName)
-    exo_id = ccall((:ex_open_int, exo_lib_path),
-                   Int64,
+    exo_id = ccall((:ex_open_int, exo_lib_path), Int64,
                    (Base.Cstring, Int64, Ref{Int64},
                     Ref{Int64}, Ref{Float64}, Int),
                    file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
@@ -59,8 +57,7 @@ function read_initialization_parameters(exo_id::ExoID)
     error = Ref{Int64}(0)
 
     title = ""
-    error = ccall((:ex_get_init, exo_lib_path),
-                  Int64,
+    error = ccall((:ex_get_init, exo_lib_path), Int64,
                   (ExoID, Base.Cstring,
                    Ref{Int64}, Ref{Int64}, Ref{Int64},
                    Ref{Int64}, Ref{Int64}, Ref{Int64}),
@@ -72,7 +69,20 @@ function read_initialization_parameters(exo_id::ExoID)
            num_elem_blk[], num_node_sets[], num_side_sets[]
 end
 
-function read_coordinates(exo_id::ExoID)
+function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
+    # TODO: figure out the best way to pass this stuff to exodus
+    # TODO: for 2D this requires allocating memory for z even though it's
+    # TODO: not there
+    x_coords = Array{Float64}(undef, num_nodes)
+    y_coords = Array{Float64}(undef, num_nodes)
+    z_coords = Array{Float64}(undef, num_nodes)
+    ccall((:ex_get_coord, exo_lib_path), Int64,
+          (ExoID, Ref{Float64}, Ref{Float64}, Ref{Float64}),
+          exo_id, x_coords, y_coords, z_coords)
+    return x_coords, y_coords, z_coords
+end
+
+function read_connectivity(exo_id::ExoID)
 
 end
 

@@ -39,8 +39,12 @@ function test_square_mesh(n::Int)
 
             # test coordinates
             #
-            # coords = Exodus.read_coordinates(exo)
-            # test_coordinate_dimensions(coords, number_of_nodes[n], 2)
+            x_coords, y_coords, z_coords =
+            Exodus.read_coordinates(exo_id, num_dim, num_nodes)
+
+            @test size(x_coords, 1) == number_of_nodes[n]
+            @test size(y_coords, 1) == number_of_nodes[n]
+            @test size(z_coords, 1) == number_of_nodes[n]
 
             # test block initialization
             #
