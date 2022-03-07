@@ -19,7 +19,7 @@ function test_square_mesh(n::Int)
     mesh_file_name = abspath(mesh_file_names[n])
     test_name = rpad("Testing square mesh: $(mesh_file_name)", 96)
     @testset "$test_name" begin
-        @suppress begin
+        # @suppress begin
             # read method test
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
@@ -48,6 +48,8 @@ function test_square_mesh(n::Int)
 
             # test block initialization
             #
+            block = Exodus.read_element_block_parameters(exo_id, 1)
+            println(block)
             # block = Mesh.initialize_block(exo, 1)
             # @test block.block_number == 1
             # @test block.Nₑ == number_of_elements[n]
@@ -64,7 +66,7 @@ function test_square_mesh(n::Int)
             # mesh = Mesh.MeshStruct()
 
             Exodus.close_exodus_database(exo_id)
-        end
+        # end
     end
 end
 
