@@ -2,45 +2,8 @@ module Exodus
 
 using Base
 
-const exo_lib_path = ENV["EXODUS_LIB_PATH"]
-
-const EX_WRITE = 0x0001
-const EX_READ = 0x0002
-const EX_NOCLOBBER = 0x0004
-const EX_CLOBBER = 0x0008
-
-const EX_ELEM_BLOCK = 1
-
-const MAX_LINE_LENGTH = 80
-
-const cpu_word_size = Ref{Int64}(sizeof(Float64))
-const IO_word_size = Ref{Int64}(8)
-
-# TODO: make this be read in from the OS or something like that
-#
-const version_number_1 = 8
-const version_number_2 = 12
-const version_number = 8.12
-
-# types
-#
-ExoFileName = String
-ExoID = Int64
-BlockID = Int64
-BlockType = Int64
-
-
-struct ElementBlock
-
-end
-
-struct Nodeset
-
-end
-
-struct Sideset
-
-end
+include("Constants.jl")
+include("Types.jl")
 
 function create_exodus_database(file_name::ExoFileName)
     """
@@ -58,6 +21,7 @@ function close_exodus_database(exo_id::ExoID)
 end
 
 function open_exodus_database(file_name::ExoFileName)
+    # TODO: maybe add multiple methods for different EX_* options
     exo_id = ccall((:ex_open_int, exo_lib_path), Int64,
                    (Base.Cstring, Int64, Ref{Int64},
                     Ref{Int64}, Ref{Float64}, Int),
@@ -84,17 +48,30 @@ function read_initialization_parameters(exo_id::ExoID)
                   num_dim, num_nodes, num_elem,
                   num_elem_blk, num_node_sets, num_side_sets)
 
+    # title = strip(title, '\0') # TODO: do something with this
+    if error < 0
+        error("Error in read_initialization_parameters\nError = $error")
+    end
+
     return num_dim[], num_nodes[], num_elem[],
            num_elem_blk[], num_node_sets[], num_side_sets[]
 end
 
 function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
-    # TODO: figure out the best way to pass this stuff to exodus
-    # TODO: for 2D this requires allocating memory for z even though it's
-    # TODO: not there
-    x_coords = Array{Float64}(undef, num_nodes)
-    y_coords = Array{Float64}(undef, num_nodes)
-    z_coords = Array{Float64}(undef, num_nodes)
+    if num_dim == 1
+        x_coords = Array{Float64}(undef, num_nodes)
+        y_coords = Ref{Float64}(0.0)
+        z_coords = Ref{Float64}(0.0)
+    elseif num_dim == 2
+        x_coords = Array{Float64}(undef, num_nodes)
+        y_coords = Array{Float64}(undef, num_nodes)
+        z_coords = Ref{Float64}(0.0)
+    elseif num_dim == 3
+        x_coords = Array{Float64}(undef, num_nodes)
+        y_coords = Array{Float64}(undef, num_nodes)
+        z_coords = Array{Float64}(undef, num_nodes)
+    end
+
     ccall((:ex_get_coord, exo_lib_path), Int64,
           (ExoID, Ref{Float64}, Ref{Float64}, Ref{Float64}),
           exo_id, x_coords, y_coords, z_coords)
@@ -102,7 +79,8 @@ function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
 end
 
 function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
-    element_type = "aaaaa"  # TODO: This needs to be addressed
+    # element_type = "      "
+    element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
     num_elem = Ref{Int64}(0)
     num_nodes = Ref{Int64}(0)
     num_edges = Ref{Int64}(0)
@@ -110,14 +88,39 @@ function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     num_attributes = Ref{Int64}(0)
     ccall((:ex_get_block, exo_lib_path), Int64,
           (ExoID, BlockType, BlockID,
-           Base.Cstring, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}),
+           Ptr{UInt8}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}),
           exo_id, EX_ELEM_BLOCK, block_id,
           element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes)
+
+    element_type = unsafe_string(pointer(element_type))
+
     return element_type, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 
-function read_connectivity(exo_id::ExoID)
+function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
+    element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
+    read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
 
+    conn = Array{Int32}(undef, num_nodes * num_elem)
+    conn_face = Array{Int32}(undef, num_nodes * num_elem)
+    conn_edge = Array{Int32}(undef, num_nodes * num_elem)
+
+    # TODO: look into why the connectivity arrays need to be 32 bit.
+    #
+    error = ccall((:ex_get_conn, exo_lib_path), Int64,
+                  (ExoID, Int64, BlockID, Ref{Int32}, Ref{Int32}, Ref{Int32}),
+                  exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
+
+    return conn
+end
+
+function initialize_block(exo_id::ExoID, block_id::BlockID)
+    element_type, num_elem, num_nodes, _, _, _ =
+    read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
+
+    conn = read_block_connectivity(exo_id, block_id)
+
+    return Block(block_id, num_elem, num_nodes, element_type, conn)
 end
 
 end # module

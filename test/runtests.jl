@@ -44,17 +44,23 @@ function test_square_mesh(n::Int)
 
             @test size(x_coords, 1) == number_of_nodes[n]
             @test size(y_coords, 1) == number_of_nodes[n]
-            @test size(z_coords, 1) == number_of_nodes[n]
+            # @test size(z_coords, 1) == number_of_nodes[n]
 
             # test block initialization
             #
-            block = Exodus.read_element_block_parameters(exo_id, 1)
-            println(block)
-            # block = Mesh.initialize_block(exo, 1)
-            # @test block.block_number == 1
-            # @test block.Nₑ == number_of_elements[n]
-            # @test block.Nₙ_per_e == 4
-            # @test block.element_type == "QUAD4"
+            element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
+            Exodus.read_element_block_parameters(exo_id, 1)
+
+            @test element_type == "QUAD4"
+            @test num_elem == number_of_elements[n]
+            @test num_nodes == 4
+
+            # test reading read_connectivity
+            #
+            conn = Exodus.read_block_connectivity(exo_id, 1)
+            @test size(conn, 1) == num_nodes * num_elem
+
+            # block = Exodus.initialize_block(exo_id, 1)
 
             # test node set initialization
             #
