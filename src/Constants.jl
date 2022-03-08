@@ -1,4 +1,4 @@
-const exo_lib_path = ENV["EXODUS_LIB_PATH"]
+const exo_lib_path = ENV["EXODUS_LIB_PATH"] # TODO: this needs to be set in ~/.bashrc
 
 const EX_WRITE = 0x0001
 const EX_READ = 0x0002
