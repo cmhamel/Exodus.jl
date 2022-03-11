@@ -12,17 +12,14 @@ number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 
 function test_square_mesh(n::Int)
     mesh_file_name = abspath(mesh_file_names[n])
-    test_name = rpad("Testing square mesh: $(mesh_file_name)", 96)
+    test_name = rpad("Testing square mesh: $(basename(mesh_file_name))", 96)
     @testset "$test_name" begin
         # @suppress begin
             # read method test
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-            @show exo_id
             init = Exodus.get_initialization(exo_id)
-            # @show init
-            println(init)
-
+            @show init
             # tests on the simple numbers
             #
             @test init.num_dim == 2
@@ -34,12 +31,13 @@ function test_square_mesh(n::Int)
             #
             # # test coordinates
             # #
-            # x_coords, y_coords, z_coords =
-            # Exodus.read_coordinates(exo_id, num_dim, num_nodes)
+            x_coords, y_coords, z_coords =
+            Exodus.read_coordinates(exo_id, init.num_dim, init.num_nodes)
             #
-            # @test size(x_coords, 1) == number_of_nodes[n]
-            # @test size(y_coords, 1) == number_of_nodes[n]
-            # # @test size(z_coords, 1) == number_of_nodes[n]
+            @test size(x_coords, 1) == number_of_nodes[n]
+            @test size(y_coords, 1) == number_of_nodes[n]
+            @show x_coords
+            # @test size(z_coords, 1) == number_of_nodes[n]
             #
             # # read block ids
             # #
@@ -82,5 +80,4 @@ end
 
 for (n, mesh) in enumerate(mesh_file_names)
     test_square_mesh(n)
-    # sleep(1)
 end

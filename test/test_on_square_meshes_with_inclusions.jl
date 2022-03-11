@@ -5,7 +5,7 @@ mesh_file_names = ["../mesh/square_meshes_with_inclusions/mesh_test_0.0078125.g"
 
 function test_square_mesh_with_inclusion(n::Int)
     mesh_file_name = abspath(mesh_file_names[n])
-    test_name = rpad("Testing square mesh with inclusion: $(mesh_file_name)", 96)
+    test_name = rpad("Testing square mesh with inclusion: $(base_name(mesh_file_name))", 96)
     @testset "$test_name" begin
         # @suppress begin
             # read method test

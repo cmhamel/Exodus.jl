@@ -1,3 +1,18 @@
+struct Block <: FEMContainer
+    block_id::Int64  # TODO: maybe change to BlockID so types are more verbose
+    num_elem::Int64
+    num_nodes_per_elem::Int64
+    elem_type::String
+    conn::Array{Int64}
+end
+Base.show(io::IO, block::Block) =
+print(io, "Block:\n",
+          "\tBlock ID           = ", block.block_id, "\n",
+          "\tNum elem           = ", block.num_elem, "\n",
+          "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
+          "\tElem type          = ", block.elem_type, "\n")
+
+
 function read_block_ids(exo_id::ExoID, num_elem_blk::Int64)
     block_ids = Array{Int32}(undef, num_elem_blk)
     error = ccall((:ex_get_ids, exo_lib_path), Int64,
@@ -46,7 +61,7 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
     return conn
 end
 
-function initialize_block(exo_id::ExoID, block_id::BlockID)
+function initialize_block(exo_id::ExoID, block_id::BlockID)::Block
     element_type, num_elem, num_nodes, _, _, _ =
     read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     conn = read_block_connectivity(exo_id, block_id)
