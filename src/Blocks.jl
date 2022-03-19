@@ -4,6 +4,12 @@ struct Block <: FEMContainer
     num_nodes_per_elem::Int64
     elem_type::String
     conn::Array{Int64}
+    function Block(exo_id::ExoID, block_id::BlockID)
+        element_type, num_elem, num_nodes, _, _, _ =
+        read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
+        conn = read_block_connectivity(exo_id, block_id)
+        return new(block_id, num_elem, num_nodes, element_type, conn)
+    end
 end
 Base.show(io::IO, block::Block) =
 print(io, "Block:\n",
@@ -58,11 +64,4 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
                   exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
 
     return conn
-end
-
-function initialize_block(exo_id::ExoID, block_id::BlockID)::Block
-    element_type, num_elem, num_nodes, _, _, _ =
-    read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
-    conn = read_block_connectivity(exo_id, block_id)
-    return Block(block_id, num_elem, num_nodes, element_type, conn)
 end

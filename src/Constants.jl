@@ -6,6 +6,7 @@ const EX_NOCLOBBER = 0x0004
 const EX_CLOBBER = 0x0008
 
 const EX_ELEM_BLOCK = 1
+const EX_NODE_SET = 2
 
 const MAX_LINE_LENGTH = 80
 const MAX_STR_LENGTH = 32
