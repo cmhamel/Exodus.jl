@@ -3,4 +3,5 @@ struct Mesh <: FEMContainer
     blocks::Array{Block}
     node_sets::Array{NodeSet}
     # add side sets and other relevant stuff
+    #
 end
