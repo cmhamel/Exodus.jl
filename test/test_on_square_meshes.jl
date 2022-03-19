@@ -19,7 +19,7 @@ function test_square_mesh(n::Int)
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
             init = Exodus.get_initialization(exo_id)
-            @show init
+            #
             # tests on the simple numbers
             #
             @test init.num_dim == 2
@@ -29,40 +29,26 @@ function test_square_mesh(n::Int)
             @test init.num_node_sets == 4
             @test init.num_side_sets == 4
             #
-            # # test coordinates
-            # #
+            # test coordinates
+            #
             x_coords, y_coords, z_coords =
             Exodus.read_coordinates(exo_id, init.num_dim, init.num_nodes)
             #
             @test size(x_coords, 1) == number_of_nodes[n]
             @test size(y_coords, 1) == number_of_nodes[n]
-            @show x_coords
-            # @test size(z_coords, 1) == number_of_nodes[n]
             #
-            # # read block ids
-            # #
-            # block_ids = Exodus.read_block_ids(exo_id, num_elem_blk)
-            # @show num_elem_blk
-            # @show block_ids
-            # @test size(block_ids, 1) == 1
-            # @test block_ids[1] == 1
+            # read block ids
             #
-            # # test block initialization
-            # #
-            # element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
-            # Exodus.read_element_block_parameters(exo_id, 1)
-            #
-            # @test element_type == "QUAD4"
-            # @test num_elem == number_of_elements[n]
-            # @test num_nodes == 4
-            #
-            # # test reading read_connectivity
-            # #
-            # conn = Exodus.read_block_connectivity(exo_id, 1)
-            # @test size(conn, 1) == num_nodes * num_elem
-            # @show conn
+            block_ids = Exodus.read_block_ids(exo_id, init.num_elem_blk)
+            @test size(block_ids, 1) == 1
+            @test block_ids[1] == 1
 
-            # block = Exodus.initialize_block(exo_id, 1)
+            block = Exodus.initialize_block(exo_id, block_ids[1])
+            @test block.block_id == 1
+            @test block.num_elem == number_of_elements[n]
+            @test block.num_nodes_per_elem == 4
+            @test block.elem_type == "QUAD4"
+            @test size(block.conn, 1) == 4 * number_of_elements[n]
 
             # test node set initialization
             #
