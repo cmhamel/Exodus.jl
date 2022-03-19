@@ -9,16 +9,17 @@ mesh_file_names = ["../mesh/square_meshes/mesh_test_1.g",
 
 number_of_nodes = [4, 9, 25, 81, 289, 1089, 4225, 16641]
 number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
+number_of_node_set_nodes = [1, 2, 4, 8, 16, 32, 64, 128] .+ 1
 
 function test_square_mesh(n::Int)
     mesh_file_name = abspath(mesh_file_names[n])
     test_name = rpad("Testing square mesh: $(basename(mesh_file_name))", 96)
     @testset "$test_name" begin
-        # @suppress begin
+        @suppress begin
             # read method test
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-            init = Exodus.get_initialization(exo_id)
+            init = Exodus.Initialization(exo_id)
             #
             # tests on the simple numbers
             #
@@ -31,36 +32,42 @@ function test_square_mesh(n::Int)
             #
             # test coordinates
             #
-            x_coords, y_coords, z_coords =
-            Exodus.read_coordinates(exo_id, init.num_dim, init.num_nodes)
-            #
-            @test size(x_coords, 1) == number_of_nodes[n]
-            @test size(y_coords, 1) == number_of_nodes[n]
+            coords = Exodus.read_coordinates(exo_id, init.num_dim, init.num_nodes)
+            @test size(coords, 1) == number_of_nodes[n]
+            @test size(coords, 2) == 2
             #
             # read block ids
             #
             block_ids = Exodus.read_block_ids(exo_id, init.num_elem_blk)
             @test size(block_ids, 1) == 1
             @test block_ids[1] == 1
-
-            block = Exodus.initialize_block(exo_id, block_ids[1])
+            blocks = Exodus.read_blocks(exo_id, block_ids)
+            block = blocks[1]
             @test block.block_id == 1
             @test block.num_elem == number_of_elements[n]
             @test block.num_nodes_per_elem == 4
             @test block.elem_type == "QUAD4"
             @test size(block.conn, 1) == 4 * number_of_elements[n]
-
+            #
             # test node set initialization
             #
-            # node_set = Mesh.initialize_node_set(exo, 1)
-            # @test node_set.node_set_number == 1
+            node_set_ids = Exodus.read_node_set_ids(exo_id, init.num_node_sets)
+            @test node_set_ids == [1, 2, 3, 4]
+            node_sets = Exodus.read_node_sets(exo_id, node_set_ids)
+            @test size(node_sets, 1) == 4
+            for (m, node_set) in enumerate(node_sets)
+                # @show node_set
+                @test node_set.node_set_id == node_set_ids[m]
+                @test node_set.num_nodes == number_of_node_set_nodes[n]
+                @test size(node_set.nodes, 1) == number_of_node_set_nodes[n]
+            end
 
-            # test mesh initialization
-            #
-            # mesh = Mesh.MeshStruct()
+            mesh = Exodus.Mesh(coords, blocks, node_sets)
+            @test size(mesh.coords, 1) == number_of_nodes[n]
+            @test size(mesh.coords, 2) == 2
 
             Exodus.close_exodus_database(exo_id)
-        # end
+        end
     end
 end
 

@@ -5,6 +5,13 @@ struct Initialization <: FEMContainer
     num_elem_blk::Int64
     num_node_sets::Int64
     num_side_sets::Int64
+    function Initialization(exo_id::ExoID)
+        num_dim, num_nodes, num_elem,
+        num_elem_blk, num_node_sets, num_side_sets, title =
+        read_initialization_parameters(exo_id)
+        return new(num_dim, num_nodes, num_elem,
+                   num_elem_blk, num_node_sets, num_side_sets)
+    end
 end
 Base.show(io::IO, init::Initialization) =
 print(io, "Initialization:\n",
@@ -14,14 +21,6 @@ print(io, "Initialization:\n",
           "\tNum blocks    = ", init.num_elem_blk, "\n",
           "\tNum node sets = ", init.num_node_sets, "\n",
           "\tNum side sets = ", init.num_side_sets, "\n")
-
-function get_initialization(exo_id::ExoID)
-    num_dim, num_nodes, num_elem,
-    num_elem_blk, num_node_sets, num_side_sets, title =
-    read_initialization_parameters(exo_id)
-    return Initialization(num_dim, num_nodes, num_elem,
-                          num_elem_blk, num_node_sets, num_side_sets)
-end
 
 function read_initialization_parameters(exo_id::ExoID)
     num_dim = Ref{Int64}(0)

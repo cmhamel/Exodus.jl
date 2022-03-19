@@ -16,5 +16,16 @@ function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
                   (ExoID, Ref{Float64}, Ref{Float64}, Ref{Float64}),
                   exo_id, x_coords, y_coords, z_coords)
     exodus_error_check(error, "read_coordinates")
-    return x_coords, y_coords, z_coords
+    coords = Array{Float64}(undef, size(x_coords, 1), num_dim)
+    if num_dim == 1
+        coords = x_coords
+    elseif num_dim == 2
+        coords[:, 1] .= x_coords
+        coords[:, 2] .= y_coords
+    elseif num_dim == 3
+        coords[:, 1] .= x_coords
+        coords[:, 2] .= y_coords
+        coords[:, 3] .= z_coords
+    end
+    return coords
 end

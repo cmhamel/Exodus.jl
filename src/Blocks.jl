@@ -18,7 +18,6 @@ print(io, "Block:\n",
           "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
           "\tElem type          = ", block.elem_type, "\n")
 
-
 function read_block_ids(exo_id::ExoID, num_elem_blk::Int64)
     block_ids = Array{Int32}(undef, num_elem_blk)
     error = ccall((:ex_get_ids, exo_lib_path), Int64,
@@ -64,4 +63,12 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
                   exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
 
     return conn
+end
+
+function read_blocks(exo_id::ExoID, block_ids::Array{BlockID})
+    blocks = Array{Block}(undef, size(block_ids, 1))
+    for (n, block_id) in enumerate(block_ids)
+        blocks[n] = Block(exo_id, block_id)
+    end
+    return blocks
 end

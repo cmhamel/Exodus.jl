@@ -35,8 +35,6 @@ end
 
 function read_node_set_nodes(exo_id::ExoID, node_set_id::NodeSetID)
     num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
-    @show node_set_id
-    @show num_nodes
     node_set_nodes = Array{Int32}(undef, num_nodes)
     # below is using a SEACAS_DEPRECATED method so we may need to modify
     error = ccall((:ex_get_node_set, exo_lib_path), Int64,
@@ -44,4 +42,12 @@ function read_node_set_nodes(exo_id::ExoID, node_set_id::NodeSetID)
                   exo_id, node_set_id, node_set_nodes)
     exodus_error_check(error, "read_node_set_nodes")
     return node_set_nodes
+end
+
+function read_node_sets(exo_id::ExoID, node_set_ids::Array{NodeSetID})
+    node_sets = Array{NodeSet}(undef, size(node_set_ids, 1))
+    for (n, node_set_id) in enumerate(node_set_ids)
+        node_sets[n] = NodeSet(exo_id, node_set_id)
+    end
+    return node_sets
 end
