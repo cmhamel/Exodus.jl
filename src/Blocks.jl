@@ -18,7 +18,6 @@ function read_block_ids(exo_id::ExoID, num_elem_blk::Int64)
     error = ccall((:ex_get_ids, exo_lib_path), Int64,
                   (Int64, Int64, Ref{Int32}),
                   exo_id, EX_ELEM_BLOCK, block_ids)
-    # @show error
     exodus_error_check(error, "read_block_ids")
     return block_ids
 end
