@@ -17,8 +17,8 @@ const IO_word_size = Ref{Int64}(8)
 # TODO: make this be read in from the OS or something like that
 #
 const version_number_1 = 8
-const version_number_2 = 12
-const version_number = 8.12
+const version_number_2 = 15
+const version_number = 8.15
 
 
 # TODO: add the entirity from the exoudsII header

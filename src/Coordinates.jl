@@ -12,7 +12,7 @@ function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
         y_coords = Array{Float64}(undef, num_nodes)
         z_coords = Array{Float64}(undef, num_nodes)
     end
-    error = ccall((:ex_get_coord, exo_lib_path), Int64,
+    error = ccall((:ex_get_coord, libexodus), Int64,
                   (ExoID, Ref{Float64}, Ref{Float64}, Ref{Float64}),
                   exo_id, x_coords, y_coords, z_coords)
     exodus_error_check(error, "read_coordinates")

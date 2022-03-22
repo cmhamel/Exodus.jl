@@ -16,6 +16,7 @@ function test_square_mesh(n::Int)
     test_name = rpad("Testing square mesh: $(basename(mesh_file_name))", 96)
     @testset "$test_name" begin
         @suppress begin
+            #
             # read method test
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
@@ -61,7 +62,7 @@ function test_square_mesh(n::Int)
                 @test node_set.num_nodes == number_of_node_set_nodes[n]
                 @test size(node_set.nodes, 1) == number_of_node_set_nodes[n]
             end
-
+            #
             mesh = Exodus.Mesh(coords, blocks, node_sets)
             @test size(mesh.coords, 1) == number_of_nodes[n]
             @test size(mesh.coords, 2) == 2

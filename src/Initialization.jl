@@ -33,14 +33,13 @@ function read_initialization_parameters(exo_id::ExoID)
 
     # title = "" # TODO: fix this to behave like Vector{UInt8}(undef, MAX_STR_LENGTH)
     title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-    error = ccall((:ex_get_init, exo_lib_path), Int64,
+    error = ccall((:ex_get_init, libexodus), Int64,
                   (ExoID, Ptr{UInt8},
                    Ref{Int64}, Ref{Int64}, Ref{Int64},
                    Ref{Int64}, Ref{Int64}, Ref{Int64}),
                   exo_id, title,
                   num_dim, num_nodes, num_elem,
                   num_elem_blk, num_node_sets, num_side_sets)
-
     title = unsafe_string(pointer(title))
     exodus_error_check(error, "read_initialization_parameterss")
 

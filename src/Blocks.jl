@@ -20,9 +20,9 @@ print(io, "Block:\n",
 
 function read_block_ids(exo_id::ExoID, num_elem_blk::Int64)
     block_ids = Array{Int32}(undef, num_elem_blk)
-    error = ccall((:ex_get_ids, exo_lib_path), Int64,
-                  (Int64, Int64, Ref{Int32}),
-                  exo_id, EX_ELEM_BLOCK, block_ids)
+    error = ccall((:ex_get_ids, libexodus), Int64,
+                (Int64, Int64, Ref{Int32}),
+                exo_id, EX_ELEM_BLOCK, block_ids)
     exodus_error_check(error, "read_block_ids")
     return block_ids
 end
@@ -34,8 +34,7 @@ function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     num_edges = Ref{Int64}(0)
     num_faces = Ref{Int64}(0)
     num_attributes = Ref{Int64}(0)
-
-    error = ccall((:ex_get_block, exo_lib_path), Int64,
+    error = ccall((:ex_get_block, libexodus), Int64,
                   (ExoID, BlockType, BlockID,
                    Ptr{UInt8}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}),
                   exo_id, EX_ELEM_BLOCK, block_id,
@@ -58,10 +57,9 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
 
     # TODO: look into why the connectivity arrays need to be 32 bit.
     #
-    error = ccall((:ex_get_conn, exo_lib_path), Int64,
+    error = ccall((:ex_get_conn, libexodus), Int64,
                   (ExoID, Int64, BlockID, Ref{Int32}, Ref{Int32}, Ref{Int32}),
                   exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
-
     return conn
 end
 
