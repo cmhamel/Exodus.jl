@@ -31,9 +31,8 @@ function read_initialization_parameters(exo_id::ExoID)
     num_side_sets = Ref{Int64}(0)
     error = Ref{Int64}(0)
 
-    # title = "" # TODO: fix this to behave like Vector{UInt8}(undef, MAX_STR_LENGTH)
     title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-    error = ccall((:ex_get_init, libexodus), Int64,
+    error = ccall((:ex_get_init, libexodus), ExodusError,
                   (ExoID, Ptr{UInt8},
                    Ref{Int64}, Ref{Int64}, Ref{Int64},
                    Ref{Int64}, Ref{Int64}, Ref{Int64}),

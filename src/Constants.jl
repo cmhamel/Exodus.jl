@@ -1,3 +1,5 @@
+ExodusConstant = Int64
+
 # TODO: cleanup up below
 #
 const MAX_LINE_LENGTH = 80
