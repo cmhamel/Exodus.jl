@@ -5,7 +5,9 @@ A julia interface for accessing the ExodusII data format for large scale finite 
 
 ## v 0.1.0
 Initial release that had only rudimentary IO access for reading nodal coordinates, element connectivity, blocks and node sets.
+03/23/2022
 
 ## v 0.1.1
-Second release that added support for IO of nodal variables.
+Second release that added support for IO of nodal variables. 
+04/03/2022
 
