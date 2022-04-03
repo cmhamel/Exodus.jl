@@ -12,5 +12,6 @@ include("Coordinates.jl")
 include("Blocks.jl")
 include("NodeSets.jl")
 include("Meshes.jl")
+include("Variables.jl")
 
 end # module
