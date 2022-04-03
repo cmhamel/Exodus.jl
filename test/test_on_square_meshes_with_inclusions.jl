@@ -3,6 +3,8 @@ mesh_file_names = ["../mesh/square_meshes_with_inclusions/mesh_test_0.0078125.g"
 # number_of_nodes = [4, 9, 25, 81, 289, 1089, 4225, 16641]
 # number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 
+# TODO: clean this up!
+
 function test_square_mesh_with_inclusion(n::Int)
     mesh_file_name = abspath(mesh_file_names[n])
     test_name = rpad("Testing square mesh with inclusion: $(base_name(mesh_file_name))", 96)
@@ -11,10 +13,10 @@ function test_square_mesh_with_inclusion(n::Int)
             # read method test
             #
             exo_id = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-            num_dim, num_nodes, num_elem,
-            num_elem_blk, num_node_sets, num_side_sets, title =
-            Exodus.read_initialization_parameters(exo_id)
-
+            # num_dim, num_nodes, num_elem,
+            # num_elem_blk, num_node_sets, num_side_sets, title =
+            # Exodus.read_initialization_parameters(exo_id)
+            init = Exodus.Initialization(exo_id)
             # tests on the simple numbers
             #
             @test num_dim == 2

@@ -5,6 +5,7 @@ function test_on_output(output_file::String)
     test_name = rpad("Testing output file: $(basename(output_file_name))", 96)
     @testset "$test_name" begin
         exo_id = Exodus.open_exodus_database(output_file_name)
+        init = Exodus.Initialization(exo_id)
         num_vars = Exodus.read_number_of_nodal_variables(exo_id)
         @test num_vars == 1
         variable_names = Exodus.read_nodal_variable_names(exo_id)
@@ -13,6 +14,12 @@ function test_on_output(output_file::String)
         @test num_time_steps == 2
         times = Exodus.read_times(exo_id)
         @test times == [0.0, 1.0]
+
+        for (n, var_name) in enumerate(variable_names)
+            for (n_t, time) in enumerate(times)
+                values = Exodus.read_nodal_variable_values(exo_id, n_t, n, init.num_nodes)
+            end
+        end
     end
 end
 

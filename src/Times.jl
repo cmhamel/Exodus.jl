@@ -16,3 +16,10 @@ function read_times(exo_id::ExoID)::Times
     exodus_error_check(error, "read_times")
     return times
 end
+
+function write_time(exo_id::ExoID, time_step::Int64, time_value::Float64)
+    error = ccall((:ex_put_time, libexodus), ExodusError,
+                  (ExoID, Int64, Ref{Float64}),
+                  exo_id, time_step, time_value)
+    exodus_error_check(error, "write_time")
+end 

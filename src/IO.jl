@@ -11,6 +11,13 @@ function create_exodus_database(file_name::ExoFileName)
     return exo_id
 end
 
+function copy_exodus_database(exo_id::ExoID, new_exo_id::ExoID)
+    new_exo_id = ccall((:ex_copy, libexodus), ExoID,
+                       (ExoID, ExoID), 
+                       exo_id, new_exo_id)
+    exodus_error_check(new_exo_id, "copy_exodus_database")
+end
+
 function close_exodus_database(exo_id::ExoID)
     error = ccall((:ex_close, libexodus), ExodusError, (ExoID,), exo_id)
     exodus_error_check(error, "close_exodus_database")
