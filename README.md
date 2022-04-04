@@ -11,3 +11,11 @@ Initial release that had only rudimentary IO access for reading nodal coordinate
 Second release that added support for IO of nodal variables. 
 04/03/2022
 
+## v 0.1.2
+Third release that fixed a small convenience issue in block connectivity.
+04/03/2022
+
+## v 0.1.3
+Fourth release that added suppressor macros for some exodus warnings.
+04/03/2022
+

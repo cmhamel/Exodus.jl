@@ -1,6 +1,7 @@
 module Exodus
 
 using Base
+using Suppressor
 using Exodus_jll
 
 include("Constants.jl")
