@@ -48,7 +48,9 @@ function test_square_mesh(n::Int)
             @test block.num_elem == number_of_elements[n]
             @test block.num_nodes_per_elem == 4
             @test block.elem_type == "QUAD4"
-            @test size(block.conn, 1) == 4 * number_of_elements[n]
+            # @test size(block.conn, 1) == 4 * number_of_elements[n]
+            @test size(block.conn, 1) == number_of_elements[n]
+            @test size(block.conn, 2) == 4
             #
             # test node set initialization
             #

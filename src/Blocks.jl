@@ -3,11 +3,12 @@ struct Block <: FEMContainer
     num_elem::Int64
     num_nodes_per_elem::Int64
     elem_type::String
-    conn::Vector{Int64}
+    conn::Array{Int64}
     function Block(exo_id::ExoID, block_id::BlockID)
         element_type, num_elem, num_nodes, _, _, _ =
         read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
         conn = read_block_connectivity(exo_id, block_id)
+        conn = reshape(conn, (num_elem, num_nodes))  # for easier access downstream
         return new(block_id, num_elem, num_nodes, element_type, conn)
     end
 end
