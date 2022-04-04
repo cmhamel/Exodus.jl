@@ -1,7 +1,7 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
