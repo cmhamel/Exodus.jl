@@ -19,3 +19,9 @@ Third release that fixed a small convenience issue in block connectivity.
 Fourth release that added suppressor macros for some exodus warnings.
 04/03/2022
 
+## v 0.1.4
+Fifth release that is a patch for some inconsistenices in block connectivity ordering"
+04/08/2022
+
+
+
