@@ -32,10 +32,19 @@ end
 function open_exodus_database(file_name::ExoFileName)
     # TODO: maybe add multiple methods for different EX_* options
     @suppress begin
+        # 32 bit id behavior below, moving to 64 bit
+        # exo_id = ccall((:ex_open_int, libexodus), ExoID,
+        #             (Base.Cstring, Int64, Ref{Int64},
+        #                 Ref{Int64}, Ref{Float64}, Int64),
+        #             file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
+        #             version_number, version_number_2)
+        # 64 bit behavior below
         exo_id = ccall((:ex_open_int, libexodus), ExoID,
                     (Base.Cstring, Int64, Ref{Int64},
                         Ref{Int64}, Ref{Float64}, Int64),
-                    file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
+                    file_name, 
+                    EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API, 
+                    cpu_word_size, IO_word_size,
                     version_number, version_number_2)
         exodus_error_check(exo_id, "open_exodus_database")
         return exo_id

@@ -26,8 +26,8 @@ function test_square_mesh(n::Int)
             #
             @test init.num_dim == 2
             @test init.num_nodes == number_of_nodes[n]
-            @test init.num_elem == number_of_elements[n]
-            @test init.num_elem_blk == 1
+            @test init.num_elems == number_of_elements[n]
+            @test init.num_elem_blks == 1
             @test init.num_node_sets == 4
             @test init.num_side_sets == 4
             #
@@ -39,7 +39,7 @@ function test_square_mesh(n::Int)
             #
             # read block ids
             #
-            block_ids = Exodus.read_block_ids(exo_id, init.num_elem_blk)
+            block_ids = Exodus.read_block_ids(exo_id, init.num_elem_blks)
             @test size(block_ids, 1) == 1
             @test block_ids[1] == 1
             blocks = Exodus.read_blocks(exo_id, block_ids)

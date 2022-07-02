@@ -1,3 +1,5 @@
+# TODO maybe make this into a struct or AbstractArray type
+
 function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
     if num_dim == 1
         x_coords = Array{Float64}(undef, num_nodes)

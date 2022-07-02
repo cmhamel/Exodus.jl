@@ -37,15 +37,13 @@ const EX_MMAP          = 0x200000        #< Experimental */
 const EX_MAPS_INT64_DB = 0x0400          #< All maps (id, order, ...) store int64_t values */
 const EX_IDS_INT64_DB  = 0x0800          #< All entity ids (sets, blocks, maps) are int64_t values */
 const EX_BULK_INT64_DB = 0x1000          #< All integer bulk data (local indices, counts, maps); not ids                         \*/
-
-# TODO: figure out how to define EX_ALL_INT64_DB
+const EX_ALL_INT64_DB = EX_MAPS_INT64_DB | EX_IDS_INT64_DB | EX_BULK_INT64_DB
 
 const EX_MAPS_INT64_API = 0x2000         #< All maps (id, order, ...) store int64_t values */
 const EX_IDS_INT64_API  = 0x4000         #< All entity ids (sets, blocks, maps) are int64_t values */
 const EX_BULK_INT64_API = 0x8000         #< All integer bulk data (local indices, counts, maps); not ids */
 const EX_INQ_INT64_API  = 0x10000        #< Integers passed to/from ex_inquire() are int64_t */
-
-# TODO: figure out how to define EX_ALL_INT64_API
+const EX_ALL_INT64_API = EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API | EX_INQ_INT64_API
 
 # Parallel IO mode flags
 #

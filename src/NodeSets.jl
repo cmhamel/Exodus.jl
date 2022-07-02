@@ -40,9 +40,13 @@ end
 
 function read_node_set_nodes(exo_id::ExoID, node_set_id::NodeSetID)
     num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
-    node_set_nodes = Array{Int32}(undef, num_nodes)
+    # node_set_nodes = Array{Int32}(undef, num_nodes)
+    # error = ccall((:ex_get_node_set, libexodus), ExodusError,
+    #               (ExoID, NodeSetID, Ref{Int32}),
+    #               exo_id, node_set_id, node_set_nodes)
+    node_set_nodes = Array{Int64}(undef, num_nodes)
     error = ccall((:ex_get_node_set, libexodus), ExodusError,
-                  (ExoID, NodeSetID, Ref{Int32}),
+                  (ExoID, NodeSetID, Ref{Int64}),
                   exo_id, node_set_id, node_set_nodes)
     exodus_error_check(error, "read_node_set_nodes")
     return node_set_nodes
@@ -55,11 +59,7 @@ function read_node_sets!(exo_id::ExoID, node_set_ids::NodeSetIDs, node_sets::Nod
 end
 
 function read_node_sets(exo_id::ExoID, node_set_ids::Array{NodeSetID})
-    # node_sets = Array{NodeSet}(undef, size(node_set_ids, 1))
     node_sets = NodeSets(undef, size(node_set_ids, 1))
-    # for (n, node_set_id) in enumerate(node_set_ids)
-    #     node_sets[n] = NodeSet(exo_id, node_set_id)
-    # end
     read_node_sets!(exo_id, node_set_ids, node_sets)
     return node_sets
 end
