@@ -29,7 +29,7 @@ Blocks = Vector{Block}
 # methods below
 #
 
-function read_block_ids(exo_id::ExoID, num_elem_blk::IntKind)::BlockIDs
+function read_block_ids(exo_id::ExoID, num_elem_blk::IntKind)#::BlockIDs
     block_ids = BlockIDs(undef, num_elem_blk)
     ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
     return block_ids
@@ -42,16 +42,12 @@ function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     num_edges = Ref{IntKind}(0)
     num_faces = Ref{IntKind}(0)
     num_attributes = Ref{IntKind}(0)
-    error = ccall((:ex_get_block, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, BlockID,
-                   Ptr{UInt8}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
-                  exo_id, EX_ELEM_BLOCK, block_id,
-                  element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes)
-
-    exodus_error_check(error, "read_element_blocK_parameters")
-
+    ex_get_block!(exo_id, EX_ELEM_BLOCK, block_id,
+                  element_type,
+                  num_elem, num_nodes,
+                  num_edges, num_faces,
+                  num_attributes)
     element_type = unsafe_string(pointer(element_type))
-
     return element_type, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 

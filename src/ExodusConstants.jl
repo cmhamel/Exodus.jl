@@ -53,7 +53,7 @@ const EX_PNETCDF        = 0x80000
 
 # ex_inquire() stuff
 #
-@enum ExInquiry begin
+@enum ex_inquiry begin
     EX_INQ_FILE_TYPE                  = 1  #< EXODUS file type (deprecated) */
     EX_INQ_API_VERS                   = 2  #< API version number (float) */
     EX_INQ_DB_VERS                    = 3  #< database version number (float) */
@@ -137,7 +137,7 @@ end
 
 # entities
 #
-@enum ExEntityType begin
+@enum ex_entity_type begin
     EX_NODAL      = 14 #< nodal "block" for variables*/
     # TODO: figure out how to enable below enum
     # TODO: julia enum won't let you define something
