@@ -31,10 +31,7 @@ Blocks = Vector{Block}
 
 function read_block_ids(exo_id::ExoID, num_elem_blk::IntKind)::BlockIDs
     block_ids = BlockIDs(undef, num_elem_blk)
-    error = ccall((:ex_get_ids, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, BlockIDsPtr),
-                  exo_id, EX_ELEM_BLOCK, block_ids)
-    exodus_error_check(error, "read_block_ids")
+    ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
     return block_ids
 end
 
