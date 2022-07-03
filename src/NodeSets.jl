@@ -1,7 +1,7 @@
 struct NodeSet <: FEMContainer
     node_set_id::NodeSetID
-    num_nodes::Int64
-    nodes::Vector{Int64}
+    num_nodes::IntKind
+    nodes::Vector{IntKind}
     function NodeSet(exo_id::ExoID, node_set_id::NodeSetID)
         num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
         node_set_nodes = read_node_set_nodes(exo_id, node_set_id)
@@ -19,7 +19,7 @@ print(io, "NodeSet:\n",
 NodeSets = Vector{NodeSet}
 NodeSetIDs = Vector{NodeSetID}
 
-function read_node_set_ids(exo_id::ExoID, num_node_sets::Int64)
+function read_node_set_ids(exo_id::ExoID, num_node_sets::IntKind)
     node_set_ids = Array{NodeSetID}(undef, num_node_sets)
     error = ccall((:ex_get_ids, libexodus), ExodusError,
                   (ExoID, ExodusConstant, Ref{NodeSetID}),
@@ -29,10 +29,10 @@ function read_node_set_ids(exo_id::ExoID, num_node_sets::Int64)
 end
 
 function read_node_set_parameters(exo_id::ExoID, node_set_id::NodeSetID)
-    num_nodes = Ref{Int64}(0)
-    num_df = Ref{Int64}(0)
+    num_nodes = Ref{IntKind}(0)
+    num_df = Ref{IntKind}(0)
     error = ccall((:ex_get_set_param, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, NodeSetID, Ref{Int64}, Ref{Int64}),
+                  (ExoID, ExodusConstant, NodeSetID, Ref{IntKind}, Ref{IntKind}),
                   exo_id, EX_NODE_SET, node_set_id, num_nodes, num_df)
     exodus_error_check(error, "read_node_set_parameters")
     return num_nodes[], num_df[]
@@ -44,9 +44,9 @@ function read_node_set_nodes(exo_id::ExoID, node_set_id::NodeSetID)
     # error = ccall((:ex_get_node_set, libexodus), ExodusError,
     #               (ExoID, NodeSetID, Ref{Int32}),
     #               exo_id, node_set_id, node_set_nodes)
-    node_set_nodes = Array{Int64}(undef, num_nodes)
+    node_set_nodes = Array{IntKind}(undef, num_nodes)
     error = ccall((:ex_get_node_set, libexodus), ExodusError,
-                  (ExoID, NodeSetID, Ref{Int64}),
+                  (ExoID, NodeSetID, Ref{IntKind}),
                   exo_id, node_set_id, node_set_nodes)
     exodus_error_check(error, "read_node_set_nodes")
     return node_set_nodes

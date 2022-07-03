@@ -1,9 +1,9 @@
 struct Block <: FEMContainer
     block_id::BlockID  # TODO: maybe change to BlockID so types are more verbose
-    num_elem::Int64
-    num_nodes_per_elem::Int64
+    num_elem::IntKind
+    num_nodes_per_elem::IntKind
     elem_type::String
-    conn::Array{Int64}
+    conn::Array{IntKind}
     function Block(exo_id::ExoID, block_id::BlockID)
         element_type, num_elem, num_nodes, _, _, _ =
         read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
@@ -29,25 +29,25 @@ Blocks = Vector{Block}
 # methods below
 #
 
-function read_block_ids(exo_id::ExoID, num_elem_blk::Int64)::BlockIDs
+function read_block_ids(exo_id::ExoID, num_elem_blk::IntKind)::BlockIDs
     block_ids = BlockIDs(undef, num_elem_blk)
     error = ccall((:ex_get_ids, libexodus), ExodusError,
-                (ExoID, ExodusConstant, BlockIDsPtr),
-                exo_id, EX_ELEM_BLOCK, block_ids)
+                  (ExoID, ExodusConstant, BlockIDsPtr),
+                  exo_id, EX_ELEM_BLOCK, block_ids)
     exodus_error_check(error, "read_block_ids")
     return block_ids
 end
 
 function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-    num_elem = Ref{Int64}(0)
-    num_nodes = Ref{Int64}(0)
-    num_edges = Ref{Int64}(0)
-    num_faces = Ref{Int64}(0)
-    num_attributes = Ref{Int64}(0)
+    num_elem = Ref{IntKind}(0)
+    num_nodes = Ref{IntKind}(0)
+    num_edges = Ref{IntKind}(0)
+    num_faces = Ref{IntKind}(0)
+    num_attributes = Ref{IntKind}(0)
     error = ccall((:ex_get_block, libexodus), ExodusError,
                   (ExoID, ExodusConstant, BlockID,
-                   Ptr{UInt8}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}, Ref{Int64}),
+                   Ptr{UInt8}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
                   exo_id, EX_ELEM_BLOCK, block_id,
                   element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes)
 
@@ -66,9 +66,9 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
     # conn = Vector{Int32}(undef, num_nodes * num_elem)
     # conn_face = Vector{Int32}(undef, num_nodes * num_elem)  # Not using these currently
     # conn_edge = Vector{Int32}(undef, num_nodes * num_elem)  # Not using these currently
-    conn = Vector{Int64}(undef, num_nodes * num_elem)
-    conn_face = Vector{Int64}(undef, num_nodes * num_elem)  # Not using these currently
-    conn_edge = Vector{Int64}(undef, num_nodes * num_elem)  # Not using these currently
+    conn = Vector{IntKind}(undef, num_nodes * num_elem)
+    conn_face = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
+    conn_edge = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
 
     # TODO: look into why the connectivity arrays need to be 32 bit.
     #
@@ -76,7 +76,7 @@ function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
     #               (ExoID, ExodusConstant, BlockID, Ref{Int32}, Ref{Int32}, Ref{Int32}),
     #               exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
     error = ccall((:ex_get_conn, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, BlockID, Ref{Int64}, Ref{Int64}, Ref{Int64}),
+                  (ExoID, ExodusConstant, BlockID, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
                   exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
     exodus_error_check(error, "read_block_connectivity")
     return conn

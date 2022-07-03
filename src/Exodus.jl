@@ -4,9 +4,13 @@ using Base
 using Suppressor
 using Exodus_jll
 
-include("Constants.jl")
 include("Types.jl")
 include("Errors.jl")
+
+include("ExodusConstants.jl")
+include("ExodusMethods.jl")
+
+
 include("IO.jl")
 include("Initialization.jl")
 include("Coordinates.jl")

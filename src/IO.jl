@@ -5,7 +5,7 @@ function create_exodus_database(file_name::ExoFileName)
     """
     @suppress begin
         exo_id = ccall((:ex_create_int, libexodus), ExoID,
-                    (Base.Cstring, Int64, Ref{Int64}, Ref{Int64}, Int64),
+                    (Base.Cstring, IntKind, Ref{IntKind}, Ref{IntKind}, IntKind),
                     file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
                     version_number_2)
         exodus_error_check(exo_id, "create_exodus_database")
@@ -34,14 +34,14 @@ function open_exodus_database(file_name::ExoFileName)
     @suppress begin
         # 32 bit id behavior below, moving to 64 bit
         # exo_id = ccall((:ex_open_int, libexodus), ExoID,
-        #             (Base.Cstring, Int64, Ref{Int64},
-        #                 Ref{Int64}, Ref{Float64}, Int64),
+        #             (Base.Cstring, IntKind, Ref{IntKind},
+        #                 Ref{IntKind}, Ref{Float64}, IntKind),
         #             file_name, EX_CLOBBER, cpu_word_size, IO_word_size,
         #             version_number, version_number_2)
         # 64 bit behavior below
         exo_id = ccall((:ex_open_int, libexodus), ExoID,
-                    (Base.Cstring, Int64, Ref{Int64},
-                        Ref{Int64}, Ref{Float64}, Int64),
+                    (Base.Cstring, IntKind, Ref{IntKind},
+                        Ref{IntKind}, Ref{Float64}, IntKind),
                     file_name, 
                     EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API, 
                     cpu_word_size, IO_word_size,

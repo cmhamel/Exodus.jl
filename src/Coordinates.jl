@@ -14,20 +14,17 @@ function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
         y_coords = Array{Float64}(undef, num_nodes)
         z_coords = Array{Float64}(undef, num_nodes)
     end
-    error = ccall((:ex_get_coord, libexodus), ExodusError,
-                  (ExoID, Ref{Float64}, Ref{Float64}, Ref{Float64}),
-                  exo_id, x_coords, y_coords, z_coords)
-    exodus_error_check(error, "read_coordinates")
-    coords = Array{Float64}(undef, size(x_coords, 1), num_dim)
+    # calling exodus method
+    ex_get_coord!(exo_id, x_coords, y_coords, z_coords)
     if num_dim == 1
-        coords = x_coords
+        error("One dimension isn't really supported and exodusII is likely overkill")
     elseif num_dim == 2
-        coords[:, 1] .= x_coords
-        coords[:, 2] .= y_coords
+        coords = hcat(x_coords, y_coords)
     elseif num_dim == 3
-        coords[:, 1] .= x_coords
-        coords[:, 2] .= y_coords
-        coords[:, 3] .= z_coords
+        coords = hcat(x_coords, y_coords, z_coords)
+    else
+        error("Should never get here")
     end
+    @show size(coords)
     return coords
 end
