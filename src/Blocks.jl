@@ -51,27 +51,14 @@ function read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
     return element_type, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 
+# TODO maybe turn this into a struct or something like that
 function read_block_connectivity(exo_id::ExoID, block_id::BlockID)
     element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
     read_element_block_parameters(exo_id::ExoID, block_id::BlockID)
-
-    # old 32 bit IDs behavior
-    # conn = Vector{Int32}(undef, num_nodes * num_elem)
-    # conn_face = Vector{Int32}(undef, num_nodes * num_elem)  # Not using these currently
-    # conn_edge = Vector{Int32}(undef, num_nodes * num_elem)  # Not using these currently
     conn = Vector{IntKind}(undef, num_nodes * num_elem)
     conn_face = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
     conn_edge = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
-
-    # TODO: look into why the connectivity arrays need to be 32 bit.
-    #
-    # error = ccall((:ex_get_conn, libexodus), ExodusError,
-    #               (ExoID, ExodusConstant, BlockID, Ref{Int32}, Ref{Int32}, Ref{Int32}),
-    #               exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
-    error = ccall((:ex_get_conn, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, BlockID, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
-                  exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
-    exodus_error_check(error, "read_block_connectivity")
+    ex_get_conn!(exo_id, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
     return conn
 end
 

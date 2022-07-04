@@ -5,7 +5,7 @@
 # goal is to be all in place methods
 # error checking should be done in this wrapper maybe?
 
-function ex_get_block!(exo_id::ExoID, blk_type::ex_entity_type, blk_id::ex_entity_id,
+function ex_get_block!(exo_id::int, blk_type::ex_entity_type, blk_id::ex_entity_id,
                        entity_descrip, 
                        num_entries_this_blk, num_nodes_per_entry,
                        num_edges_per_entry, num_faces_per_entry,
@@ -22,6 +22,14 @@ function ex_get_block!(exo_id::ExoID, blk_type::ex_entity_type, blk_id::ex_entit
                   num_edges_per_entry, num_faces_per_entry, 
                   num_attr_per_entry)
     exodus_error_check(error, "ex_get_block!")
+end
+
+function ex_get_conn!(exo_id::int, blk_type::ex_entity_type, blk_id::ex_entity_id, 
+                      nodeconn, faceconn, edgeconn) # TODO get the types right
+    error = ccall((:ex_get_conn, libexodus), ExodusError,
+                  (int, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
+    exo_id, blk_type, blk_id, nodeconn, faceconn, edgeconn)
+    exodus_error_check(error, "ex_get_conn") 
 end
 
 function ex_get_coord!(exo_id::int, # input not to be changed
