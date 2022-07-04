@@ -30,6 +30,25 @@ print(io, "Initialization:\n",
           "\tNumber of node sets = ", init.num_node_sets, "\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
+# note that this needs to be used on mesh.g.xx.xx files not .g.nem files
+struct CommunicationMapInitialization <: FEMContainer
+    node_cmap_ids
+    node_cmap_node_cnts
+    elem_cmap_ids
+    elem_cmap_cnts
+    processor
+    function CommunicationMapInitialization(exo_id::ExoID, processor::Int64)
+        lb_init = LoadBalanceInitialization(exo_id, processor)
+        @show lb_init
+        node_cmap_ids = Vector{IntKind}(undef, lb_init.num_node_cmaps)
+        node_cmap_node_cnts = Vector{IntKind}(undef, lb_init.num_node_cmaps)
+        elem_cmap_ids = Vector{IntKind}(undef, lb_init.num_elem_cmaps)
+        elem_cmap_cnts = Vector{IntKind}(undef, lb_init.num_elem_cmaps)
+        ex_get_cmap_params!(exo_id, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_cnts, processor)
+        return new(node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_cnts, processor)
+    end
+end
+
 # Attempting to access parallel information
 struct GlobalInitialization <: FEMContainer
     num_nodes::IntKind

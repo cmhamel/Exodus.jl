@@ -59,6 +59,13 @@ function ex_get_block!(exoid::int, blk_type::ex_entity_type, blk_id::ex_entity_i
     exodus_error_check(error, "ex_get_block!")
 end
 
+function ex_get_cmap_params!(exoid::int, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor)
+    error = ccall((:ex_get_cmap_params, libexodus), int,
+                  (int, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, int),
+                  exoid, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor)
+    exodus_error_check(error, "ex_get_cmap_params!")
+end
+
 function ex_get_conn!(exoid::int, blk_type::ex_entity_type, blk_id::ex_entity_id, 
                       nodeconn, faceconn, edgeconn) # TODO get the types right
     error = ccall((:ex_get_conn, libexodus), ExodusError,
@@ -75,6 +82,13 @@ function ex_get_coord!(exoid::int, # input not to be changed
                   (int, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                   exoid, x_coords, y_coords, z_coords)
     exodus_error_check(error, "ex_get_coord!")
+end
+
+function ex_get_elem_cmap!(exoid::int, map_id::ex_entity_id, elem_ids, side_ids, proc_ids, processor)
+    error = ccall((:ex_get_elem_cmap, libexodus), int,
+                  (int, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, int),
+                  exoid, map_id, elem_ids, side_ids, proc_ids, processor)
+    exodus_error_check(error, "ex_get_elem_cmap!")
 end
 
 # this is one of the general methods
@@ -132,6 +146,13 @@ function ex_get_loadbal_param!(exoid::int,
                   num_node_cmaps, num_elem_cmaps, 
                   processor)
     exodus_error_check(error, "ex_get_loadbal_param!")
+end
+
+function ex_get_node_cmap!(exoid::int, map_id::ex_entity_id, node_ids, proc_ids, processor::int)
+    error = ccall((:ex_get_node_cmap, libexodus), int,
+                  (int, ex_entity_id, Ptr{void_int}, Ptr{void_int}, int),
+                  exoid, map_id, node_ids, proc_ids, processor)
+    exodus_error_check(error, "ex_get_node_cmap!")
 end
 
 # NOTE THIS METHOD IS DEPRECATED WE SHOULD MOVE TO ANOTHER INTERFACE USING EX_GET_SET
