@@ -1,33 +1,14 @@
 abstract type Variable <: FEMContainer end
 
-# mutable struct NodalVariable <: FEMContainer
-#     name::String
-#     values::Vector{Float64}
-# end
-
-# mutable struct ElementVariable <: FEMContainer
-#     name::String
-#     values::Vector{Float64}
-# end
-
-# NodalVariables = Vector{NodalVariable}
-# ElementVariables = Vector{ElementVariable}
-
 function read_number_of_nodal_variables(exo_id::ExoID)
     num_vars = Ref{IntKind}(0)
-    error = ccall((:ex_get_variable_param, libexodus), IntKind,
-                  (IntKind, IntKind, Ref{IntKind}),
-                  exo_id, EX_NODAL, num_vars)
-    exodus_error_check(error, "read_number_of_nodal_variables")
+    ex_get_variable_param!(exo_id, EX_NODAL, num_vars)
     return num_vars[]
 end
 
 function read_nodal_variable_names!(exo_id::ExoID, num_vars::IntKind, var_name::Vector{UInt8}, var_names::Vector{String})
     for n = 1:num_vars
-        error = ccall((:ex_get_variable_name, libexodus), IntKind,
-                      (IntKind, IntKind, IntKind, Ptr{UInt8}),
-                      exo_id, EX_NODAL, n, var_name)
-        exodus_error_check(error, "read_nodal_variable_names")
+        ex_get_variable_name!(exo_id, EX_NODAL, n, var_name)
         var_names[n] = unsafe_string(pointer(var_name))
     end
 end
@@ -42,18 +23,14 @@ end
 
 function read_nodal_variable_values(exo_id::ExoID, time_step::IntKind, variable_index::IntKind, num_nodes::IntKind)
     values = Vector{Float64}(undef, num_nodes)
-    error = ccall((:ex_get_var, libexodus), ExodusError,
-                  (ExoID, IntKind, ExodusConstant, IntKind, ExodusConstant, IntKind, Ref{Float64}),
-                  exo_id, time_step, EX_NODAL, variable_index, 1, num_nodes, values)
-    exodus_error_check(error, "read_nodal_variable")
+    # TODO figure out what the 1 in the call is really doing for nodal values
+    # TODO for element variables that should be associated with a block number or soemthing like that
+    ex_get_var!(exo_id, time_step, EX_NODAL, variable_index, 1, num_nodes, values)
     return values
 end
 
 function write_number_of_nodal_variables(exo_id::ExoID, num_vars::IntKind)
-    error = ccall((:ex_put_variable_param, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, IntKind),
-                  exo_id, EX_NODAL, num_vars)
-    exodus_error_check(error, "write_number_of_nodal_variables")
+    ex_put_variable_param!(exo_id, EX_NODAL, num_vars)
 end
 
 function write_nodal_variable_names(exo_id::ExoID, var_indices::Vector{IntKind}, var_names::Vector{String})
@@ -62,20 +39,12 @@ function write_nodal_variable_names(exo_id::ExoID, var_indices::Vector{IntKind},
     end
     for n = 1:size(var_indices, 1)
         temp = Vector{UInt8}(var_names[n])
-        error = ccall((:ex_put_variable_name, libexodus), ExodusError,
-                      (ExoID, ExodusConstant, IntKind, Ptr{UInt8}),
-                      exo_id, EX_NODAL, var_indices[n], temp)
-        exodus_error_check(error, "write_nodal_variable_names")
+        ex_put_variable_name!(exo_id, EX_NODAL, var_indices[n], temp)
     end
 end
 
 function write_nodal_variable_values(exo_id::ExoID, time_step::IntKind, 
                                      var_index::IntKind, var_values::Vector{Float64})
-    #
-    #
     num_nodes = size(var_values, 1)
-    error = ccall((:ex_put_var, libexodus), ExodusError,
-                  (ExoID, IntKind, ExodusConstant, IntKind, IntKind, IntKind, Ref{Float64}),
-                  exo_id, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
-    exodus_error_check(error, "write_nodal_variable_values")
+    ex_put_var!(exo_id, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
 end

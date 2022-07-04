@@ -21,34 +21,22 @@ NodeSetIDs = Vector{NodeSetID}
 
 function read_node_set_ids(exo_id::ExoID, num_node_sets::IntKind)
     node_set_ids = Array{NodeSetID}(undef, num_node_sets)
-    error = ccall((:ex_get_ids, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, Ref{NodeSetID}),
-                  exo_id, EX_NODE_SET, node_set_ids)
-    exodus_error_check(error, "read_node_set_ids")
+    ex_get_ids!(exo_id, EX_NODE_SET, node_set_ids)
     return node_set_ids
 end
 
 function read_node_set_parameters(exo_id::ExoID, node_set_id::NodeSetID)
     num_nodes = Ref{IntKind}(0)
     num_df = Ref{IntKind}(0)
-    error = ccall((:ex_get_set_param, libexodus), ExodusError,
-                  (ExoID, ExodusConstant, NodeSetID, Ref{IntKind}, Ref{IntKind}),
-                  exo_id, EX_NODE_SET, node_set_id, num_nodes, num_df)
-    exodus_error_check(error, "read_node_set_parameters")
+    ex_get_set_param!(exo_id, EX_NODE_SET, node_set_id, num_nodes, num_df)
     return num_nodes[], num_df[]
 end
 
+# TODO change the return types maybe?
 function read_node_set_nodes(exo_id::ExoID, node_set_id::NodeSetID)
     num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
-    # node_set_nodes = Array{Int32}(undef, num_nodes)
-    # error = ccall((:ex_get_node_set, libexodus), ExodusError,
-    #               (ExoID, NodeSetID, Ref{Int32}),
-    #               exo_id, node_set_id, node_set_nodes)
     node_set_nodes = Array{IntKind}(undef, num_nodes)
-    error = ccall((:ex_get_node_set, libexodus), ExodusError,
-                  (ExoID, NodeSetID, Ref{IntKind}),
-                  exo_id, node_set_id, node_set_nodes)
-    exodus_error_check(error, "read_node_set_nodes")
+    ex_get_node_set!(exo_id, node_set_id, node_set_nodes)
     return node_set_nodes
 end
 
