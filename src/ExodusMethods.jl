@@ -125,6 +125,12 @@ function ex_get_loadbal_param!(exoid::int,
     exodus_error_check(error, "ex_get_loadbal_param!")
 end
 
+function ex_get_processor_node_maps!(exoid::int, node_mapi, node_mapb, node_mape, processor)
+    error = ccall((:ex_get_processor_node_maps, libexodus), int,
+                  (int, Ptr{int}, Ptr{int}, Ptr{int}, int),
+                  exoid, node_mapi, node_mapb, node_mape, processor)
+    exodus_error_check(error, "ex_get_processor_node_maps")
+end
 # this method actually returns something
 # this method will break currently if called
 # TODO figure out how to get #define statements to work from julia artifact

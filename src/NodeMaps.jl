@@ -10,10 +10,7 @@ struct NodeMap <: FEMContainer
         border_nodes = Vector{IntKind}(undef, lb_init.num_border_nodes)
         external_nodes = Vector{IntKind}(undef, lb_init.num_external_nodes)
 
-        error = ccall((:ex_get_processor_node_maps, libexodus), ExodusError,
-                      (ExoID, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, IntKind),
-                      exo_id, internal_nodes, border_nodes, external_nodes, processor)
-        exodus_error_check(error, "NodeMap")
+        ex_get_processor_node_maps!(exo_id, internal_nodes, border_nodes, external_nodes, processor)
         return new(internal_nodes, border_nodes, external_nodes, processor)
     end
 end
