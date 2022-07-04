@@ -12,18 +12,11 @@ struct Initialization <: FEMContainer
         num_elem_blks = Ref{IntKind}(0)
         num_node_sets = Ref{IntKind}(0)
         num_side_sets = Ref{IntKind}(0)
-        error = Ref{IntKind}(0)
-
         title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-        error = ccall((:ex_get_init, libexodus), ExodusError,
-                    (ExoID, Ptr{UInt8},
-                    Ref{IntKind}, Ref{IntKind}, Ref{IntKind},
-                    Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
-                    exo_id, title,
-                    num_dim, num_nodes, num_elems,
-                    num_elem_blks, num_node_sets, num_side_sets)
+        ex_get_init!(exo_id, title,
+                     num_dim, num_nodes, num_elems, 
+                     num_elem_blks, num_node_sets, num_side_sets)
         title = unsafe_string(pointer(title))
-        exodus_error_check(error, "read_initialization_parameterss")
         return new(num_dim[], num_nodes[], num_elems[],
                    num_elem_blks[], num_node_sets[], num_side_sets[])
     end
@@ -50,10 +43,7 @@ struct GlobalInitialization <: FEMContainer
         num_elem_blks = Ref{IntKind}(0)
         num_node_sets = Ref{IntKind}(0)
         num_side_sets = Ref{IntKind}(0)
-        error = ccall((:ex_get_init_global, libexodus), ExodusError,
-                      (ExoID, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind}),
-                      exo_id, num_nodes, num_elems, num_elem_blks, num_node_sets, num_side_sets)
-        exodus_error_check(error, "GlobalInitialization")
+        ex_get_init_global!(exo_id, num_nodes, num_elems, num_elem_blks, num_node_sets, num_side_sets)
         return new(num_nodes[], num_elems[], num_elem_blks[], num_node_sets[], num_side_sets[])
     end
 end
@@ -82,16 +72,11 @@ struct LoadBalanceInitialization <: FEMContainer
         num_border_elems = Ref{IntKind}(0)
         num_node_cmaps = Ref{IntKind}(0)
         num_elem_cmaps = Ref{IntKind}(0)
-        # processor = 1
-        error = ccall((:ex_get_loadbal_param, libexodus), ExodusError,
-                      (ExoID, 
-                       Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, Ref{IntKind},
-                       Ref{IntKind}, Ref{IntKind}, Ref{IntKind}, IntKind),
-                      exo_id, 
-                      num_internal_nodes, num_border_nodes, num_external_nodes, 
-                      num_internal_elems, num_border_elems,
-                      num_node_cmaps, num_elem_cmaps, processor)
-        exodus_error_check(error, "LoadBalanceInitialization")
+        ex_get_loadbal_param!(exo_id,
+                              num_internal_nodes, num_border_nodes, num_external_nodes,
+                              num_internal_elems, num_border_elems,
+                              num_node_cmaps, num_elem_cmaps, 
+                              processor)
         return new(num_internal_nodes[], num_border_nodes[], num_external_nodes[],
                    num_internal_elems[], num_border_elems[],
                    num_node_cmaps[], num_elem_cmaps[], processor)
@@ -117,12 +102,9 @@ struct ParallelInitialization <: FEMContainer
         num_procs = Ref{IntKind}(0)
         num_procs_in_file = Ref{IntKind}(0)
         info = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-        error = ccall((:ex_get_init_info, libexodus), ExodusError,
-                      (ExoID, Ref{IntKind}, Ref{IntKind}, Ptr{UInt8}),
-                      exo_id, num_procs, num_procs_in_file, info)
+        ex_get_init_info!(exo_id, num_procs, num_procs_in_file, info)
         info = unsafe_string(pointer(info))
-        @show info
-        exodus_error_check(error, "ParallelInitialization")
+        # @show info # TODO do something with info in the struct
         return new(num_procs[], num_procs_in_file[])
     end
 end
