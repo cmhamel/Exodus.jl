@@ -23,5 +23,7 @@ Fourth release that added suppressor macros for some exodus warnings.
 Fifth release that is a patch for some inconsistenices in block connectivity ordering"
 04/08/2022
 
-
+## v 0.1.5
+Sixth release that moved to a model that has all ccalls for all the ex_get/ex_put methods in ExodusMethods.jl. Also some parallel support was added for reading in communication and node maps for internal/border nodes from a decomp exodus mesh/nemesis file.
+07/04/2022
 
