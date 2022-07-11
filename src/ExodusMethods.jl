@@ -100,6 +100,13 @@ function ex_get_ids!(exoid::int, exo_const::ex_entity_type, # inputs not to be c
     exodus_error_check(error, "ex_get_ids!")
 end
 
+function ex_get_id_map!(exoid::int, map_type::ex_entity_type, map)
+    error = ccall((:ex_get_id_map, libexodus), int,
+                  (int, ex_entity_type, Ptr{void_int}),
+                  exoid, map_type, map)
+    exodus_error_check(error, "ex_get_id_map!")
+end
+
 function ex_get_init!(exoid::int, 
                       title,
                       num_dim, num_nodes, num_elem, 

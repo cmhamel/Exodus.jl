@@ -6,8 +6,7 @@ struct NodeCommunicationMap <: FEMContainer
         cm_init = CommunicationMapInitialization(exo_id, processor)
         # node_ids = 
         ids = cm_init.node_cmap_ids
-        node_ids = []
-        proc_ids = []
+        node_ids, proc_ids = [], []
         for n in 1:length(cm_init.node_cmap_ids)
             temp_node_ids = Vector{IntKind}(undef, cm_init.node_cmap_node_cnts[n])
             temp_proc_ids = Vector{IntKind}(undef, cm_init.node_cmap_node_cnts[n])
