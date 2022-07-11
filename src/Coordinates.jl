@@ -25,6 +25,20 @@ function read_coordinates(exo_id::ExoID, num_dim::Int64, num_nodes::Int64)
     else
         error("Should never get here")
     end
-    @show size(coords)
     return coords
+end
+
+function write_coordinates(exo_id, coords)
+    @show coords
+    x_coords, y_coords = coords[:, 1], coords[:, 2]
+    if size(coords, 2) == 2
+        # z_coords = Ref{Float64}(0.0)
+        # z_coords = Array{Float64}(undef, length(x_coords))
+        z_coords = nothing
+    elseif size(coords, 2) == 3
+        z_coords = coords[:, 3]
+    else
+        error("Should never get here")
+    end
+    ex_put_coord!(exo_id, x_coords, y_coords, z_coords)
 end

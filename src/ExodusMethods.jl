@@ -26,7 +26,7 @@ function ex_create(path, cmode, comp_ws, io_ws)::int
 end
 
 function ex_create_int(path, cmode, comp_ws, io_ws, run_version)::int
-    exo_id = ccall((:ex_create_int, libexodus), int,
+    exo_id = ccall((:ex_create_int, libexodus), Int32, # TODO some return types need to be 32 bit or errors won't be handled correctly
                    (Base.Cstring, int, Ptr{int}, Ptr{int}, int),
                     path, cmode, comp_ws, io_ws, run_version)
     exodus_error_check(exo_id, "create_exodus_database")
@@ -37,6 +37,7 @@ function ex_get_all_times!(exoid::int, time_values)
     error = ccall((:ex_get_all_times, libexodus), int,
                   (int, Ptr{Cvoid}),
                   exoid, time_values)
+    @show error
     exodus_error_check(error, "ex_get_all_times!")
 end
 
@@ -220,6 +221,7 @@ function ex_inquire_int(exoid::int, req_info::ex_inquiry)::int
     info = ccall((:ex_inquire_int, libexodus), int,
                  (int, ex_inquiry), 
                  exoid, req_info)
+    @show info
     exodus_error_check(info, "ex_inquire_int")
     return info
 end
@@ -244,25 +246,36 @@ function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::int
     return error
 end
 
+# TODO the put methods probably shouldn't have a ! in them
+
+function ex_put_coord!(exoid::int, # input not to be changed
+                       x_coords, y_coords, z_coords) # TODO get the types right
+    error = ccall((:ex_get_coord, libexodus), int,
+                  (int, Ref{Float64}, Ref{Float64}, Ref{Float64}),
+                  exoid, x_coords, y_coords, z_coords)
+    @show error
+    exodus_error_check(error, "ex_put_coord!")
+end
+
 function ex_put_init!(exoid::int, 
                       title,
                       num_dim, num_nodes, num_elem, 
                       num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
     error = ccall((:ex_put_init, libexodus), int,
                   (int, Ptr{UInt8},
-                   Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
-                   Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
+                   Int64, Int64, Int64,
+                   Int64, Int64, Int64),
                   exoid, title,
                   num_dim, num_nodes, num_elem,
                   num_elem_blk, num_node_sets, num_side_sets)
-    # title = unsafe_string(pointer(title))
     exodus_error_check(error, "ex_put_init!")
 end
 
 function ex_put_time!(exoid::int, time_step::int, time_value)
-    error = ccall((:ex_put_time, libexodus), int,
+    error = ccall((:ex_put_time, libexodus), Int32,
                   (int, int, Ref{Float64}), # need to get types to be void
                   exoid, time_step, time_value)
+    @show error
     exodus_error_check(error, "ex_put_time!")
 end
 
