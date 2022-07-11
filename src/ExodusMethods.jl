@@ -244,6 +244,21 @@ function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::int
     return error
 end
 
+function ex_put_init!(exoid::int, 
+                      title,
+                      num_dim, num_nodes, num_elem, 
+                      num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
+    error = ccall((:ex_put_init, libexodus), int,
+                  (int, Ptr{UInt8},
+                   Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
+                   Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
+                   exoid, title,
+                   num_dim, num_nodes, num_elem,
+                   num_elem_blk, num_node_sets, num_side_sets)
+    # title = unsafe_string(pointer(title))
+    exodus_error_check(error, "ex_put_init!")
+end
+
 function ex_put_time!(exoid::int, time_step::int, time_value)
     error = ccall((:ex_put_time, libexodus), int,
                   (int, int, Ref{Float64}), # need to get types to be void
