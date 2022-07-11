@@ -31,7 +31,8 @@ print(io, "Initialization:\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
 function put(exo_id::ExoID, init::Initialization)
-    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+    # title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+    title = ""
     ex_put_init!(exo_id, title,
                  init.num_dim[], init.num_nodes[], init.num_elems[],
                  init.num_elem_blks[], init.num_node_sets[], init.num_side_sets[])

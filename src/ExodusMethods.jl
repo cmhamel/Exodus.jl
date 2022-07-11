@@ -20,7 +20,7 @@ end
 function ex_create(path, cmode, comp_ws, io_ws)::int
     exo_id = ccall((:ex_create, libexodus), int,
                    (Base.Cstring, int, Ptr{int}, Ptr{int}),
-                    path, cmode, comp_ws, io_ws)
+                   path, cmode, comp_ws, io_ws)
     exodus_error_check(exo_id, "create_exodus_database")
     return exo_id
 end
@@ -252,9 +252,9 @@ function ex_put_init!(exoid::int,
                   (int, Ptr{UInt8},
                    Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
                    Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
-                   exoid, title,
-                   num_dim, num_nodes, num_elem,
-                   num_elem_blk, num_node_sets, num_side_sets)
+                  exoid, title,
+                  num_dim, num_nodes, num_elem,
+                  num_elem_blk, num_node_sets, num_side_sets)
     # title = unsafe_string(pointer(title))
     exodus_error_check(error, "ex_put_init!")
 end
