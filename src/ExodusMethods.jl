@@ -249,7 +249,7 @@ function ex_put_init!(exoid::int,
                       num_dim, num_nodes, num_elem, 
                       num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
     error = ccall((:ex_put_init, libexodus), int,
-                  (int, Ptr{UInt8},
+                  (int, Base.Cstring,
                    Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
                    Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
                   exoid, title,
