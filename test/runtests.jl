@@ -3,7 +3,15 @@ using Test
 using Profile
 using Suppressor
 
-include("test_on_square_meshes.jl")
-include("test_on_example_output.jl")
-include("test_copy_and_output.jl")
-# include("test_on_square_meshes_with_inclusions.jl")
+macro exodus_unit_test_set(test_name::String, ex)
+    return quote
+        local test_set_name = rpad($test_name, 64)
+        @testset "$test_set_name" begin
+            local val = $ex
+            val
+        end
+    end
+end
+
+include("TestCoordinates.jl")
+include("TestInitialization.jl")

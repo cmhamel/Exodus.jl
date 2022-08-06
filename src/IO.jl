@@ -7,16 +7,28 @@ function create_exodus_database(file_name::ExoFileName)
     #     exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_2)
     #     return exo_id
     # end
-    exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_2)
+    # exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_2)
+    
+    exo_id = ex_create_int(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API), cpu_word_size, IO_word_size, version_number_2)
+    
     return exo_id
 end
 
 function copy_exodus_database(exo_id::ExoID, new_exo_id::ExoID)
     # @suppress begin
-    #     ex_copy!(exo_id, new_exo_id)
+    new_exo_id = ccall((:ex_copy, libexodus), ExoID,
+                       (ExoID, ExoID), 
+                       exo_id, new_exo_id)
+    exodus_error_check(new_exo_id, "copy_exodus_database")
     # end
-    ex_copy!(exo_id, new_exo_id)
 end
+
+# function copy_exodus_database(exo_id::ExoID, new_exo_id::ExoID)
+#     # @suppress begin
+#     #     ex_copy!(exo_id, new_exo_id)
+#     # end
+#     ex_copy!(exo_id, new_exo_id)
+# end
 
 function close_exodus_database(exo_id::ExoID)
     # @suppress begin

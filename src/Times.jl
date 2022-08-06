@@ -7,7 +7,6 @@ end
 
 function read_times(exo_id::ExoID)::Times
     num_steps = read_number_of_time_steps(exo_id)
-    @show num_steps
     times = Vector{Float64}(undef, num_steps)
     ex_get_all_times!(exo_id, times)
     return times
