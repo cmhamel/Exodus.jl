@@ -31,9 +31,6 @@ end
 # end
 
 function close_exodus_database(exo_id::int)
-    # @suppress begin
-    #     ex_close!(exo_id)
-    # end
     ex_close!(exo_id)
 end
 

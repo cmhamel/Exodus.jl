@@ -8,6 +8,9 @@ const MAX_STR_LENGTH = 32
 const cpu_word_size = Ref{Int32}(sizeof(Float64))
 const IO_word_size = Ref{Int32}(8)
 
+@show cpu_word_size
+@show IO_word_size
+
 # TODO: make this be read in from the OS or something like that
 #
 const version_number_1 = 8
@@ -134,6 +137,15 @@ end
 #
 # @enum ExOptionType begin
     
+# end
+
+# TODO figure out how to get | to work with enums, probably a new method dispatch
+# @enum ex_options begin
+EX_DEFAULT     = Int32(0)
+EX_VERBOSE     = Int32(1) # verbose mode message flag
+EX_DEBUG       = Int32(2) # debug mode def
+EX_ABORT       = Int32(4) # abort mode flag def
+EX_NULLVERBOSE = Int32(8) # verbose mode for null entity detection warning
 # end
 
 # entities

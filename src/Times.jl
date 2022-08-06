@@ -13,5 +13,5 @@ function read_times(exo_id::int)::Times
 end
 
 function write_time(exo_id::int, time_step::IntKind, time_value::Float64)
-    ex_put_time!(exo_id, time_step, time_value)
+    ex_put_time!(exo_id, Int32(time_step), time_value)
 end 

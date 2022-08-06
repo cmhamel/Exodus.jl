@@ -25,7 +25,6 @@ end
 function test_put_initialization_on_square_mesh(n::Int64)
     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
     exo_new = Exodus.create_exodus_database(abspath("./test_output.e"))
-    Exodus.copy_exodus_database(exo_old, exo_new)
 
     init_old = Exodus.Initialization(exo_old)
     Exodus.put(exo_new, init_old)
@@ -40,6 +39,8 @@ function test_put_initialization_on_square_mesh(n::Int64)
 
     Exodus.close_exodus_database(exo_old)
     Exodus.close_exodus_database(exo_new)
+
+    Base.Filesystem.rm("./test_output.e")
 end
 
 @exodus_unit_test_set "Square Mesh Read Initialization" begin
@@ -50,6 +51,6 @@ end
 
 @exodus_unit_test_set "Square Mesh Put Initialization" begin
     for (n, mesh) in enumerate(mesh_file_names)
-        # test_put_initialization_on_square_mesh(n)
+        test_put_initialization_on_square_mesh(n)
     end
 end
