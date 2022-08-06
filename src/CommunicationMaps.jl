@@ -2,7 +2,7 @@ struct NodeCommunicationMap <: FEMContainer
     ids::Vector{IntKind}
     node_ids::Vector{Vector{IntKind}}
     proc_ids::Vector{Vector{IntKind}}
-    function NodeCommunicationMap(exo_id::ExoID, processor::Int64)
+    function NodeCommunicationMap(exo_id::int, processor::Int64)
         cm_init = CommunicationMapInitialization(exo_id, processor)
         # node_ids = 
         ids = cm_init.node_cmap_ids
@@ -23,7 +23,7 @@ struct ElementCommunicationMap <: FEMContainer
     elem_ids::Vector{Vector{IntKind}}
     side_ids::Vector{Vector{IntKind}}
     proc_ids::Vector{Vector{IntKind}}
-    function ElementCommunicationMap(exo_id::ExoID, processor::Int64)
+    function ElementCommunicationMap(exo_id::int, processor::Int64)
         cm_init = CommunicationMapInitialization(exo_id, processor)
         @show cm_init
         ids = cm_init.elem_cmap_ids

@@ -5,14 +5,15 @@
 const MAX_LINE_LENGTH = 80
 const MAX_STR_LENGTH = 32
 
-const cpu_word_size = Ref{Int64}(sizeof(Float64))
-const IO_word_size = Ref{Int64}(8)
+const cpu_word_size = Ref{Int32}(sizeof(Float64))
+const IO_word_size = Ref{Int32}(8)
 
 # TODO: make this be read in from the OS or something like that
 #
 const version_number_1 = 8
 const version_number_2 = 15
 const version_number = 8.15
+const version_number_int = 100 * version_number_1 + version_number_2
 
 
 # TODO: add the entirity from the exoudsII header

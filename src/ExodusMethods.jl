@@ -37,7 +37,6 @@ function ex_get_all_times!(exoid::int, time_values)
     error = ccall((:ex_get_all_times, libexodus), int,
                   (int, Ptr{Cvoid}),
                   exoid, time_values)
-    @show error
     exodus_error_check(error, "ex_get_all_times!")
 end
 
@@ -83,6 +82,14 @@ function ex_get_coord!(exoid::int, # input not to be changed
                   (int, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                   exoid, x_coords, y_coords, z_coords)
     exodus_error_check(error, "ex_get_coord!")
+end
+
+function ex_get_coord_names!(exo_id::int, coord_names::Vector{Vector{UInt8}})
+
+    error = ccall((:ex_get_coord_names, libexodus), int,
+                  (int, Ptr{Ptr{UInt8}}),
+                  exo_id, coord_names)
+    exodus_error_check(error, "ex_get_coord_names!")
 end
 
 function ex_get_elem_cmap!(exoid::int, map_id::ex_entity_id, elem_ids, side_ids, proc_ids, processor)
@@ -221,7 +228,7 @@ function ex_inquire_int(exoid::int, req_info::ex_inquiry)::int
     info = ccall((:ex_inquire_int, libexodus), int,
                  (int, ex_inquiry), 
                  exoid, req_info)
-    @show info
+    # @show info
     exodus_error_check(info, "ex_inquire_int")
     return info
 end
@@ -255,6 +262,14 @@ function ex_put_coord!(exoid::int, # input not to be changed
                   exoid, x_coords, y_coords, z_coords)
     @show error
     exodus_error_check(error, "ex_put_coord!")
+end
+
+function ex_put_coord_names!(exoid::int, 
+                             coord_names::Vector{Vector{UInt8}})
+    error = ccall((:ex_put_coord_names, libexodus), int,
+                  (int, Ptr{Ptr{UInt8}}),
+                  exoid, coord_names)
+    exodus_error_check(error, "ex_put_coord_names!")
 end
 
 function ex_put_init!(exoid::int, 

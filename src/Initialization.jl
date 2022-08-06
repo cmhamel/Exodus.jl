@@ -5,7 +5,7 @@ struct Initialization <: FEMContainer
     num_elem_blks::IntKind
     num_node_sets::IntKind
     num_side_sets::IntKind
-    function Initialization(exo_id::ExoID)
+    function Initialization(exo_id::int)
         num_dim = Ref{IntKind}(0)
         num_nodes = Ref{IntKind}(0)
         num_elems = Ref{IntKind}(0)
@@ -30,7 +30,7 @@ print(io, "Initialization:\n",
           "\tNumber of node sets = ", init.num_node_sets, "\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
-function put(exo_id::ExoID, init::Initialization)
+function put(exo_id::int, init::Initialization)
     title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
     ex_put_init!(exo_id, title,
                  init.num_dim, init.num_nodes, init.num_elems,
@@ -44,7 +44,7 @@ struct CommunicationMapInitialization <: FEMContainer
     elem_cmap_ids
     elem_cmap_cnts
     processor
-    function CommunicationMapInitialization(exo_id::ExoID, processor::Int64)
+    function CommunicationMapInitialization(exo_id::int, processor::Int64)
         lb_init = LoadBalanceInitialization(exo_id, processor)
         @show lb_init
         node_cmap_ids = Vector{IntKind}(undef, lb_init.num_node_cmaps)
@@ -63,7 +63,7 @@ struct GlobalInitialization <: FEMContainer
     num_elem_blks::IntKind
     num_node_sets::IntKind
     num_side_sets::IntKind
-    function GlobalInitialization(exo_id::ExoID)
+    function GlobalInitialization(exo_id::int)
         num_nodes = Ref{IntKind}(0)
         num_elems = Ref{IntKind}(0)
         num_elem_blks = Ref{IntKind}(0)
@@ -90,7 +90,7 @@ struct LoadBalanceInitialization <: FEMContainer
     num_node_cmaps::IntKind
     num_elem_cmaps::IntKind
     processor::IntKind
-    function LoadBalanceInitialization(exo_id::ExoID, processor::IntKind)
+    function LoadBalanceInitialization(exo_id::int, processor::IntKind)
         num_internal_nodes = Ref{IntKind}(0)
         num_border_nodes = Ref{IntKind}(0)
         num_external_nodes = Ref{IntKind}(0)
@@ -124,7 +124,7 @@ number_of_total_elements(init::LoadBalanceInitialization) = init.num_internal_el
 struct ParallelInitialization <: FEMContainer
     number_of_procesors::IntKind
     number_of_procesors_in_file::IntKind
-    function ParallelInitialization(exo_id::ExoID)
+    function ParallelInitialization(exo_id::int)
         num_procs = Ref{IntKind}(0)
         num_procs_in_file = Ref{IntKind}(0)
         info = Vector{UInt8}(undef, MAX_LINE_LENGTH)

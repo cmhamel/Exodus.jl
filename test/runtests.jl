@@ -15,3 +15,5 @@ end
 
 include("TestCoordinates.jl")
 include("TestInitialization.jl")
+include("TestIO.jl")
+include("TestTimes.jl")

@@ -3,7 +3,7 @@ struct NodeMap <: FEMContainer
     border_nodes::Vector{IntKind}
     external_nodes::Vector{IntKind}
     processor::IntKind
-    function NodeMap(exo_id::ExoID, processor::IntKind)
+    function NodeMap(exo_id::int, processor::IntKind)
         lb_init = LoadBalanceInitialization(exo_id, processor)
 
         internal_nodes = Vector{IntKind}(undef, lb_init.num_internal_nodes)
