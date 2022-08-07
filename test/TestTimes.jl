@@ -14,11 +14,7 @@ end
 
 @exodus_unit_test_set "Test Write Times" begin
     exo_old = Exodus.open_exodus_database("../example_output/output.e")
-    exo_new = Exodus.create_exodus_database("./test_output.e")
-
-    init_old = Exodus.Initialization(exo_old)
-    Exodus.put(exo_new, init_old)
-    init_new = Exodus.Initialization(exo_new)
+    exo_new = Exodus.copy_exodus_database(exo_old, "./test_output.e")
 
     Exodus.write_time(exo_new, 1, 0.0)
     Exodus.write_time(exo_new, 2, 1.0)

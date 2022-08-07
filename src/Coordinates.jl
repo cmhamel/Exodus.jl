@@ -59,33 +59,32 @@ end
 #     ex_put_coord!(exo_id, x_coords, y_coords, z_coords)
 # end
 
-function put_coordinates(exo::int, coords::Coordinates)
-    #TODO add views
-    x_coords, y_coords = Array{Float32}(coords[:, 1]), Array{Float32}(coords[:, 2])
-    @show x_coords
-    if size(coords, 2) == 2
-        # 2D case
-        # z_coords = Ref{Float64}(0.)
-        # z_coords = Ref{Float64}(0.)
-        z_coords = Ptr{Cvoid}()
-    elseif size(coords, 3) == 3
-        # 3D case
-        z_coords = coords[:, 3]
-    else
-        error("Not supporting 1D right now")
-    end
+# function put_coordinates(exo::int, coords::Coordinates)
+#     #TODO add views
+#     x_coords, y_coords = coords[:, 1], coords[:, 2]
+#     if size(coords, 2) == 2
+#         # 2D case
+#         # z_coords = Ref{Float64}(0.)
+#         # z_coords = Ref{Float64}(0.)
+#         z_coords = Ptr{Cvoid}()
+#     elseif size(coords, 3) == 3
+#         # 3D case
+#         z_coords = coords[:, 3]
+#     else
+#         error("Not supporting 1D right now")
+#     end
 
-    # y_coords, z_coords = Ref{Float64}(0.0), Ref{Float64}(0.0)
+#     # y_coords, z_coords = Ref{Float64}(0.0), Ref{Float64}(0.0)
 
-    ex_put_coord!(exo, x_coords, y_coords, z_coords)
-    # ex_put_coord!(exo,)
-end
+#     ex_put_coord!(exo, x_coords, y_coords, z_coords)
+#     # ex_put_coord!(exo,)
+# end
 
-# TODO fix below method, not working
-function put_coordinate_names(exo::int, coord_names::CoordinateNames)
-    new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
-    for (n, coord_name) in enumerate(coord_names)
-        new_coord_names[n] = Vector{UInt8}(coord_name)
-    end
-    ex_put_coord_names!(exo, new_coord_names)
-end
+# # TODO fix below method, not working
+# function put_coordinate_names(exo::int, coord_names::CoordinateNames)
+#     new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
+#     for (n, coord_name) in enumerate(coord_names)
+#         new_coord_names[n] = Vector{UInt8}(coord_name)
+#     end
+#     ex_put_coord_names!(exo, new_coord_names)
+# end

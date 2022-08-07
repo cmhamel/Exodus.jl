@@ -30,12 +30,13 @@ print(io, "Initialization:\n",
           "\tNumber of node sets = ", init.num_node_sets, "\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
-function put(exo_id::int, init::Initialization)
-    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-    ex_put_init!(exo_id, title,
-                 init.num_dim, init.num_nodes, init.num_elems,
-                 init.num_elem_blks, init.num_node_sets, init.num_side_sets)
-end
+# TODO for now using ex_copy to deal with shenanigans encountered with putting geometric stuff
+# function put(exo_id::int, init::Initialization)
+#     title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+#     ex_put_init!(exo_id, title,
+#                  init.num_dim, init.num_nodes, init.num_elems,
+#                  init.num_elem_blks, init.num_node_sets, init.num_side_sets)
+# end
 
 # note that this needs to be used on mesh.g.xx.xx files not .g.nem files
 struct CommunicationMapInitialization <: FEMContainer

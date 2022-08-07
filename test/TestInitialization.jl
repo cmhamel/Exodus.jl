@@ -22,26 +22,26 @@ function test_read_initialization_on_square_mesh(n::Int64)
     Exodus.close_exodus_database(exo_id)
 end
 
-function test_put_initialization_on_square_mesh(n::Int64)
-    exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-    exo_new = Exodus.create_exodus_database(abspath("./test_output.e"))
+# function test_put_initialization_on_square_mesh(n::Int64)
+#     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
+#     exo_new = Exodus.create_exodus_database(abspath("./test_output.e"))
 
-    init_old = Exodus.Initialization(exo_old)
-    Exodus.put(exo_new, init_old)
-    init_new = Exodus.Initialization(exo_new)
+#     init_old = Exodus.Initialization(exo_old)
+#     Exodus.put(exo_new, init_old)
+#     init_new = Exodus.Initialization(exo_new)
 
-    @test init_old.num_dim == init_new.num_dim
-    @test init_old.num_nodes == init_old.num_nodes
-    @test init_old.num_elems == init_new.num_elems
-    @test init_old.num_elem_blks == init_new.num_elem_blks
-    @test init_old.num_node_sets == init_new.num_node_sets
-    @test init_old.num_side_sets == init_new.num_side_sets
+#     @test init_old.num_dim == init_new.num_dim
+#     @test init_old.num_nodes == init_old.num_nodes
+#     @test init_old.num_elems == init_new.num_elems
+#     @test init_old.num_elem_blks == init_new.num_elem_blks
+#     @test init_old.num_node_sets == init_new.num_node_sets
+#     @test init_old.num_side_sets == init_new.num_side_sets
 
-    Exodus.close_exodus_database(exo_old)
-    Exodus.close_exodus_database(exo_new)
+#     Exodus.close_exodus_database(exo_old)
+#     Exodus.close_exodus_database(exo_new)
 
-    Base.Filesystem.rm("./test_output.e")
-end
+#     Base.Filesystem.rm("./test_output.e")
+# end
 
 @exodus_unit_test_set "Square Mesh Read Initialization" begin
     for (n, mesh) in enumerate(mesh_file_names)
@@ -49,8 +49,8 @@ end
     end
 end
 
-@exodus_unit_test_set "Square Mesh Put Initialization" begin
-    for (n, mesh) in enumerate(mesh_file_names)
-        test_put_initialization_on_square_mesh(n)
-    end
-end
+# @exodus_unit_test_set "Square Mesh Put Initialization" begin
+#     for (n, mesh) in enumerate(mesh_file_names)
+#         test_put_initialization_on_square_mesh(n)
+#     end
+# end

@@ -14,8 +14,7 @@ const IO_word_size = Int32(8) # This was what we did before
 #
 const version_number_1 = Int32(8)
 const version_number_2 = Int32(15)
-# const version_number = 8.15
-const version_number = 0.0
+const version_number = 8.15
 const version_number_int = 100 * version_number_1 + version_number_2
 
 
