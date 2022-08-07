@@ -1,7 +1,6 @@
 using Exodus
 using Test
 using Profile
-using Suppressor
 
 macro exodus_unit_test_set(test_name::String, ex)
     return quote
