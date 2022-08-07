@@ -40,11 +40,11 @@ function ex_get_all_times!(exoid::int, time_values)
     exodus_error_check(error_code, "ex_get_all_times!")
 end
 
-function ex_get_block!(exoid::int, blk_type::ex_entity_type, blk_id::ex_entity_id,
+function ex_get_block!(exoid::int, blk_type::ex_entity_type, blk_id::T,
                        entity_descrip, 
                        num_entries_this_blk, num_nodes_per_entry,
                        num_edges_per_entry, num_faces_per_entry,
-                       num_attr_per_entry) # TODO get the types right
+                       num_attr_per_entry) where {T <: Integer} # TODO get the types right
     error_code = ccall((:ex_get_block, libexodus), int,
                        (int, ex_entity_type, ex_entity_id,
                         Ptr{UInt8}, 
@@ -66,8 +66,8 @@ function ex_get_cmap_params!(exoid::int, node_cmap_ids, node_cmap_node_cnts, ele
     exodus_error_check(error_code, "ex_get_cmap_params!")
 end
 
-function ex_get_conn!(exoid::int, blk_type::ex_entity_type, blk_id::ex_entity_id, 
-                      nodeconn, faceconn, edgeconn) # TODO get the types right
+function ex_get_conn!(exoid::int, blk_type::ex_entity_type, blk_id::T, 
+                      nodeconn, faceconn, edgeconn) where {T <: Integer} # TODO get the types right
     error_code = ccall((:ex_get_conn, libexodus), int,
                        (int, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
                        exoid, blk_type, blk_id, nodeconn, faceconn, edgeconn)

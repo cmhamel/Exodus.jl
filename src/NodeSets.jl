@@ -21,7 +21,7 @@ print(io, "NodeSet:\n",
           "\tNumber of nodes = ", node_set.num_nodes, "\n")
 
 function read_node_set_ids(exo_id::int, num_node_sets::int)
-    node_set_ids = Array{int}(undef, num_node_sets)
+    node_set_ids = Array{Int64}(undef, num_node_sets)
     ex_get_ids!(exo_id, EX_NODE_SET, node_set_ids)
     return node_set_ids
 end
