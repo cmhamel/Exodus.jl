@@ -1,9 +1,4 @@
-# TODO maybe make this into a struct or AbstractArray type
-
-Coordinates = Matrix{Float64}
-CoordinateNames = Vector{String}
-
-function read_coordinates(exo_id::int, num_dim::Int64, num_nodes::Int64)
+function read_coordinates(exo_id::int, num_dim::int, num_nodes::int)
     if num_dim == 1
         x_coords = Array{Float64}(undef, num_nodes)
         y_coords = Ref{Float64}(0.0)
@@ -31,7 +26,7 @@ function read_coordinates(exo_id::int, num_dim::Int64, num_nodes::Int64)
     return coords
 end
 
-function read_coordinate_names(exo_id::int, num_dim::Int64)
+function read_coordinate_names(exo_id::int, num_dim::int)
     coord_names = Vector{Vector{UInt8}}(undef, num_dim)
     for n in 1:num_dim
         coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)

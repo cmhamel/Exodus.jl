@@ -1,15 +1,20 @@
-struct Block <: FEMContainer
-    block_id::BlockID  # TODO: maybe change to BlockID so types are more verbose
-    num_elem::IntKind
-    num_nodes_per_elem::IntKind
-    elem_type::String
-    conn::Array{IntKind}
-    function Block(exo_id::int, block_id::BlockID)
+struct Block{T}
+    block_id::int  # TODO: maybe change to BlockID so types are more verbose
+    num_elem::int
+    num_nodes_per_elem::int
+    elem_type::String # TODO maybe just make an index
+    conn::Array{T}
+    function Block(exo_id::int, block_id::int)
         element_type, num_elem, num_nodes, _, _, _ =
-        read_element_block_parameters(exo_id::int, block_id::BlockID)
+        read_element_block_parameters(exo_id::int, block_id::int)
         conn = read_block_connectivity(exo_id, block_id)
-        # conn = reshape(conn, (num_elem, num_nodes))  # for easier access downstream
-        return new(block_id, num_elem, num_nodes, element_type, conn)
+
+        # TODO this could possible break
+        if ex_int64_status(exo_id) > 0
+            return new{Int64}(block_id, num_elem, num_nodes, element_type, conn)
+        else
+            return new{Int32}(block_id, num_elem, num_nodes, element_type, conn)
+        end
     end
 end
 Base.show(io::IO, block::Block) =
@@ -19,29 +24,21 @@ print(io, "Block:\n",
           "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
           "\tElem type          = ", block.elem_type, "\n")
 
-# more verbose types
-#
-# TODO turn this into actual types with constructors to declutter stuff
-BlockIDs = Vector{BlockID}
-BlockIDsPtr = Ref{BlockID}
-Blocks = Vector{Block}
-
 # methods below
 #
-
-function read_block_ids(exo_id::int, num_elem_blk::IntKind)#::BlockIDs
-    block_ids = BlockIDs(undef, num_elem_blk)
+function read_block_ids(exo_id::int, num_elem_blk::int)#::BlockIDs
+    block_ids = Vector{int}(undef, num_elem_blk)
     ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
     return block_ids
 end
 
-function read_element_block_parameters(exo_id::int, block_id::BlockID)
+function read_element_block_parameters(exo_id::int, block_id::int)
     element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-    num_elem = Ref{Int64}(0)
-    num_nodes = Ref{Int64}(0)
-    num_edges = Ref{Int64}(0)
-    num_faces = Ref{Int64}(0)
-    num_attributes = Ref{Int64}(0)
+    num_elem = Ref{int}(0)
+    num_nodes = Ref{int}(0)
+    num_edges = Ref{int}(0)
+    num_faces = Ref{int}(0)
+    num_attributes = Ref{int}(0)
     ex_get_block!(exo_id, EX_ELEM_BLOCK, block_id,
                   element_type,
                   num_elem, num_nodes,
@@ -52,9 +49,9 @@ function read_element_block_parameters(exo_id::int, block_id::BlockID)
 end
 
 # TODO maybe turn this into a struct or something like that
-function read_block_connectivity(exo_id::int, block_id::BlockID)
+function read_block_connectivity(exo_id::int, block_id::int)
     element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
-    read_element_block_parameters(exo_id::int, block_id::BlockID)
+    read_element_block_parameters(exo_id::int, block_id::int)
     conn = Vector{IntKind}(undef, num_nodes * num_elem)
     conn_face = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
     conn_edge = Vector{IntKind}(undef, num_nodes * num_elem)  # Not using these currently
@@ -62,13 +59,13 @@ function read_block_connectivity(exo_id::int, block_id::BlockID)
     return conn
 end
 
-function read_blocks!(exo_id::int, block_ids::BlockIDs, blocks::Blocks)
+function read_blocks!(exo_id::int, block_ids::Vector{int}, blocks::Vector{Block})
     for (n, block_id) in enumerate(block_ids)
         blocks[n] = Block(exo_id, block_id)
     end
 end
 
-function read_blocks(exo_id::int, block_ids::BlockIDs)
+function read_blocks(exo_id::int, block_ids::Vector{int})
     blocks = Vector{Block}(undef, size(block_ids, 1))
     read_blocks!(exo_id, block_ids, blocks)
     return blocks

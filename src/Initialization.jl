@@ -1,17 +1,40 @@
+# struct Initialization <: FEMContainer
+#     num_dim::IntKind
+#     num_nodes::IntKind
+#     num_elems::IntKind
+#     num_elem_blks::IntKind
+#     num_node_sets::IntKind
+#     num_side_sets::IntKind
+#     function Initialization(exo_id::int)
+#         num_dim = Ref{IntKind}(0)
+#         num_nodes = Ref{IntKind}(0)
+#         num_elems = Ref{IntKind}(0)
+#         num_elem_blks = Ref{IntKind}(0)
+#         num_node_sets = Ref{IntKind}(0)
+#         num_side_sets = Ref{IntKind}(0)
+#         title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+#         ex_get_init!(exo_id, title,
+#                      num_dim, num_nodes, num_elems, 
+#                      num_elem_blks, num_node_sets, num_side_sets)
+#         title = unsafe_string(pointer(title))
+#         return new(num_dim[], num_nodes[], num_elems[],
+#                    num_elem_blks[], num_node_sets[], num_side_sets[])
+#     end
+# end
 struct Initialization <: FEMContainer
-    num_dim::IntKind
-    num_nodes::IntKind
-    num_elems::IntKind
-    num_elem_blks::IntKind
-    num_node_sets::IntKind
-    num_side_sets::IntKind
+    num_dim::int
+    num_nodes::int
+    num_elems::int
+    num_elem_blks::int
+    num_node_sets::int
+    num_side_sets::int
     function Initialization(exo_id::int)
-        num_dim = Ref{IntKind}(0)
-        num_nodes = Ref{IntKind}(0)
-        num_elems = Ref{IntKind}(0)
-        num_elem_blks = Ref{IntKind}(0)
-        num_node_sets = Ref{IntKind}(0)
-        num_side_sets = Ref{IntKind}(0)
+        num_dim = Ref{int}(0)
+        num_nodes = Ref{int}(0)
+        num_elems = Ref{int}(0)
+        num_elem_blks = Ref{int}(0)
+        num_node_sets = Ref{int}(0)
+        num_side_sets = Ref{int}(0)
         title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
         ex_get_init!(exo_id, title,
                      num_dim, num_nodes, num_elems, 
@@ -21,6 +44,7 @@ struct Initialization <: FEMContainer
                    num_elem_blks[], num_node_sets[], num_side_sets[])
     end
 end
+
 Base.show(io::IO, init::Initialization) =
 print(io, "Initialization:\n",
           "\tNumber of dim       = ", init.num_dim, "\n",

@@ -20,7 +20,7 @@ end
 
 function test_read_coordinate_names_on_square_mesh(n::Int64)
     exo = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-    coord_names = Exodus.read_coordinate_names(exo, 2)
+    coord_names = Exodus.read_coordinate_names(exo, Int32(2))
     @test coord_names == ["x", "y"]
     Exodus.close_exodus_database(exo)
 end
