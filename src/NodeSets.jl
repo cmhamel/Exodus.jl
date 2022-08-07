@@ -1,17 +1,11 @@
-struct NodeSet{T}
+struct NodeSet{T <: Integer}
     node_set_id::int
     num_nodes::int
     nodes::Vector{T}
-    function NodeSet(exo_id::int, node_set_id::int)
+    function NodeSet(exo_id::int, node_set_id::T) where {T <: Integer}
         num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
         node_set_nodes = read_node_set_nodes(exo_id, node_set_id)
-
-        # TODO this could possibly break
-        if ex_int64_status(exo_id) > 0
-            return new{Int64}(node_set_id, num_nodes, node_set_nodes)
-        else
-            return new{Int32}(node_set_id, num_nodes, node_set_nodes)
-        end
+        return new{T}(node_set_id, num_nodes, node_set_nodes)
     end
 end
 
@@ -21,8 +15,13 @@ print(io, "NodeSet:\n",
           "\tNumber of nodes = ", node_set.num_nodes, "\n")
 
 function read_node_set_ids(exo_id::int, num_node_sets::int)
-    node_set_ids = Array{Int64}(undef, num_node_sets)
-    ex_get_ids!(exo_id, EX_NODE_SET, node_set_ids)
+    if ex_int64_status(exo_id) > 0
+        node_set_ids = Array{Int64}(undef, num_node_sets)
+        ex_get_ids!(exo_id, EX_NODE_SET, node_set_ids)
+    else
+        node_set_ids = Array{Int32}(undef, num_node_sets)
+        ex_get_ids!(exo_id, EX_NODE_SET, node_set_ids)
+    end
     return node_set_ids
 end
 

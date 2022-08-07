@@ -5,17 +5,10 @@ struct Block{T <: Integer}
     elem_type::String # TODO maybe just make an index
     conn::Array{T}
     function Block(exo_id::int, block_id::T) where {T <: Integer}
-        if ex_int64_status(exo_id) > 0
-            element_type, num_elem, num_nodes, _, _, _ =
-            read_element_block_parameters(exo_id::int, block_id::T)
-            conn = read_block_connectivity(exo_id, block_id)
-            return new{T}(block_id, num_elem, num_nodes, element_type, conn)
-        else
-            element_type, num_elem, num_nodes, _, _, _ =
-            read_element_block_parameters(exo_id::int, block_id::T)
-            conn = read_block_connectivity(exo_id, block_id)
-            return new{T}(block_id, num_elem, num_nodes, element_type, conn)
-        end
+        element_type, num_elem, num_nodes, _, _, _ =
+        read_element_block_parameters(exo_id::int, block_id::T)
+        conn = read_block_connectivity(exo_id, block_id)
+        return new{T}(block_id, num_elem, num_nodes, element_type, conn)
     end
 end
 Base.show(io::IO, block::Block) =
