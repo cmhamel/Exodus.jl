@@ -26,6 +26,9 @@ function test_read_coordinate_names_on_square_mesh(n::Int64)
 end
 
 function test_put_coordinates_on_square_mesh(n::Int64)
+    error_code = Exodus.ex_opts(Exodus.EX_VERBOSE)
+    @show error_code
+
     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
     exo_new = Exodus.create_exodus_database("./test_output.e")
 

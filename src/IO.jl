@@ -8,19 +8,24 @@ function create_exodus_database(file_name::ExoFileName)
     #     return exo_id
     # end
     # exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_2)
-    
-    exo_id = ex_create_int(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API), cpu_word_size, IO_word_size, version_number_int)
     # exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_int)
+    # exo_id = ex_create_int(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API), cpu_word_size, IO_word_size, version_number_int)
+    
+    exo_id = ex_create_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number_int)
+    ex_set_max_name_length(exo_id, MAX_LINE_LENGTH)
+    @show exo_id
     return exo_id
 end
 
-function copy_exodus_database(exo_id::int, new_exo_id::int)
-    # @suppress begin
-    new_exo_id = ccall((:ex_copy, libexodus), int,
-                       (int, int), 
-                       exo_id, new_exo_id)
-    exodus_error_check(new_exo_id, "copy_exodus_database")
-    # end
+# function copy_exodus_database(exo_id::int, new_exo_id::int)
+function copy_exodus_database(old_exo_id::int, file_name::String)
+    new_exo_id = ex_create_int(file_name, EX_CLOBBER | ex_int64_status(old_exo_id), cpu_word_size, IO_word_size, version_number_int)
+    # error_code = ccall((:ex_copy, libexodus), int,
+    #                    (int, int), 
+    #                    old_exo_id, new_exo_id)
+    # exodus_error_check(error_code, "copy_exodus_database")
+    ex_copy!(old_exo_id, new_exo_id)
+    return new_exo_id
 end
 
 # function copy_exodus_database(exo_id::ExoID, new_exo_id::ExoID)
@@ -35,18 +40,6 @@ function close_exodus_database(exo_id::int)
 end
 
 function open_exodus_database(file_name::ExoFileName)
-    # TODO: maybe add multiple methods for different EX_* options
-    # @suppress begin
-
-    #     exo_id = ex_open_int(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API),
-    #                          cpu_word_size, IO_word_size, version_number, version_number_2)
-    #     # below is the behavior that we want to move towards but some work 
-    #     # left to do
-    #     # exo_id = ex_open(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API),
-    #     #                  cpu_word_size, IO_word_size)
-    #     return exo_id
-    # end
-    exo_id = ex_open_int(file_name, (EX_CLOBBER | EX_ALL_INT64_DB | EX_ALL_INT64_API),
-                         cpu_word_size, IO_word_size, version_number, version_number_int)
+    exo_id = ex_open_int(file_name, EX_READ, cpu_word_size, IO_word_size, version_number, version_number_int)
     return exo_id
 end

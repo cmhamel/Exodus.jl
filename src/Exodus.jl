@@ -24,6 +24,6 @@ include("Meshes.jl") # I don't think this should be provided, TODO remove Meshes
 include("Variables.jl")
 include("CommunicationMaps.jl")
 
-ex_opts(EX_VERBOSE | EX_DEBUG | EX_ABORT)
+ex_opts(EX_VERBOSE | EX_ABORT)
 
 end # module

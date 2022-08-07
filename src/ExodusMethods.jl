@@ -19,15 +19,15 @@ end
 
 function ex_create(path, cmode, comp_ws, io_ws)::int
     exo_id = ccall((:ex_create, libexodus), int,
-                   (Base.Cstring, int, Ptr{int}, Ptr{int}),
+                   (Base.Cstring, int, Ref{int}, Ref{int}),
                    path, cmode, comp_ws, io_ws)
     exodus_error_check(exo_id, "create_exodus_database")
     return exo_id
 end
 
 function ex_create_int(path, cmode, comp_ws, io_ws, run_version)::int
-    exo_id = ccall((:ex_create_int, libexodus), Int32, # TODO some return types need to be 32 bit or error_codes won't be handled correctly
-                   (Base.Cstring, int, Ptr{int}, Ptr{int}, int),
+    exo_id = ccall((:ex_create_int, libexodus), int, # TODO some return types need to be 32 bit or error_codes won't be handled correctly
+                   (Base.Cstring, int, Ref{int}, Ref{int}, int),
                     path, cmode, comp_ws, io_ws, run_version)
     exodus_error_check(exo_id, "create_exodus_database")
     return exo_id
@@ -233,6 +233,11 @@ function ex_inquire_int(exoid::int, req_info::ex_inquiry)::int
     return info
 end
 
+function ex_int64_status(exoid::int)
+    status = ccall((:ex_int64_status, libexodus), UInt32, (int,), exoid)
+    return status
+end
+
 # this method actually returns something
 # this method will break currently if called
 # TODO figure out how to get #define statements to work from julia artifact
@@ -247,7 +252,7 @@ end
 # this is a hack for now, maybe make a wrapper?
 function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::int
     error_code = ccall((:ex_open_int, libexodus), int,
-                       (Base.Cstring, int, Ptr{int}, Ptr{int}, Ref{Float64}, int),
+                       (Base.Cstring, int, Ref{int}, Ref{int}, Ref{Float64}, int),
                        path, mode, comp_ws, io_ws, version, run_version)
     exodus_error_check(error_code, "ex_open_int")
     return error_code
@@ -256,6 +261,7 @@ end
 function ex_opts(options)
     error_code = ccall((:ex_opts, libexodus), int, (int,), options)
     exodus_error_check(error_code, "ex_opts")
+    return error_code
 end
 
 # TODO the put methods probably shouldn't have a ! in them
@@ -263,7 +269,7 @@ end
 function ex_put_coord!(exoid::int, # input not to be changed
                        x_coords, y_coords, z_coords) # TODO get the types right
     error_code = ccall((:ex_get_coord, libexodus), int,
-                       (int, Ref{Float64}, Ref{Float64}, Ref{Float64}),
+                       (int, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                        exoid, x_coords, y_coords, z_coords)
     exodus_error_check(error_code, "ex_put_coord!")
 end
@@ -317,4 +323,10 @@ function ex_put_variable_param!(exoid::int, obj_type::ex_entity_type, num_vars::
                        (int, ex_entity_type, int),
                        exoid, obj_type, num_vars)
     exodus_error_check(error_code, "ex_put_variable_param!")
+end
+
+function ex_set_max_name_length(exoid::int, len::int)
+    error_code = ccall((:ex_set_max_name_length, libexodus), int,
+                       (int, int), exoid, len)
+    exodus_error_check(error_code, "ex_set_max_name_length")
 end

@@ -61,11 +61,13 @@ end
 
 function put_coordinates(exo::int, coords::Coordinates)
     #TODO add views
-    x_coords, y_coords = coords[:, 1], coords[:, 2]
+    x_coords, y_coords = Array{Float32}(coords[:, 1]), Array{Float32}(coords[:, 2])
+    @show x_coords
     if size(coords, 2) == 2
         # 2D case
         # z_coords = Ref{Float64}(0.)
-        z_coords = Ref{Float64}(0.)
+        # z_coords = Ref{Float64}(0.)
+        z_coords = Ptr{Cvoid}()
     elseif size(coords, 3) == 3
         # 3D case
         z_coords = coords[:, 3]

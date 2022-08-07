@@ -2,20 +2,20 @@
 
 # TODO: cleanup up below
 #
-const MAX_LINE_LENGTH = 80
-const MAX_STR_LENGTH = 32
+const MAX_LINE_LENGTH = Int32(80)
+const MAX_STR_LENGTH = Int32(32)
+const MAX_NAME_LENGTH = Int32(256)
 
-const cpu_word_size = Ref{Int32}(sizeof(Float64))
-const IO_word_size = Ref{Int32}(8)
+const cpu_word_size = Int32(sizeof(Float64))
+const IO_word_size = Int32(8) # This was what we did before
 
-@show cpu_word_size
-@show IO_word_size
 
 # TODO: make this be read in from the OS or something like that
 #
-const version_number_1 = 8
-const version_number_2 = 15
-const version_number = 8.15
+const version_number_1 = Int32(8)
+const version_number_2 = Int32(15)
+# const version_number = 8.15
+const version_number = 0.0
 const version_number_int = 100 * version_number_1 + version_number_2
 
 
