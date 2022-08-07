@@ -37,11 +37,11 @@ end
 
 function read_element_block_parameters(exo_id::int, block_id::BlockID)
     element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-    num_elem = Ref{IntKind}(0)
-    num_nodes = Ref{IntKind}(0)
-    num_edges = Ref{IntKind}(0)
-    num_faces = Ref{IntKind}(0)
-    num_attributes = Ref{IntKind}(0)
+    num_elem = Ref{Int64}(0)
+    num_nodes = Ref{Int64}(0)
+    num_edges = Ref{Int64}(0)
+    num_faces = Ref{Int64}(0)
+    num_attributes = Ref{Int64}(0)
     ex_get_block!(exo_id, EX_ELEM_BLOCK, block_id,
                   element_type,
                   num_elem, num_nodes,

@@ -12,6 +12,7 @@ macro exodus_unit_test_set(test_name::String, ex)
     end
 end
 
+include("TestBlocks.jl")
 include("TestCoordinates.jl")
 include("TestInitialization.jl")
 include("TestIO.jl")

@@ -15,6 +15,6 @@ function close_exodus_database(exo_id::int)
 end
 
 function open_exodus_database(file_name::ExoFileName)
-    exo_id = ex_open_int(file_name, EX_READ, cpu_word_size, IO_word_size, version_number, version_number_int)
+    exo_id = ex_open_int(file_name, EX_CLOBBER | EX_ALL_INT64_API | EX_ALL_INT64_DB, cpu_word_size, IO_word_size, version_number, version_number_int)
     return exo_id
 end
