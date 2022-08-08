@@ -25,29 +25,24 @@ function test_read_coordinate_names_on_square_mesh(n::Int64)
     Exodus.close_exodus_database(exo)
 end
 
-# function test_put_coordinates_on_square_mesh(n::Int64)
-#     error_code = Exodus.ex_opts(Exodus.EX_VERBOSE)
-#     @show error_code
+function test_put_coordinates_on_square_mesh(n::Int64)
+    exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
+    exo_new = Exodus.create_exodus_database("./test_output.e")
 
-#     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-#     exo_new = Exodus.create_exodus_database("./test_output.e")
+    init_old = Exodus.Initialization(exo_old)
+    Exodus.put(exo_new, init_old)
+    init_new = Exodus.Initialization(exo_new)
 
-#     init_old = Exodus.Initialization(exo_old)
-#     Exodus.put(exo_new, init_old)
-#     init_new = Exodus.Initialization(exo_new)
+    coords_old = Exodus.read_coordinates(exo_old, init_old.num_dim, init_old.num_nodes)
+    Exodus.put_coordinates(exo_new, coords_old)
+    coords_new = Exodus.read_coordinates(exo_new, init_new.num_dim, init_old.num_nodes)
+    @test coords_old == coords_new
 
-#     coords_old = Exodus.read_coordinates(exo_old, init_old.num_dim, init_old.num_nodes)
-#     Exodus.put_coordinates(exo_new, coords_old)
-#     coords_new = Exodus.read_coordinates(exo_new, init_new.num_dim, init_old.num_nodes)
-#     @show coords_old
-#     @show coords_new
+    Exodus.close_exodus_database(exo_old)
+    Exodus.close_exodus_database(exo_new)
 
-
-#     Exodus.close_exodus_database(exo_old)
-#     Exodus.close_exodus_database(exo_new)
-
-#     Base.Filesystem.rm("./test_output.e")
-# end
+    Base.Filesystem.rm("./test_output.e")
+end
 
 # function test_put_coordinate_names_on_square_mesh(n::Int64)
 #     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
@@ -77,11 +72,11 @@ end
     end
 end
 
-# @exodus_unit_test_set "Square Mesh Put Coordinates" begin
-#     for (n, mesh) in enumerate(mesh_file_names)
-#         test_put_coordinates_on_square_mesh(n)
-#     end
-# end
+@exodus_unit_test_set "Square Mesh Put Coordinates" begin
+    for (n, mesh) in enumerate(mesh_file_names)
+        test_put_coordinates_on_square_mesh(n)
+    end
+end
 
 # @exodus_unit_test_set "Square Mesh Put Coordinate Names" begin
 #     for (n, mesh) in enumerate(mesh_file_names)

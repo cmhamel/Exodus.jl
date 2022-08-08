@@ -303,7 +303,7 @@ end
 
 function ex_put_coord!(exoid::int, # input not to be changed
                        x_coords, y_coords, z_coords) # TODO get the types right
-    error_code = ccall((:ex_get_coord, libexodus), int,
+    error_code = ccall((:ex_put_coord, libexodus), int,
                        (int, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                        exoid, x_coords, y_coords, z_coords)
     exodus_error_check(error_code, "ex_put_coord!")
