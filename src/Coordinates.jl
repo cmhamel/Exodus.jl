@@ -1,4 +1,4 @@
-function read_coordinates(exo_id::int, num_dim::int, num_nodes::int)
+function read_coordinates(exo_id::Cint, num_dim::Cint, num_nodes::Cint)
     if num_dim == 1
         x_coords = Array{Float64}(undef, num_nodes)
         y_coords = Ref{Float64}(0.0)
@@ -26,7 +26,7 @@ function read_coordinates(exo_id::int, num_dim::int, num_nodes::int)
     return coords
 end
 
-function read_coordinate_names(exo_id::int, num_dim::int)
+function read_coordinate_names(exo_id::Cint, num_dim::T) where {T <: Integer}
     coord_names = Vector{Vector{UInt8}}(undef, num_dim)
     for n in 1:num_dim
         coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)
@@ -39,48 +39,26 @@ function read_coordinate_names(exo_id::int, num_dim::int)
     return new_coord_names
 end
 
-# function write_coordinates(exo_id, coords)
-#     @show coords
-#     x_coords, y_coords = coords[:, 1], coords[:, 2]
-#     if size(coords, 2) == 2
-#         # z_coords = Ref{Float64}(0.0)
-#         # z_coords = Array{Float64}(undef, length(x_coords))
-#         z_coords = nothing
-#     elseif size(coords, 2) == 3
-#         z_coords = coords[:, 3]
-#     else
-#         error("Should never get here")
-#     end
-#     ex_put_coord!(exo_id, x_coords, y_coords, z_coords)
-# end
-
-function put_coordinates(exo::int, coords::Matrix{Float64})
+function put_coordinates(exo::Cint, coords::Matrix{Float64})
     #TODO add views
     x_coords, y_coords = coords[:, 1], coords[:, 2]
     if size(coords, 2) == 2
         # 2D case
         z_coords = Ref{Float64}(0.)
-        # z_coords = Ref{Float64}(0.)
-        # z_coords = Ptr{Cvoid}()
-        # z_coords = zeros(Float64, length(x_coords))
     elseif size(coords, 3) == 3
         # 3D case
         z_coords = coords[:, 3]
     else
         error("Not supporting 1D right now")
     end
-
-    # y_coords, z_coords = Ref{Float64}(0.0), Ref{Float64}(0.0)
-
     ex_put_coord!(exo, x_coords, y_coords, z_coords)
-    # ex_put_coord!(exo,)
 end
 
 # # TODO fix below method, not working
-# function put_coordinate_names(exo::int, coord_names::CoordinateNames)
-#     new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
-#     for (n, coord_name) in enumerate(coord_names)
-#         new_coord_names[n] = Vector{UInt8}(coord_name)
-#     end
-#     ex_put_coord_names!(exo, new_coord_names)
-# end
+function put_coordinate_names(exo::Cint, coord_names::Vector{String})
+    new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
+    for (n, coord_name) in enumerate(coord_names)
+        new_coord_names[n] = Vector{UInt8}(coord_name)
+    end
+    ex_put_coord_names!(exo, new_coord_names)
+end
