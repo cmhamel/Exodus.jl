@@ -1,6 +1,5 @@
 using Exodus
 using Test
-using Profile
 
 macro exodus_unit_test_set(test_name::String, ex)
     return quote

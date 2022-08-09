@@ -1,14 +1,11 @@
-# ExodusConstant = Int64
-
 # TODO: cleanup up below
 #
 const MAX_LINE_LENGTH = Int32(80)
 const MAX_STR_LENGTH = Int32(32)
 const MAX_NAME_LENGTH = Int32(256)
 
-const cpu_word_size = Int32(sizeof(Float64))
+const cpu_word_size = Int32(sizeof(Float64)) # TODO make parametric so we can have float models
 const IO_word_size = Int32(8) # This was what we did before
-
 
 # TODO: make this be read in from the OS or something like that
 #
@@ -17,9 +14,8 @@ const version_number_2 = Int32(15)
 const version_number = Float32(8.15)
 const version_number_int = Int32(100 * version_number_1 + version_number_2)
 
-
 # TODO: add the entirity from the exoudsII header
-
+#
 const EX_WRITE         = 0x0001          #< ex_open(): open existing file for appending. */
 const EX_READ          = 0x0002          #< ex_open(): open file for reading (default) */
 

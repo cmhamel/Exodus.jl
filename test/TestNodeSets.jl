@@ -20,8 +20,34 @@ function test_read_node_set_ids_on_square_meshes(n::Int64)
     Exodus.close_exodus_database(exo)
 end
 
+function test_read_node_set_nodes_on_square_meshes(n::Int64)
+    exo = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
+    init = Exodus.Initialization(exo)
+    nset_ids = Exodus.read_node_set_ids(exo, init.num_node_sets)
+    for nset_id in nset_ids
+        @show "here"
+        nset = Exodus.NodeSet(exo, nset_id)
+        @show "maybe here"
+        @show nset
+        @show nset.node_set_id
+        @show nset.num_nodes
+        @show nset.nodes
+        # @test nset.node_set_id == nset_id
+        # @test nset.num_nodes == number_of_node_set_nodes[n]
+        # @test length(nset.nodes) == number_of_node_set_nodes[n]
+        # nset = nothing
+    end
+    Exodus.close_exodus_database(exo)
+end
+
 @exodus_unit_test_set "Square Mesh Test Read Node Set IDs" begin
     for (n, mesh) in enumerate(mesh_file_names)
         test_read_node_set_ids_on_square_meshes(n)
+    end
+end
+
+@exodus_unit_test_set "Square Mesh Test Read Node Set Nodes" begin
+    for (n, mesh) in enumerate(mesh_file_names)
+        # test_read_node_set_nodes_on_square_meshes(n)
     end
 end

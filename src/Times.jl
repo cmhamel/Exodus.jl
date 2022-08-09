@@ -1,11 +1,9 @@
-Times = Vector{Float64}
-
 function read_number_of_time_steps(exo_id::Cint)
     num_steps = ex_inquire_int(exo_id, EX_INQ_TIME)
     return num_steps
 end
 
-function read_times(exo_id::Cint)::Times
+function read_times(exo_id::Cint)::Vector{Float64}
     num_steps = read_number_of_time_steps(exo_id)
     times = Vector{Float64}(undef, num_steps)
     ex_get_all_times!(exo_id, times)

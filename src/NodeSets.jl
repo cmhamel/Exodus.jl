@@ -1,11 +1,12 @@
-struct NodeSet{T <: Integer}
+struct NodeSet
     node_set_id::Cint
     num_nodes::Cint
-    nodes::Vector{T}
-    function NodeSet(exo_id::Cint, node_set_id::T) where {T <: Integer}
+    nodes
+    function NodeSet(exo_id::Cint, node_set_id)
         num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
+        @show num_nodes
         node_set_nodes = read_node_set_nodes(exo_id, node_set_id)
-        return new{T}(node_set_id, num_nodes, node_set_nodes)
+        return new(node_set_id, num_nodes, node_set_nodes)
     end
 end
 
@@ -25,7 +26,7 @@ function read_node_set_ids(exo_id::Cint, num_node_sets::Cint)
     return node_set_ids
 end
 
-function read_node_set_parameters(exo_id::Cint, node_set_id::Cint)
+function read_node_set_parameters(exo_id::Cint, node_set_id)
     num_nodes = Ref{Cint}(0)
     num_df = Ref{Cint}(0)
     ex_get_set_param!(exo_id, EX_NODE_SET, node_set_id, num_nodes, num_df)
@@ -33,9 +34,11 @@ function read_node_set_parameters(exo_id::Cint, node_set_id::Cint)
 end
 
 # TODO change the return types maybe?
-function read_node_set_nodes(exo_id::Cint, node_set_id::Cint)
+function read_node_set_nodes(exo_id::Cint, node_set_id)
     num_nodes, _ = read_node_set_parameters(exo_id, node_set_id)
+    @show num_nodes
     node_set_nodes = Array{Cint}(undef, num_nodes)
+    @show node_set_nodes
     ex_get_node_set!(exo_id, node_set_id, node_set_nodes)
     return node_set_nodes
 end

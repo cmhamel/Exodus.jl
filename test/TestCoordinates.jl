@@ -44,21 +44,21 @@ function test_put_coordinates_on_square_mesh(n::Int64)
     Base.Filesystem.rm("./test_output.e")
 end
 
-# function test_put_coordinate_names_on_square_mesh(n::Int64)
-#     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
-#     exo_new = Exodus.create_exodus_database("./test_output.e")
+function test_put_coordinate_names_on_square_mesh(n::Int64)
+    exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
+    exo_new = Exodus.create_exodus_database("./test_output.e")
 
-#     coord_names_old = Exodus.read_coordinate_names(exo_old, 2)
-#     @show coord_names_old
-#     Exodus.put_coordinate_names(exo_new, coord_names_old)
-#     coord_names_new = Exodus.read_coordinate_names(exo_new, 2)
-#     @show coord_names_new
+    coord_names_old = Exodus.read_coordinate_names(exo_old, 2)
+    @show coord_names_old
+    Exodus.put_coordinate_names(exo_new, coord_names_old)
+    coord_names_new = Exodus.read_coordinate_names(exo_new, 2)
+    @show coord_names_new
 
-#     Exodus.close_exodus_database(exo_old)
-#     Exodus.close_exodus_database(exo_new)
+    Exodus.close_exodus_database(exo_old)
+    Exodus.close_exodus_database(exo_new)
 
-#     Base.Filesystem.rm("./test_output.e")
-# end
+    Base.Filesystem.rm("./test_output.e")
+end
 
 @exodus_unit_test_set "Square Mesh Read Coordinates" begin
     for (n, mesh) in enumerate(mesh_file_names)
@@ -80,6 +80,6 @@ end
 
 # @exodus_unit_test_set "Square Mesh Put Coordinate Names" begin
 #     for (n, mesh) in enumerate(mesh_file_names)
-#         # test_put_coordinate_names_on_square_mesh(n)
+#         test_put_coordinate_names_on_square_mesh(n)
 #     end
 # end
