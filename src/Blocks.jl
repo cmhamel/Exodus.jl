@@ -1,7 +1,7 @@
 struct Block{T <: Integer}
-    block_id::Cint  # TODO: maybe change to BlockID so types are more verbose
-    num_elem::Cint
-    num_nodes_per_elem::Cint
+    block_id::T
+    num_elem::T
+    num_nodes_per_elem::T
     elem_type::String # TODO maybe just make an index
     conn::Array{T}
     function Block(exo_id::Cint, block_id::T) where {T <: Integer}
@@ -20,7 +20,7 @@ print(io, "Block:\n",
 
 # methods below
 #
-function read_block_ids(exo_id::Cint, num_elem_blk::Cint)
+function read_block_ids(exo_id::Cint, num_elem_blk::T) where {T <: Integer}
     if ex_int64_status(exo_id) > 0
         block_ids = Vector{Clonglong}(undef, num_elem_blk)
         ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
@@ -33,11 +33,11 @@ end
 
 function read_element_block_parameters(exo_id::Cint, block_id::T) where {T <: Integer}
     element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-    num_elem = Ref{Cint}(0)
-    num_nodes = Ref{Cint}(0)
-    num_edges = Ref{Cint}(0)
-    num_faces = Ref{Cint}(0)
-    num_attributes = Ref{Cint}(0)
+    num_elem = Ref{T}(0)
+    num_nodes = Ref{T}(0)
+    num_edges = Ref{T}(0)
+    num_faces = Ref{T}(0)
+    num_attributes = Ref{T}(0)
     ex_get_block!(exo_id, EX_ELEM_BLOCK, block_id,
                   element_type,
                   num_elem, num_nodes,
