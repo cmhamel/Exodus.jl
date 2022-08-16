@@ -4,7 +4,7 @@ struct ExodusDatabase{M, I, B, F}
         if lowercase(mode) == "r"
             exo = ex_open_int(file_name, EX_CLOBBER, cpu_word_size, IO_word_size, version_number, version_number_int)
             int64_status = ex_int64_status(exo)             # this is a hex code
-            float_size = determine_floating_point_type(exo) # this is the float size
+            float_size = ex_inquire_int(exo, EX_INQ_DB_FLOAT_SIZE)
 
             # TODO need better checks for non 32 bit case
             if int64_status == 0x0000
@@ -12,10 +12,12 @@ struct ExodusDatabase{M, I, B, F}
                 ids_int_type = Int32
                 bulk_int_type = Int32
             # TODO this will break for non 32 bit case
+            # TODO figure out other cases from hex codes in exodusII.h
             else
                 error("This should never happen")
             end
 
+            # this is more straightforward
             if float_size == 4
                 float_type = Float32
             elseif float_size == 8
@@ -34,6 +36,10 @@ struct ExodusDatabase{M, I, B, F}
 
         return exo_db
     end
+end
+
+function close(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
+    ex_close!(exo.exo)
 end
 
 # TODO
@@ -68,13 +74,5 @@ end
 
 function open_exodus_database(file_name::String)
     exo_id = ex_open_int(file_name, EX_CLOBBER | EX_ALL_INT64_API | EX_ALL_INT64_DB, cpu_word_size, IO_word_size, version_number, version_number_int)
-    determine_floating_point_type(exo_id)
     return exo_id
-end
-
-
-function determine_floating_point_type(exo_id::Cint)
-    float_type = ex_inquire_int(exo_id, EX_INQ_DB_FLOAT_SIZE)
-    # @show float_type
-    return float_type
 end

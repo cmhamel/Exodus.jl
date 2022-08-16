@@ -1,7 +1,7 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
-    exo_db = Exodus.ExodusDatabase("../example_output/output.e", "r")
-    @test typeof(exo_db) == Exodus.ExodusDatabase{Int32, Int32, Int32, Float64}
-    Exodus.close_exodus_database(exo_db)
+    exo = Exodus.ExodusDatabase("../example_output/output.e", "r")
+    @test typeof(exo) == Exodus.ExodusDatabase{Int32, Int32, Int32, Float64}
+    Exodus.close(exo)
 end
 
 @exodus_unit_test_set "Test Create Exodus Database" begin

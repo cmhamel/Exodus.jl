@@ -1,4 +1,44 @@
 # TODO should maybe make this parametric for Int32 vs. Int64
+struct InitializationNew{T <: Integer}
+    num_dim::T
+    num_nodes::T
+    num_elems::T
+    num_elem_blks::T
+    num_node_sets::T
+    num_side_sets::T
+    function InitializationNew{T}(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F, T}
+        num_dim       = Ref{T}(0)
+        num_nodes     = Ref{T}(0)
+        num_elems     = Ref{T}(0)
+        num_elem_blks = Ref{T}(0)
+        num_node_sets = Ref{T}(0)
+        num_side_sets = Ref{T}(0)
+        title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+        ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
+                     num_dim, num_nodes, num_elems, 
+                     num_elem_blks, num_node_sets, num_side_sets)
+        title = unsafe_string(pointer(title))
+        return new{T}(num_dim[], num_nodes[], num_elems[],
+                      num_elem_blks[], num_node_sets[], num_side_sets[])
+    end
+end
+
+Base.show(io::IO, init::InitializationNew) =
+print(io, "Initialization:\n",
+          "\tNumber of dim       = ", init.num_dim, "\n",
+          "\tNumber of nodes     = ", init.num_nodes, "\n",
+          "\tNumber of elem      = ", init.num_elems, "\n",
+          "\tNumber of blocks    = ", init.num_elem_blks, "\n",
+          "\tNumber of node sets = ", init.num_node_sets, "\n",
+          "\tNumber of side sets = ", init.num_side_sets, "\n")
+
+function put_initialization(exo_id::Cint, init::InitializationNew)
+    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+    ex_put_init!(exo_id, title,
+                 init.num_dim, init.num_nodes, init.num_elems,
+                 init.num_elem_blks, init.num_node_sets, init.num_side_sets)
+end
+
 struct Initialization
     num_dim::Cint
     num_nodes::Cint
