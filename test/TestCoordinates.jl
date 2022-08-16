@@ -53,7 +53,8 @@ function test_put_coordinate_names_on_square_mesh(n::Int64)
     Exodus.put_coordinate_names(exo_new, coord_names_old)
     coord_names_new = Exodus.read_coordinate_names(exo_new, 2)
     @test coord_names_new == coord_names_old
-
+    @test coord_names_new[1] == "x"
+    @test coord_names_new[2] == "y"
     # cleanup, maybe wrap this in a macro?
     Exodus.close_exodus_database(exo_old)
     Exodus.close_exodus_database(exo_new)

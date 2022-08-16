@@ -31,6 +31,18 @@ function read_block_ids(exo_id::Cint, num_elem_blk::T) where {T <: Integer}
     return block_ids
 end
 
+# function read_block_ids(exo_id::Cint, num_elem_blk::Cint)
+#     block_ids = Vector{Cint}(undef, num_elem_blk)
+#     ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
+#     return block_ids
+# end
+
+# function read_block_ids(exo_id::Cint, num_elem_blk::Clonglong)
+#     block_ids = Vector{Clonglong}(undef, num_elem_blk)
+#     ex_get_ids!(exo_id, EX_ELEM_BLOCK, block_ids)
+#     return block_ids
+# end
+
 function read_element_block_parameters(exo_id::Cint, block_id::T) where {T <: Integer}
     element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
     num_elem = Ref{T}(0)

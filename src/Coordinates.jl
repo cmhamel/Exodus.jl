@@ -54,7 +54,7 @@ function put_coordinates(exo::Cint, coords::Matrix{Float64})
     ex_put_coord!(exo, x_coords, y_coords, z_coords)
 end
 
-# # TODO fix below method, not working
+# TODO we can likely remove some allocations
 function put_coordinate_names(exo::Cint, coord_names::Vector{String})
     new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
     for (n, coord_name) in enumerate(coord_names)

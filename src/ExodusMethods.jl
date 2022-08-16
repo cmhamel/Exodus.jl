@@ -239,7 +239,6 @@ function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)::Cint
     info = ccall((:ex_inquire_int, libexodus), Cint,
                  (Cint, ex_inquiry), 
                  exoid, req_info)
-    # @show info
     exodus_error_check(info, "ex_inquire_int")
     return info
 end
