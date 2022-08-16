@@ -25,6 +25,10 @@ function read_node_set_ids(exo_id::Cint, num_node_sets::T) where {T <: Integer}
     return node_set_ids
 end
 
+function put_node_set_ids(exo_id::Cint, nset_ids::Vector{T}) where {T <: Integer}
+    
+end
+
 function read_node_set_parameters(exo_id::Cint, node_set_id::T) where {T <: Integer}
     num_nodes = Ref{T}(0)
     num_df = Ref{T}(0)

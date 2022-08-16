@@ -47,16 +47,16 @@ end
 function test_put_coordinate_names_on_square_mesh(n::Int64)
     exo_old = Exodus.open_exodus_database(abspath(mesh_file_names[n]))
     exo_new = Exodus.create_exodus_database("./test_output.e")
-
+    init_old = Exodus.Initialization(exo_old) # Don't forget this
+    Exodus.put(exo_new, init_old)             # Don't forget this
     coord_names_old = Exodus.read_coordinate_names(exo_old, 2)
-    @show coord_names_old
     Exodus.put_coordinate_names(exo_new, coord_names_old)
     coord_names_new = Exodus.read_coordinate_names(exo_new, 2)
-    @show coord_names_new
+    @test coord_names_new == coord_names_old
 
+    # cleanup, maybe wrap this in a macro?
     Exodus.close_exodus_database(exo_old)
     Exodus.close_exodus_database(exo_new)
-
     Base.Filesystem.rm("./test_output.e")
 end
 
@@ -78,8 +78,8 @@ end
     end
 end
 
-# @exodus_unit_test_set "Square Mesh Put Coordinate Names" begin
-#     for (n, mesh) in enumerate(mesh_file_names)
-#         test_put_coordinate_names_on_square_mesh(n)
-#     end
-# end
+@exodus_unit_test_set "Square Mesh Put Coordinate Names" begin
+    for (n, mesh) in enumerate(mesh_file_names)
+        test_put_coordinate_names_on_square_mesh(n)
+    end
+end
