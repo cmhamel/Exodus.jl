@@ -1,5 +1,11 @@
 module Exodus
 
+export close
+export copy
+export ExodusDatabase
+export Initialization
+
+
 using Exodus_jll
 
 # some simple types up front
@@ -17,10 +23,10 @@ include("Initialization.jl")
 include("Coordinates.jl")
 include("Times.jl")
 include("Blocks.jl")
-include("NodeMaps.jl")
+# include("NodeMaps.jl") # removing parallel support until serial is fully supported
 include("NodeSets.jl")
-include("Variables.jl")
-include("CommunicationMaps.jl")
+include("NodalVariables.jl")
+# include("CommunicationMaps.jl") # removing parallel support until serial is fully supported
 
 # TODO eventually make these options initialized through a flag or something
 ex_opts(EX_VERBOSE | EX_ABORT)

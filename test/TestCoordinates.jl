@@ -11,46 +11,46 @@ number_of_nodes = [4, 9, 25, 81, 289, 1089, 4225, 16641]
 number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 
 function test_read_coordinates_on_square_mesh(n::Int64)
-    exo = Exodus.ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    init = Exodus.Initialization(exo)
+    exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+    init = Initialization(exo)
     coords = Exodus.read_coordinates(exo, init)
     @test size(coords) == (init.num_nodes, init.num_dim)
-    Exodus.close(exo)
+    close(exo)
 end
 
 function test_read_coordinate_names_on_square_mesh(n::Int64)
-    exo = Exodus.ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    init = Exodus.Initialization(exo)
+    exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+    init = Initialization(exo)
     coord_names = Exodus.read_coordinate_names(exo, init)
     @test coord_names == ["x", "y"]
-    Exodus.close(exo)
+    close(exo)
 end
 
 function test_put_coordinates_on_square_mesh(n::Int64)
-    exo_old = Exodus.ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    exo_new = Exodus.ExodusDatabase("./test_output.e", "w") # using defaults
+    exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+    exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
 
-    init_old = Exodus.Initialization(exo_old)
+    init_old = Initialization(exo_old)
     Exodus.put_initialization(exo_new, init_old)
-    init_new = Exodus.Initialization(exo_new)
+    init_new = Initialization(exo_new)
 
     coords_old = Exodus.read_coordinates(exo_old, init_old)
     Exodus.put_coordinates(exo_new, coords_old)
     coords_new = Exodus.read_coordinates(exo_new, init_new)
     @test coords_old == coords_new
 
-    Exodus.close(exo_old)
-    Exodus.close(exo_new)
+    close(exo_old)
+    close(exo_new)
 
     Base.Filesystem.rm("./test_output.e")
 end
 
 function test_put_coordinate_names_on_square_mesh(n::Int64)
-    exo_old = Exodus.ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    exo_new = Exodus.ExodusDatabase("./test_output.e", "w") # using defaults
-    init_old = Exodus.Initialization(exo_old) # Don't forget this
+    exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+    exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
+    init_old = Initialization(exo_old) # Don't forget this
     Exodus.put_initialization(exo_new, init_old)             # Don't forget this
-    init_new = Exodus.Initialization(exo_new)
+    init_new = Initialization(exo_new)
     coord_names_old = Exodus.read_coordinate_names(exo_old, init_old)
     Exodus.put_coordinate_names(exo_new, coord_names_old)
     coord_names_new = Exodus.read_coordinate_names(exo_new, init_new)

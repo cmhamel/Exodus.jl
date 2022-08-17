@@ -70,12 +70,12 @@ struct ExodusDatabase{M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
     end
 end
 
-function close(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
+function Base.close(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
     ex_close!(exo.exo)
 end
 
-function copy(exo::ExodusDatabase{M, I, B, F},
-              new_file_name::String) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
+function Base.copy(exo::ExodusDatabase{M, I, B, F},
+                   new_file_name::String) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
     new_exo_id = ex_create_int(new_file_name, EX_CLOBBER | ex_int64_status(exo.exo), cpu_word_size, IO_word_size, version_number_int)
     ex_copy!(exo.exo, new_exo_id)
     ex_close!(new_exo_id)
