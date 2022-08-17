@@ -45,8 +45,6 @@ blocks = Exodus.read_blocks(exo, block_ids) # contains connectivity information
 nset_ids = Exodus.read_node_set_ids(exo, init)
 nsets = Exodus.read_node_sets(exo, nset_ids) # contains nodes on boundaries
 
-# etc...
-@show init
 close(exo) # cleanup
 ```
 
