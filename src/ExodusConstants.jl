@@ -4,8 +4,9 @@ const MAX_LINE_LENGTH = Int32(80)
 const MAX_STR_LENGTH = Int32(32)
 const MAX_NAME_LENGTH = Int32(256)
 
+# TODO maybe make this non-constant?
 const cpu_word_size = Int32(sizeof(Float64)) # TODO make parametric so we can have float models
-const IO_word_size = Int32(8) # This was what we did before
+const IO_word_size = Int32(8)                # This was what we did before
 
 # TODO: make this be read in from the OS or something like that
 #

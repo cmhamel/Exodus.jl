@@ -43,7 +43,7 @@ function ex_get_all_times!(exoid::Cint, time_values::Vector{T}) where {T <: Real
 end
 
 # TODO think about how to type this best
-function ex_get_block!(exoid::Cint, blk_type::ex_entity_type, blk_id::ex_entity_id,
+function ex_get_block!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id,
                        entity_descrip, 
                        num_entries_this_blk, num_nodes_per_entry,
                        num_edges_per_entry, num_faces_per_entry,
@@ -70,7 +70,7 @@ function ex_get_cmap_params!(exoid::Cint, node_cmap_ids, node_cmap_node_cnts, el
     exodus_error_check(error_code, "ex_get_cmap_params!")
 end
 
-function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id::ex_entity_id, 
+function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id, nned to figure this out
                       nodeconn, faceconn, edgeconn) # TODO get the types right
     error_code = ccall((:ex_get_conn, libexodus), Cint,
                        (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
@@ -174,7 +174,8 @@ function ex_get_node_cmap!(exoid::Cint, map_id::ex_entity_id, node_ids, proc_ids
 end
 
 # NOTE THIS METHOD IS DEPRECATED WE SHOULD MOVE TO ANOTHER INTERFACE USING EX_GET_SET
-function ex_get_node_set!(exoid::Cint, node_set_id::ex_entity_id, node_set_node_list)
+# function ex_get_node_set!(exoid::Cint, node_set_id::ex_entity_id, node_set_node_list) figure this out
+function ex_get_node_set!(exoid::Cint, node_set_id, node_set_node_list)
     error_code = ccall((:ex_get_node_set, libexodus), Cint,
                        (Cint, ex_entity_id, Ptr{void_int}),
                        exoid, node_set_id, node_set_node_list)
@@ -197,7 +198,7 @@ end
 #     exodus_error_check(error_code, "ex_get_set!")
 # end
 
-function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::ex_entity_id,
+function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id, #::ex_entity_id, # figure thsi out
                            num_entry_in_set, num_dist_fact_in_set)
     error_code = ccall((:ex_get_set_param, libexodus), Cint,
                        (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}),

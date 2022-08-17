@@ -1,52 +1,53 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
     exo = Exodus.ExodusDatabase("../example_output/output.e", "r")
-    @test typeof(exo) == Exodus.ExodusDatabase{Int32, Int32, Int32, Float64}
+    @test typeof(exo) == Exodus.ExodusDatabase{Cint, Cint, Cint, Cdouble}
     Exodus.close(exo)
 end
 
-@exodus_unit_test_set "Test Create Exodus Database" begin
-    exo_old = Exodus.open_exodus_database("../example_output/output.e")
-    init = Exodus.Initialization(exo_old)
-    coords = Exodus.read_coordinates(exo_old, init.num_dim, init.num_nodes)
-    Exodus.close_exodus_database(exo_old)
-
-    exo = Exodus.create_exodus_database("./test_output.e")
-    Exodus.put(exo, init)
-    Exodus.put_coordinates(exo, coords)
-    @test Exodus.Initialization(exo) == init
-    @test Exodus.read_coordinates(exo, init.num_dim, init.num_nodes) == coords
-
-    Exodus.close_exodus_database(exo)
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Defaults" begin
+    exo = Exodus.ExodusDatabase("test_output.e", "w")
+    @test typeof(exo) == Exodus.ExodusDatabase{Cint, Cint, Cint, Cdouble}
+    Exodus.close(exo)
     Base.Filesystem.rm("./test_output.e")
-    # TODO need to figure out something to test here
 end
 
-@exodus_unit_test_set "Test Copy Exodus Database Single Block Mesh" begin
-    exo_old = Exodus.open_exodus_database("../example_output/output.e")
-    exo_new = Exodus.copy_exodus_database(exo_old, "./test_output.e")
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Cint/Cfloat" begin
+    exo = Exodus.ExodusDatabase("test_output.e", "w", "32-bit", "32-bit")
+    @test typeof(exo) == Exodus.ExodusDatabase{Cint, Cint, Cint, Cfloat}
+    Exodus.close(exo)
+    Base.Filesystem.rm("./test_output.e")
+end
 
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cfloat" begin
+    exo = Exodus.ExodusDatabase("test_output.e", "w", "64-bit", "32-bit")
+    @test typeof(exo) == Exodus.ExodusDatabase{Clonglong, Clonglong, Clonglong, Cfloat}
+    Exodus.close(exo)
+    Base.Filesystem.rm("./test_output.e")
+end
+
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cdouble" begin
+    exo = Exodus.ExodusDatabase("test_output.e", "w", "64-bit", "64-bit")
+    @test typeof(exo) == Exodus.ExodusDatabase{Clonglong, Clonglong, Clonglong, Cdouble}
+    Exodus.close(exo)
+    Base.Filesystem.rm("./test_output.e")
+end
+
+@exodus_unit_test_set "Test ExodusDatabase Copy Mode" begin
+    exo_old = Exodus.ExodusDatabase("../example_output/output.e", "r")
+    Exodus.copy(exo_old, "./test_output.e")
+    exo_new = Exodus.ExodusDatabase("./test_output.e", "r")
     init_old = Exodus.Initialization(exo_old)
     init_new = Exodus.Initialization(exo_new)
-    coords_old = Exodus.read_coordinates(exo_old, init_old.num_dim, init_old.num_nodes)
-    coords_new = Exodus.read_coordinates(exo_new, init_new.num_dim, init_new.num_nodes)
-    block_ids_old = Exodus.read_block_ids(exo_old, init_old.num_elem_blks)
-    block_ids_new = Exodus.read_block_ids(exo_new, init_new.num_elem_blks)
-    blocks_old = Exodus.read_blocks(exo_old, block_ids_old)
-    blocks_new = Exodus.read_blocks(exo_new, block_ids_new)
+    coords_old = Exodus.read_coordinates(exo_old, init_old)
+    coords_new = Exodus.read_coordinates(exo_new, init_new)
+    coords_names_old = Exodus.read_coordinate_names(exo_old, init_old)
+    coords_names_new = Exodus.read_coordinate_names(exo_new, init_new)
+    
+    @test init_old         == init_new
+    @test coords_old       == coords_new
+    @test coords_names_old == coords_names_new
 
-    @test init_old == init_new
-    @test coords_old == coords_new
-    @test block_ids_old == block_ids_new
-    @test blocks_old[1].block_id == blocks_new[1].block_id
-    @test blocks_old[1].num_elem == blocks_new[1].num_elem
-    @test blocks_old[1].num_nodes_per_elem == blocks_new[1].num_nodes_per_elem
-    @test blocks_old[1].elem_type == blocks_new[1].elem_type
-    @test blocks_old[1].conn == blocks_new[1].conn
-
-    # TODO add more checks once you flesh out the library a little more
-
-    Exodus.close_exodus_database(exo_old)
-    Exodus.close_exodus_database(exo_new)
-
-    Base.Filesystem.rm("./test_output.e")
+    # TODO add more tests once you finish updating the rest
+    Exodus.close(exo_old)
+    Exodus.close(exo_new)
 end

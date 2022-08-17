@@ -1,60 +1,20 @@
 # TODO should maybe make this parametric for Int32 vs. Int64
-struct InitializationNew{T <: Integer}
-    num_dim::T
-    num_nodes::T
-    num_elems::T
-    num_elem_blks::T
-    num_node_sets::T
-    num_side_sets::T
-    function InitializationNew{T}(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F, T}
-        num_dim       = Ref{T}(0)
-        num_nodes     = Ref{T}(0)
-        num_elems     = Ref{T}(0)
-        num_elem_blks = Ref{T}(0)
-        num_node_sets = Ref{T}(0)
-        num_side_sets = Ref{T}(0)
+struct Initialization
+    num_dim::Clonglong
+    num_nodes::Clonglong
+    num_elems::Clonglong
+    num_elem_blks::Clonglong
+    num_node_sets::Clonglong
+    num_side_sets::Clonglong
+    function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
+        num_dim       = Ref{Clonglong}(0)
+        num_nodes     = Ref{Clonglong}(0)
+        num_elems     = Ref{Clonglong}(0)
+        num_elem_blks = Ref{Clonglong}(0)
+        num_node_sets = Ref{Clonglong}(0)
+        num_side_sets = Ref{Clonglong}(0)
         title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
         ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
-                     num_dim, num_nodes, num_elems, 
-                     num_elem_blks, num_node_sets, num_side_sets)
-        title = unsafe_string(pointer(title))
-        return new{T}(num_dim[], num_nodes[], num_elems[],
-                      num_elem_blks[], num_node_sets[], num_side_sets[])
-    end
-end
-
-Base.show(io::IO, init::InitializationNew) =
-print(io, "Initialization:\n",
-          "\tNumber of dim       = ", init.num_dim, "\n",
-          "\tNumber of nodes     = ", init.num_nodes, "\n",
-          "\tNumber of elem      = ", init.num_elems, "\n",
-          "\tNumber of blocks    = ", init.num_elem_blks, "\n",
-          "\tNumber of node sets = ", init.num_node_sets, "\n",
-          "\tNumber of side sets = ", init.num_side_sets, "\n")
-
-function put_initialization(exo_id::Cint, init::InitializationNew)
-    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-    ex_put_init!(exo_id, title,
-                 init.num_dim, init.num_nodes, init.num_elems,
-                 init.num_elem_blks, init.num_node_sets, init.num_side_sets)
-end
-
-struct Initialization
-    num_dim::Cint
-    num_nodes::Cint
-    num_elems::Cint
-    num_elem_blks::Cint
-    num_node_sets::Cint
-    num_side_sets::Cint
-    function Initialization(exo_id::Cint)
-        num_dim = Ref{Cint}(0)
-        num_nodes = Ref{Cint}(0)
-        num_elems = Ref{Cint}(0)
-        num_elem_blks = Ref{Cint}(0)
-        num_node_sets = Ref{Cint}(0)
-        num_side_sets = Ref{Cint}(0)
-        title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-        ex_get_init!(exo_id, title,
                      num_dim, num_nodes, num_elems, 
                      num_elem_blks, num_node_sets, num_side_sets)
         title = unsafe_string(pointer(title))
@@ -72,8 +32,54 @@ print(io, "Initialization:\n",
           "\tNumber of node sets = ", init.num_node_sets, "\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
+function put_initialization(exo::ExodusDatabase{M, I, B, F}, 
+                            init::Initialization) where {M <: ExoInt, I <: ExoInt,
+                                                         B <: ExoInt, F <: ExoFloat}
+    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+    ex_put_init!(exo.exo, title,
+                 init.num_dim, init.num_nodes, init.num_elems,
+                 init.num_elem_blks, init.num_node_sets, init.num_side_sets)
+end
+
+
+##############################################################################################
+# deprecated
+############################################################################################
+struct InitializationDeprecated
+    num_dim::Cint
+    num_nodes::Cint
+    num_elems::Cint
+    num_elem_blks::Cint
+    num_node_sets::Cint
+    num_side_sets::Cint
+    function InitializationDeprecated(exo_id::Cint)
+        num_dim = Ref{Cint}(0)
+        num_nodes = Ref{Cint}(0)
+        num_elems = Ref{Cint}(0)
+        num_elem_blks = Ref{Cint}(0)
+        num_node_sets = Ref{Cint}(0)
+        num_side_sets = Ref{Cint}(0)
+        title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+        ex_get_init!(exo_id, title,
+                     num_dim, num_nodes, num_elems, 
+                     num_elem_blks, num_node_sets, num_side_sets)
+        title = unsafe_string(pointer(title))
+        return new(num_dim[], num_nodes[], num_elems[],
+                   num_elem_blks[], num_node_sets[], num_side_sets[])
+    end
+end
+
+Base.show(io::IO, init::InitializationDeprecated) =
+print(io, "Initialization:\n",
+          "\tNumber of dim       = ", init.num_dim, "\n",
+          "\tNumber of nodes     = ", init.num_nodes, "\n",
+          "\tNumber of elem      = ", init.num_elems, "\n",
+          "\tNumber of blocks    = ", init.num_elem_blks, "\n",
+          "\tNumber of node sets = ", init.num_node_sets, "\n",
+          "\tNumber of side sets = ", init.num_side_sets, "\n")
+
 # TODO for now using ex_copy to deal with shenanigans encountered with putting geometric stuff
-function put(exo_id::Cint, init::Initialization)
+function put(exo_id::Cint, init::InitializationDeprecated)
     title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
     ex_put_init!(exo_id, title,
                  init.num_dim, init.num_nodes, init.num_elems,

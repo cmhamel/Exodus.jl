@@ -2,6 +2,10 @@ module Exodus
 
 using Exodus_jll
 
+# some simple types up front
+ExoInt   = Union{Int32, Int64}
+ExoFloat = Union{Float32, Float64}
+
 include("Errors.jl")
 
 include("ExodusConstants.jl")
