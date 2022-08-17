@@ -9,6 +9,7 @@ struct NodeSet{I <: ExoInt, B <: ExoInt}
         return new{I, B}(node_set_id, num_nodes, node_set_nodes)
     end
 end
+Base.length(nset::NodeSet) = length(nset.nodes)
 
 Base.show(io::IO, node_set::NodeSet{I, B}) where {I <: ExoInt, B <: ExoInt} =
 print(io, "NodeSet:\n",
@@ -53,7 +54,7 @@ end
 function read_node_sets(exo::ExodusDatabase{M, I, B, F}, 
                         node_set_ids::Array{I}) where {M <: ExoInt, I <: ExoInt,
                                                        B <: ExoInt, F <: ExoFloat}
-    node_sets = NodeSets(undef, size(node_set_ids, 1))
+    node_sets = Vector{NodeSet}(undef, size(node_set_ids, 1))
     read_node_sets!(node_sets, exo, node_set_ids)
     return node_sets
 end

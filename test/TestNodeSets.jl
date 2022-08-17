@@ -33,14 +33,42 @@ function test_read_node_set_nodes_on_square_meshes(n::Int64)
     Exodus.close(exo)
 end
 
-@exodus_unit_test_set "Square Mesh Test Read Node Set IDs" begin
+function test_read_node_sets_on_square_meshes(n::Int64)
+    exo = Exodus.ExodusDatabase(abspath(mesh_file_names[n]), "r")
+    init = Exodus.Initialization(exo)
+    nset_ids = Exodus.read_node_set_ids(exo, init)
+    nsets = Exodus.read_node_sets(exo, nset_ids)
+    @test length(nsets) == 4
+    for i = 1:4
+        @test length(nsets[i]) == number_of_node_set_nodes[n]
+    end
+end
+
+@exodus_unit_test_set "Test Nodesets - Read Node Set IDs" begin
     for (n, mesh) in enumerate(mesh_file_names)
         test_read_node_set_ids_on_square_meshes(n)
     end
 end
 
-@exodus_unit_test_set "Square Mesh Test Read Node Set Nodes" begin
+@exodus_unit_test_set "Test Nodesets - Read Node Set Nodes" begin
     for (n, mesh) in enumerate(mesh_file_names)
         test_read_node_set_nodes_on_square_meshes(n)
     end
+end
+
+@exodus_unit_test_set "Test Nodesets - Read Node Set Nodes" begin
+    for (n, mesh) in enumerate(mesh_file_names)
+        test_read_node_sets_on_square_meshes(n)
+    end
+end
+
+@exodus_unit_test_set "Test Nodesets - Print" begin
+    exo = Exodus.ExodusDatabase(abspath(mesh_file_names[1]), "r")
+    init = Exodus.Initialization(exo)
+    nset_ids = Exodus.read_node_set_ids(exo, init)
+    nsets = Exodus.read_node_sets(exo, nset_ids)
+    for nset in nsets
+        @show nset
+    end
+    Exodus.close(exo)
 end
