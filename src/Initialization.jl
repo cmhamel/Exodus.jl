@@ -41,52 +41,6 @@ function put_initialization(exo::ExodusDatabase{M, I, B, F},
                  init.num_elem_blks, init.num_node_sets, init.num_side_sets)
 end
 
-
-##############################################################################################
-# deprecated
-############################################################################################
-struct InitializationDeprecated
-    num_dim::Cint
-    num_nodes::Cint
-    num_elems::Cint
-    num_elem_blks::Cint
-    num_node_sets::Cint
-    num_side_sets::Cint
-    function InitializationDeprecated(exo_id::Cint)
-        num_dim = Ref{Cint}(0)
-        num_nodes = Ref{Cint}(0)
-        num_elems = Ref{Cint}(0)
-        num_elem_blks = Ref{Cint}(0)
-        num_node_sets = Ref{Cint}(0)
-        num_side_sets = Ref{Cint}(0)
-        title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-        ex_get_init!(exo_id, title,
-                     num_dim, num_nodes, num_elems, 
-                     num_elem_blks, num_node_sets, num_side_sets)
-        title = unsafe_string(pointer(title))
-        return new(num_dim[], num_nodes[], num_elems[],
-                   num_elem_blks[], num_node_sets[], num_side_sets[])
-    end
-end
-
-Base.show(io::IO, init::InitializationDeprecated) =
-print(io, "Initialization:\n",
-          "\tNumber of dim       = ", init.num_dim, "\n",
-          "\tNumber of nodes     = ", init.num_nodes, "\n",
-          "\tNumber of elem      = ", init.num_elems, "\n",
-          "\tNumber of blocks    = ", init.num_elem_blks, "\n",
-          "\tNumber of node sets = ", init.num_node_sets, "\n",
-          "\tNumber of side sets = ", init.num_side_sets, "\n")
-
-# TODO for now using ex_copy to deal with shenanigans encountered with putting geometric stuff
-function put(exo_id::Cint, init::InitializationDeprecated)
-    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-    ex_put_init!(exo_id, title,
-                 init.num_dim, init.num_nodes, init.num_elems,
-                 init.num_elem_blks, init.num_node_sets, init.num_side_sets)
-end
-
-
 # commenting out parallel stuff for now until I have time to better support and test it
 # # note that this needs to be used on mesh.g.xx.xx files not .g.nem files
 # struct CommunicationMapInitialization <: FEMContainer

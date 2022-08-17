@@ -52,3 +52,10 @@ end
         test_put_initialization_on_square_mesh(n)
     end
 end
+
+@exodus_unit_test_set "Test Initialization - Print" begin
+    exo = Exodus.ExodusDatabase(abspath(mesh_file_names[1]), "r")
+    init = Exodus.Initialization(exo)
+    @show init
+    Exodus.close(exo)
+end

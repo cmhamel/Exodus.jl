@@ -59,3 +59,7 @@ end
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Bad float_mode" begin
     @test_throws ErrorException Exodus.ExodusDatabase("./test_output.e", "w", "64-bit", "xx-bit")
 end
+
+@exodus_unit_test_set "Test ExodusDatabase Bad Mode - Error" begin
+    @test_throws ErrorException Exodus.ExodusDatabase("./test_output.e", "a")
+end
