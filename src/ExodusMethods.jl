@@ -214,7 +214,7 @@ end
 #     exodus_error_check(error_code, "ex_get_set_param!")
 # end
 
-function ex_get_var!(exoid::Cint, time_step::Cint, var_type::ex_entity_type, var_index::Cint,
+function ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
                      obj_id::ex_entity_id, num_entry_this_obj, var_vals)
     error_code = ccall((:ex_get_var, libexodus), Cint,
                        (Cint, Cint, ex_entity_type, Cint, ex_entity_id, Clonglong, Ptr{Cvoid}),
@@ -222,7 +222,7 @@ function ex_get_var!(exoid::Cint, time_step::Cint, var_type::ex_entity_type, var
     exodus_error_check(error_code, "ex_get_var!")
 end
 
-function ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num::Cint, var_name)
+function ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num, var_name)
     error_code = ccall((:ex_get_variable_name, libexodus), Cint,
                        (Cint, ex_entity_type, Cint, Ptr{UInt8}),
                        exoid, obj_type, var_num, var_name)
