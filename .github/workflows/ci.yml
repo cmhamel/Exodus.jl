@@ -4,8 +4,8 @@ on: [push, pull_request]
 
 jobs:
   test:
-    # runs-on: ${{ matrix.os }}
-    runs-on: [self-hosted, linux, x64, my-wsl-ubuntu-18.04.2-LTS]
+    runs-on: ${{ matrix.os }}
+    # runs-on: [self-hosted, linux, x64, my-wsl-ubuntu-18.04.2-LTS]
     strategy:
       fail-fast: false
       matrix:
@@ -23,10 +23,11 @@ jobs:
         julia-arch: 
           - x64
           - x86
-        # os: 
-        #   - ubuntu-latest
-        #   - ubuntu-18.04
-        #   - ubuntu-20.04
+        os: 
+          - ubuntu-latest
+          - ubuntu-18.04
+          - ubuntu-20.04
+          - macOs-latest
         exclude: # TODO change this once we have some better runners
           - julia-arch: x86
 
