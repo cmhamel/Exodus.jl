@@ -24,12 +24,16 @@ include("ExodusMethods.jl")
 
 include("IO.jl")
 include("Initialization.jl")
-include("Coordinates.jl")
-include("Times.jl")
+
 include("Blocks.jl")
-# include("NodeMaps.jl") # removing parallel support until serial is fully supported
+include("Coordinates.jl")
+include("Maps.jl")
 include("NodeSets.jl")
 include("NodalVariables.jl")
+include("Times.jl")
+
+# include("NodeMaps.jl") # removing parallel support until serial is fully supported
+
 # include("CommunicationMaps.jl") # removing parallel support until serial is fully supported
 
 # TODO eventually make these options initialized through a flag or something

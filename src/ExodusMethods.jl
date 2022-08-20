@@ -166,6 +166,13 @@ function ex_get_loadbal_param!(exoid::Cint,
     exodus_error_check(error_code, "ex_get_loadbal_param!")
 end
 
+function ex_get_map!(exoid::Cint, elem_map::Vector{T}) where {T <: ExoInt}
+    error_code = ccall((:ex_get_map, libexodus), Cint,
+                       (Cint, Ptr{void_int}),
+                       exoid, elem_map)
+    exodus_error_check(error_code, "ex_get_map!")
+end
+
 function ex_get_node_cmap!(exoid::Cint, map_id::ex_entity_id, node_ids, proc_ids, processor::Cint)
     error_code = ccall((:ex_get_node_cmap, libexodus), Cint,
                        (Cint, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Cint),
