@@ -16,8 +16,8 @@ jobs:
           - '1.8'
         julia-arch: [x64, x86]
         os: [ubuntu-latest]
-        exclude:
-          - julia-arch: x86
+        # exclude:
+        #   - julia-arch: x86
 
     steps:
       - uses: actions/checkout@v2
@@ -34,5 +34,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
