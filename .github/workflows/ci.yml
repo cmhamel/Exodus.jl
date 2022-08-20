@@ -16,8 +16,8 @@ jobs:
           - '1.8'
         julia-arch: [x64, x86]
         os: [ubuntu-latest]
-        # exclude:
-        #   - julia-arch: x86
+        exclude: # TODO change this once we have some better runners
+          - julia-arch: x86
 
     steps:
       - uses: actions/checkout@v2
