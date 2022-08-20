@@ -9,13 +9,13 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
-          - '1.6'
+          # - '1.6'
           # - '1.6.0' FAILING
           # - '1.6.1'
           # - '1.6.2'
           # - '1.6.3'
           # - '1.6.4'
-          - '1.6.7'
+          # - '1.6.7'
           - '1.7'
           - '1.7.0'
           - '1.7.1'
@@ -48,10 +48,10 @@ jobs:
       #       ${{ runner.os }}-test-${{ env.cache-name }}-
       #       ${{ runner.os }}-test-
       #       ${{ runner.os }}-
-      # - shell: bash
-      #   run: rm -f Manifest.toml
+      - shell: bash
+        run: rm -f Manifest.toml
       - run: |
-          julia -e '
+          julia --color=yes -e '
             using Pkg
             Pkg.instantiate()
           '
