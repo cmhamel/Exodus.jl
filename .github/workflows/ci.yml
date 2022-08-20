@@ -48,8 +48,8 @@ jobs:
       #       ${{ runner.os }}-test-${{ env.cache-name }}-
       #       ${{ runner.os }}-test-
       #       ${{ runner.os }}-
-      - shell: bash
-        run: rm -f Manifest.toml
+      # - shell: bash
+      #   run: rm -f Manifest.toml
       - run: |
           julia -e '
             using Pkg
