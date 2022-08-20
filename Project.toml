@@ -5,7 +5,6 @@ version = "0.1.5"
 
 [deps]
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
-MbedTLS_jll = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 NetCDF_jll = "7243133f-43d8-5620-bbf4-c2c921802cf3"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"

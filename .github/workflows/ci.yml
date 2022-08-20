@@ -53,6 +53,7 @@ jobs:
       - run: |
           julia --color=yes -e '
             using Pkg
+            Pkg.activate("Exodus")
             Pkg.instantiate()
           '
         # end
