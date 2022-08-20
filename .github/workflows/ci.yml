@@ -6,14 +6,15 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         julia-version: 
           - '1.6'
           # - '1.6.0' FAILING
-          - '1.6.1'
-          - '1.6.2'
-          - '1.6.3'
-          - '1.6.4'
+          # - '1.6.1'
+          # - '1.6.2'
+          # - '1.6.3'
+          # - '1.6.4'
           - '1.6.7'
           - '1.7'
           - '1.7.0'
@@ -21,8 +22,11 @@ jobs:
           - '1.7.2'
           - '1.7.3'
           - '1.8'
-        julia-arch: [x64, x86]
-        os: [ubuntu-latest]
+        julia-arch: 
+          - x64
+          - x86
+        os: 
+          - ubuntu-latest
         exclude: # TODO change this once we have some better runners
           - julia-arch: x86
 
@@ -32,6 +36,20 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
+        # new stuff
+        #
+      - uses: actions/cache@v1
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      
+        # end
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
