@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
-          # - '1.6'
+          - '1.6'
           # - '1.6.0' FAILING
           # - '1.6.1'
           # - '1.6.2'
@@ -21,7 +21,7 @@ jobs:
           - '1.7.1'
           - '1.7.2'
           - '1.7.3'
-          # - '1.8'
+          - '1.8'
         julia-arch: 
           - x64
           - x86
