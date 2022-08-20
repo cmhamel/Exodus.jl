@@ -48,11 +48,12 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - shell: bash
+        run: rm -f Manifest.toml
       - run: |
           julia -e '
             using Pkg
             Pkg.instantiate()
-            Pkg.upgrade_manifest()
           '
         # end
       - uses: julia-actions/julia-buildpkg@v1
