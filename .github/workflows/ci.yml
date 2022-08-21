@@ -14,7 +14,7 @@ jobs:
         julia-version: 
           - '1.6'
           - '1.7'
-          - '1.8'
+          # - '1.8'
         julia-arch: 
           - x64
           # - x86
@@ -36,16 +36,16 @@ jobs:
           arch: ${{ matrix.julia-arch }}
         # new stuff
         #
-      # - uses: actions/cache@v1
-      #   env:
-      #     cache-name: cache-artifacts
-      #   with:
-      #     path: ~/.julia/artifacts
-      #     key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-test-${{ env.cache-name }}-
-      #       ${{ runner.os }}-test-
-      #       ${{ runner.os }}-
+      - uses: actions/cache@v1
+        env:
+          cache-name: cache-artifacts
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
       # - shell: bash
       #   run: rm -f Manifest.toml
       - run: |
