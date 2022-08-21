@@ -38,7 +38,9 @@ function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F},
                                                     B <: ExoInt, F <: ExoFloat}
     num_nodes, _ = read_node_set_parameters(exo, node_set_id)
     node_set_nodes = Array{B}(undef, num_nodes)
-    ex_get_node_set!(exo.exo, node_set_id, node_set_nodes)
+    # extras = Array{F}(undef, num_df)
+    extras = C_NULL # segfaulting without extras, meaning we probably don't have extras
+    ex_get_set!(exo.exo, EX_NODE_SET, node_set_id, node_set_nodes, extras)
     return node_set_nodes
 end
 

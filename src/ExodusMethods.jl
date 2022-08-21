@@ -180,15 +180,6 @@ function ex_get_node_cmap!(exoid::Cint, map_id::ex_entity_id, node_ids, proc_ids
     exodus_error_check(error_code, "ex_get_node_cmap!")
 end
 
-# NOTE THIS METHOD IS DEPRECATED WE SHOULD MOVE TO ANOTHER INTERFACE USING EX_GET_SET
-# function ex_get_node_set!(exoid::Cint, node_set_id::ex_entity_id, node_set_node_list) figure this out
-function ex_get_node_set!(exoid::Cint, node_set_id, node_set_node_list)
-    error_code = ccall((:ex_get_node_set, libexodus), Cint,
-                       (Cint, ex_entity_id, Ptr{void_int}),
-                       exoid, node_set_id, node_set_node_list)
-    exodus_error_check(error_code, "ex_get_node_set!")
-end
-
 function ex_get_processor_node_maps!(exoid::Cint, node_mapi, node_mapb, node_mape, processor)
     error_code = ccall((:ex_get_processor_node_maps, libexodus), Cint,
                        (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint),
@@ -196,30 +187,38 @@ function ex_get_processor_node_maps!(exoid::Cint, node_mapi, node_mapb, node_map
     exodus_error_check(error_code, "ex_get_processor_node_maps")
 end
 
-#getting seg faults from below method
-# function ex_get_set!(exoid::int, set_type::ex_entity_type, set_id::ex_entity_id,
-#                      set_entry_list, set_extra_list)
-#     error_code = ccall((:ex_get_set, libexodus), int,
-#                   (int, ex_entity_type, ex_entity_id, Ptr{void_int}, Any),
-#                   exoid, set_type, set_id, set_entry_list, set_extra_list)
-#     exodus_error_check(error_code, "ex_get_set!")
-# end
+# TODO where{T} not working with Ccalls
+function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, # get type right,
+                     set_entry_list, set_extra_list)
+    error_code = ccall((:ex_get_set, libexodus), Cint,
+                       (Cint, ex_entity_type, Cint, Ptr{void_int}, Ptr{void_int}),
+                       exoid, set_type, set_id, set_entry_list, set_extra_list)
+    exodus_error_check(error_code, "ex_get_set!")
+end
 
-function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id, #::ex_entity_id, # figure thsi out
+function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Clonglong, # get type right,
+    set_entry_list, set_extra_list)
+    error_code = ccall((:ex_get_set, libexodus), Cint,
+                       (Cint, ex_entity_type, Clonglong, Ptr{void_int}, Ptr{void_int}),
+                       exoid, set_type, set_id, set_entry_list, set_extra_list)
+    exodus_error_check(error_code, "ex_get_set!")
+end
+
+function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, #::ex_entity_id, # figure thsi out
                            num_entry_in_set, num_dist_fact_in_set)
     error_code = ccall((:ex_get_set_param, libexodus), Cint,
-                       (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}),
+                       (Cint, ex_entity_type, Cint, Ptr{void_int}, Ptr{void_int}),
                        exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set)
     exodus_error_check(error_code, "ex_get_set_param!")
 end
 
-# function ex_get_set_param!(exoid::int, set_type::ex_entity_type, set_id::Int64,
-#                            num_entry_in_set, num_dist_fact_in_set)
-#     error_code = ccall((:ex_get_set_param, libexodus), int,
-#                        (int, ex_entity_type, Int64, Ptr{void_int}, Ptr{void_int}),
-#     exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set)
-#     exodus_error_check(error_code, "ex_get_set_param!")
-# end
+function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Clonglong, #::ex_entity_id, # figure thsi out
+    num_entry_in_set, num_dist_fact_in_set)
+    error_code = ccall((:ex_get_set_param, libexodus), Cint,
+                       (Cint, ex_entity_type, Clonglong, Ptr{void_int}, Ptr{void_int}),
+                       exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set)
+    exodus_error_check(error_code, "ex_get_set_param!")
+end
 
 function ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
                      obj_id::ex_entity_id, num_entry_this_obj, var_vals)
