@@ -10,19 +10,15 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
-          - '1.5'
           - '1.6'
           - '1.7'
-          - '1.8'
         julia-arch: 
           - x64
           # - x86
         os: 
-          - ubuntu-latest
           - ubuntu-22.04
           - ubuntu-20.04
           - ubuntu-18.04
-          - macOs-latest
           - macOs-12
           - macOs-11
           - macOs-10.15
