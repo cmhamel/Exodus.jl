@@ -17,15 +17,6 @@ function ex_copy!(in_exoid::Cint, out_exoid::Cint)
     exodus_error_check(error_code, "ex_copy!")
 end
 
-# still need to figure out how to deal with #defines from C
-# function ex_create(path, cmode, comp_ws, io_ws)::Cint
-#     exo_id = ccall((:ex_create, libexodus), Cint,
-#                    (Cstring, Cint, Ref{Cint}, Ref{Cint}),
-#                    path, cmode, comp_ws, io_ws)
-#     exodus_error_check(exo_id, "create_exodus_database")
-#     return exo_id
-# end
-
 # TODO figure out right type for cmode in the ex_create_int julia call
 function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cint)::Cint
     exo_id = ccall((:ex_create_int, libexodus), Cint,
@@ -35,7 +26,7 @@ function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cin
     return exo_id
 end
 
-function ex_get_all_times!(exoid::Cint, time_values::Vector{T}) where {T <: Real}
+function ex_get_all_times!(exoid::Cint, time_values::Vector{T}) where {T <: ExoFloat}
     error_code = ccall((:ex_get_all_times, libexodus), Cint,
                        (Cint, Ptr{Cvoid}),
                        exoid, time_values)
@@ -78,8 +69,24 @@ function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entit
     exodus_error_check(error_code, "ex_get_conn") 
 end
 
-function ex_get_coord!(exoid::Cint, # input not to be changed
-                       x_coords, y_coords, z_coords) # TODO need to get types to Julia call right
+function ex_get_coord!(exoid::Cint, # TODO need to figure out typing when null is passed for x y or z
+                       x_coords::Vector{T}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
+    error_code = ccall((:ex_get_coord, libexodus), Cint,
+                       (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                       exoid, x_coords, y_coords, z_coords)
+    exodus_error_check(error_code, "ex_get_coord!")
+end
+
+function ex_get_coord!(exoid::Cint, # TODO need to figure out typing when null is passed for x y or z
+                       x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
+    error_code = ccall((:ex_get_coord, libexodus), Cint,
+                       (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                       exoid, x_coords, y_coords, z_coords)
+    exodus_error_check(error_code, "ex_get_coord!")
+end
+
+function ex_get_coord!(exoid::Cint, # TODO need to figure out typing when null is passed for x y or z
+                       x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Vector{T}) where {T <: ExoFloat}
     error_code = ccall((:ex_get_coord, libexodus), Cint,
                        (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                        exoid, x_coords, y_coords, z_coords)
@@ -102,15 +109,14 @@ function ex_get_elem_cmap!(exoid::Cint, map_id::ex_entity_id, elem_ids, side_ids
 end
 
 # this is one of the general methods
-function ex_get_ids!(exoid::Cint, exo_const::ex_entity_type, # inputs not to be changed
-                     ids) # TODO get the types right
+function ex_get_ids!(exoid::Cint, exo_const::ex_entity_type, ids::Vector{T}) where {T <: ExoInt}
     error_code = ccall((:ex_get_ids, libexodus), Cint,
                        (Cint, ex_entity_type, Ptr{void_int}),
                        exoid, exo_const, ids)
     exodus_error_check(error_code, "ex_get_ids!")
 end
 
-function ex_get_id_map!(exoid::Cint, map_type::ex_entity_type, map)
+function ex_get_id_map!(exoid::Cint, map_type::ex_entity_type, map::Vector{T}) where {T <: ExoInt}
     error_code = ccall((:ex_get_id_map, libexodus), Cint,
                        (Cint, ex_entity_type, Ptr{void_int}),
                        exoid, map_type, map)
@@ -119,9 +125,9 @@ end
 
 # TODO add types
 function ex_get_init!(exoid::Cint, 
-                      title,
-                      num_dim, num_nodes, num_elem, 
-                      num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
+                      title::Vector{UInt8},
+                      num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
+                      num_elem_blk::Ref{Clonglong}, num_node_sets::Ref{Clonglong}, num_side_sets::Ref{Clonglong}) # TODO get the types right
     error_code = ccall((:ex_get_init, libexodus), Cint,
                        (Cint, Ptr{UInt8},
                         Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
@@ -189,7 +195,7 @@ end
 
 # TODO where{T} not working with Ccalls
 function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, # get type right,
-                     set_entry_list, set_extra_list)
+                     set_entry_list::Vector{T}, set_extra_list) where {T <: ExoInt} # figure out how to handle set extra list
     error_code = ccall((:ex_get_set, libexodus), Cint,
                        (Cint, ex_entity_type, Cint, Ptr{void_int}, Ptr{void_int}),
                        exoid, set_type, set_id, set_entry_list, set_extra_list)
@@ -197,7 +203,7 @@ function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, # get 
 end
 
 function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Clonglong, # get type right,
-    set_entry_list, set_extra_list)
+                     set_entry_list::Vector{T}, set_extra_list) where {T <: ExoInt}
     error_code = ccall((:ex_get_set, libexodus), Cint,
                        (Cint, ex_entity_type, Clonglong, Ptr{void_int}, Ptr{void_int}),
                        exoid, set_type, set_id, set_entry_list, set_extra_list)
@@ -205,7 +211,7 @@ function ex_get_set!(exoid::Cint, set_type::ex_entity_type, set_id::Clonglong, #
 end
 
 function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, #::ex_entity_id, # figure thsi out
-                           num_entry_in_set, num_dist_fact_in_set)
+                           num_entry_in_set::Ref{T}, num_dist_fact_in_set::Ref{T}) where {T <: ExoInt}
     error_code = ccall((:ex_get_set_param, libexodus), Cint,
                        (Cint, ex_entity_type, Cint, Ptr{void_int}, Ptr{void_int}),
                        exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set)
@@ -213,7 +219,7 @@ function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Cint, 
 end
 
 function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Clonglong, #::ex_entity_id, # figure thsi out
-    num_entry_in_set, num_dist_fact_in_set)
+                           num_entry_in_set::Ref{T}, num_dist_fact_in_set::Ref{T}) where {T <: ExoInt}
     error_code = ccall((:ex_get_set_param, libexodus), Cint,
                        (Cint, ex_entity_type, Clonglong, Ptr{void_int}, Ptr{void_int}),
                        exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set)
@@ -242,7 +248,7 @@ function ex_get_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars)
     exodus_error_check(error_code, "ex_get_variable_param")
 end
 
-function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)::Cint
+function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
     info = ccall((:ex_inquire_int, libexodus), Cint,
                  (Cint, ex_inquiry), 
                  exoid, req_info)
@@ -284,15 +290,14 @@ end
 # TODO the put methods probably shouldn't have a ! in them
 
 function ex_put_coord!(exoid::Cint, # input not to be changed
-                       x_coords, y_coords, z_coords) # TODO get the types right
+                       x_coords, y_coords, z_coords)
     error_code = ccall((:ex_put_coord, libexodus), Cint,
                        (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
                        exoid, x_coords, y_coords, z_coords)
     exodus_error_check(error_code, "ex_put_coord!")
 end
 
-function ex_put_coord_names!(exoid::Cint, 
-                             coord_names::Vector{Vector{UInt8}})
+function ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
     error_code = ccall((:ex_put_coord_names, libexodus), Cint,
                        (Cint, Ptr{Ptr{UInt8}}),
                        exoid, coord_names)

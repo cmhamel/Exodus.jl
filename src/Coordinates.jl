@@ -3,12 +3,12 @@ function read_coordinates(exo::ExodusDatabase{M, I, B, F},
                                                        B <: ExoInt, F <: ExoFloat}
     if init.num_dim == 1
         x_coords = Array{F}(undef, init.num_nodes)
-        y_coords = Ref{F}(0.0)
-        z_coords = Ref{F}(0.0)
+        y_coords = C_NULL
+        z_coords = C_NULL
     elseif init.num_dim == 2
         x_coords = Array{F}(undef, init.num_nodes)
         y_coords = Array{F}(undef, init.num_nodes)
-        z_coords = Ref{F}(0.0)
+        z_coords = C_NULL
     elseif init.num_dim == 3
         x_coords = Array{F}(undef, init.num_nodes)
         y_coords = Array{F}(undef, init.num_nodes)
@@ -46,13 +46,21 @@ end
 function put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
                          coords::Matrix{F}) where {M <: ExoInt, I <: ExoInt,
                                                    B <: ExoInt, F <: ExoFloat}
-    #TODO add views
-    x_coords, y_coords = @views coords[:, 1], coords[:, 2]
-    if size(coords, 2) == 2
+    # NOTE THIS ASSUMES SOMETHING ABOUT COORDS ORDERING IN LESS THEN 3D
+
+    if size(coords, 2) == 1
+        x_coords = @views coords[:, 1]
+        y_coords = C_NULL
+        z_coords = C_NULL
+    elseif size(coords, 2) == 2
         # 2D case
-        z_coords = Ref{F}(0.)
+        x_coords = @views coords[:, 1]
+        y_coords = @views coords[:, 2]
+        z_coords = C_NULL
     elseif size(coords, 3) == 3
         # 3D case
+        x_coords = @views coords[:, 1]
+        y_coords = @views coords[:, 2]
         z_coords = @views coords[:, 3]
     else
         error("Not supporting 1D right now")
