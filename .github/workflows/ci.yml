@@ -14,13 +14,14 @@ jobs:
         julia-version: 
           - '1.6'
           - '1.7'
-          # - '1.8'
+          - '1.8'
         julia-arch: 
           - x64
           # - x86
         os: 
           - ubuntu-22.04
           - ubuntu-20.04
+          - ubutnu-18.04
           - macOs-12
           - macOs-11
         # exclude: # TODO change this once we have some better runners
