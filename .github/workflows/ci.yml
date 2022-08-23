@@ -21,7 +21,6 @@ jobs:
         os: 
           - ubuntu-22.04
           - ubuntu-20.04
-          - ubutnu-18.04
         # exclude: # TODO change this once we have some better runners
         #   - julia-arch: x86
 
