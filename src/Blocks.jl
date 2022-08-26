@@ -14,6 +14,8 @@ end
     Block(exo::ExodusDatabase{M, I, B, F}, block_id::I) where {M <: ExoInt, I <: ExoInt,
                                                                B <: ExoInt, F <: ExoFloat}
 Init method for block container.
+
+Wraps `ex_get_block!` and `ex_get_conn!`
 """
 function Block(exo::ExodusDatabase{M, I, B, F}, block_id::I) where {M <: ExoInt, I <: ExoInt,
                                                                     B <: ExoInt, F <: ExoFloat}
@@ -34,6 +36,8 @@ print(io, "Block:\n",
                    init::Initialization) where {M <: ExoInt, I <: ExoInt, 
                                                 B <: ExoInt, F <: ExoFloat}
 Retrieves numerical block ids.
+
+Wraps ex_get_ids!
 """
 function read_block_ids(exo::ExodusDatabase{M, I, B, F}, 
                         init::Initialization) where {M <: ExoInt, I <: ExoInt, 
