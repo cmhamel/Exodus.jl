@@ -1,3 +1,13 @@
+
+"""
+    read_coordinates(exo::ExodusDatabase{M, I, B, F}, 
+                     init::Initialization) where {M <: ExoInt, I <: ExoInt,
+                                                  B <: ExoInt, F <: ExoFloat}
+Method to read coordinates. Returns a matrix that is n_nodes x n_dim.
+
+TODO... This method should really return n_dim x n_nodes but there's
+TODO... issues encountered downstream with some views found in Tardigrade
+"""
 function read_coordinates(exo::ExodusDatabase{M, I, B, F}, 
                           init::Initialization) where {M <: ExoInt, I <: ExoInt,
                                                        B <: ExoInt, F <: ExoFloat}
@@ -28,6 +38,11 @@ function read_coordinates(exo::ExodusDatabase{M, I, B, F},
     return coords
 end
 
+"""
+    read_coordinate_names(exo::ExodusDatabase{M, I, B, F}, 
+                          init::Initialization) where {M <: ExoInt, I <: ExoInt,
+                                                       B <: ExoInt, F <: ExoFloat}
+"""
 function read_coordinate_names(exo::ExodusDatabase{M, I, B, F}, 
                                init::Initialization) where {M <: ExoInt, I <: ExoInt,
                                                             B <: ExoInt, F <: ExoFloat}
@@ -43,6 +58,12 @@ function read_coordinate_names(exo::ExodusDatabase{M, I, B, F},
     return new_coord_names
 end
 
+"""
+    put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
+                         coords::Matrix{F}) where {M <: ExoInt, I <: ExoInt,
+                                                   B <: ExoInt, F <: ExoFloat}
+Work in progress... not that well tested
+"""
 function put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
                          coords::Matrix{F}) where {M <: ExoInt, I <: ExoInt,
                                                    B <: ExoInt, F <: ExoFloat}
@@ -69,6 +90,12 @@ function put_coordinates(exo::ExodusDatabase{M, I, B, F},
 end
 
 # TODO we can likely remove some allocations
+"""
+    put_coordinate_names(exo::ExodusDatabase{M, I, B, F}, 
+                         coord_names::Vector{String}) where {M <: ExoInt, I <: ExoInt,
+                                                             B <: ExoInt, F <: ExoFloat}
+Work in progress...
+"""
 function put_coordinate_names(exo::ExodusDatabase{M, I, B, F}, 
                               coord_names::Vector{String}) where {M <: ExoInt, I <: ExoInt,
                                                                   B <: ExoInt, F <: ExoFloat}
