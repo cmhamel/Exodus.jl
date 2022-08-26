@@ -1,3 +1,6 @@
+"""
+    Exodus
+"""
 module Exodus
 
 export close
@@ -13,7 +16,15 @@ using Exodus_jll
 # Int32, Float64
 # Int64, Float32
 # Int64, Float64
+"""
+    ExoInt
+Union of different Exodus integer types.
+"""
 ExoInt   = Union{Int32, Int64}
+"""
+    ExoFloat
+Union of different Exodus float types
+"""
 ExoFloat = Union{Float32, Float64}
 
 include("Errors.jl")
