@@ -1,4 +1,8 @@
 # TODO should maybe make this parametric for Int32 vs. Int64
+"""
+    Initialization
+Container that should be setup first thing after getting an exo ID
+"""
 struct Initialization
     num_dim::Clonglong
     num_nodes::Clonglong
@@ -6,21 +10,25 @@ struct Initialization
     num_elem_blks::Clonglong
     num_node_sets::Clonglong
     num_side_sets::Clonglong
-    function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
-        num_dim       = Ref{Clonglong}(0)
-        num_nodes     = Ref{Clonglong}(0)
-        num_elems     = Ref{Clonglong}(0)
-        num_elem_blks = Ref{Clonglong}(0)
-        num_node_sets = Ref{Clonglong}(0)
-        num_side_sets = Ref{Clonglong}(0)
-        title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-        ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
-                     num_dim, num_nodes, num_elems, 
-                     num_elem_blks, num_node_sets, num_side_sets)
-        title = unsafe_string(pointer(title))
-        return new(num_dim[], num_nodes[], num_elems[],
-                   num_elem_blks[], num_node_sets[], num_side_sets[])
-    end
+end
+
+"""
+    Initialization(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
+"""
+function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
+    num_dim       = Ref{Clonglong}(0)
+    num_nodes     = Ref{Clonglong}(0)
+    num_elems     = Ref{Clonglong}(0)
+    num_elem_blks = Ref{Clonglong}(0)
+    num_node_sets = Ref{Clonglong}(0)
+    num_side_sets = Ref{Clonglong}(0)
+    title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+    ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
+                 num_dim, num_nodes, num_elems, 
+                 num_elem_blks, num_node_sets, num_side_sets)
+    title = unsafe_string(pointer(title))
+    return Initialization(num_dim[], num_nodes[], num_elems[],
+                          num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
 Base.show(io::IO, init::Initialization) =
@@ -32,6 +40,11 @@ print(io, "Initialization:\n",
           "\tNumber of node sets = ", init.num_node_sets, "\n",
           "\tNumber of side sets = ", init.num_side_sets, "\n")
 
+"""
+    put_initialization(exo::ExodusDatabase{M, I, B, F}, 
+                       init::Initialization) where {M <: ExoInt, I <: ExoInt,
+                                                    B <: ExoInt, F <: ExoFloat}
+"""
 function put_initialization(exo::ExodusDatabase{M, I, B, F}, 
                             init::Initialization) where {M <: ExoInt, I <: ExoInt,
                                                          B <: ExoInt, F <: ExoFloat}

@@ -1,14 +1,28 @@
+"""
+    NodeSet{I <: ExoInt, B <: ExoInt}
+Container for node sets.
+"""
 struct NodeSet{I <: ExoInt, B <: ExoInt}
     node_set_id::I
     num_nodes::Clonglong
     nodes::Vector{B}
-    function NodeSet(exo::ExodusDatabase{M, I, B, F}, node_set_id::I) where {M <: ExoInt, I <: ExoInt,
-                                                                             B <: ExoInt, F <: ExoFloat}
-        num_nodes, _ = read_node_set_parameters(exo, node_set_id)
-        node_set_nodes = read_node_set_nodes(exo, node_set_id)
-        return new{I, B}(node_set_id, num_nodes, node_set_nodes)
-    end
 end
+
+"""
+    NodeSet(exo::ExodusDatabase{M, I, B, F}, node_set_id::I) where {M <: ExoInt, I <: ExoInt,
+                                                                    B <: ExoInt, F <: ExoFloat}
+Init method for a NodeSet with ID node_set_id.
+"""
+function NodeSet(exo::ExodusDatabase{M, I, B, F}, node_set_id::I) where {M <: ExoInt, I <: ExoInt,
+                                                                         B <: ExoInt, F <: ExoFloat}
+    num_nodes, _ = read_node_set_parameters(exo, node_set_id)
+    node_set_nodes = read_node_set_nodes(exo, node_set_id)
+    return NodeSet{I, B}(node_set_id, num_nodes, node_set_nodes)
+end
+
+"""
+    Base.length(nset::NodeSet)
+"""
 Base.length(nset::NodeSet) = length(nset.nodes)
 
 Base.show(io::IO, node_set::NodeSet{I, B}) where {I <: ExoInt, B <: ExoInt} =
@@ -16,6 +30,11 @@ print(io, "NodeSet:\n",
           "\tNode set ID     = ", node_set.node_set_id, "\n",
           "\tNumber of nodes = ", node_set.num_nodes, "\n")
 
+"""
+    read_node_set_ids(exo::ExodusDatabase{M, I, B, F},
+                      init::Initialization) where {M <: ExoInt, I <: ExoInt,
+                                                   B <: ExoInt, F <: ExoFloat}
+"""
 function read_node_set_ids(exo::ExodusDatabase{M, I, B, F},
                            init::Initialization) where {M <: ExoInt, I <: ExoInt,
                                                         B <: ExoInt, F <: ExoFloat}
@@ -53,6 +72,11 @@ function read_node_sets!(node_sets::Vector{NodeSet},
     end
 end
 
+"""
+    read_node_sets(exo::ExodusDatabase{M, I, B, F}, 
+                   node_set_ids::Array{I}) where {M <: ExoInt, I <: ExoInt,
+                                                  B <: ExoInt, F <: ExoFloat}
+"""
 function read_node_sets(exo::ExodusDatabase{M, I, B, F}, 
                         node_set_ids::Array{I}) where {M <: ExoInt, I <: ExoInt,
                                                        B <: ExoInt, F <: ExoFloat}

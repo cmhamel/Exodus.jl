@@ -12,21 +12,21 @@ end
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Cint/Cfloat" begin
-    exo = ExodusDatabase("test_output.e", "w", "32-bit", "32-bit")
+    exo = ExodusDatabase("test_output.e", "w"; int_mode="32-bit", float_mode="32-bit")
     @test typeof(exo) == ExodusDatabase{Cint, Cint, Cint, Cfloat}
     close(exo)
     Base.Filesystem.rm("./test_output.e")
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cfloat" begin
-    exo = ExodusDatabase("test_output.e", "w", "64-bit", "32-bit")
+    exo = ExodusDatabase("test_output.e", "w"; int_mode="64-bit", float_mode="32-bit")
     @test typeof(exo) == ExodusDatabase{Clonglong, Clonglong, Clonglong, Cfloat}
     close(exo)
     Base.Filesystem.rm("./test_output.e")
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cdouble" begin
-    exo = ExodusDatabase("test_output.e", "w", "64-bit", "64-bit")
+    exo = ExodusDatabase("test_output.e", "w"; int_mode="64-bit", float_mode="64-bit")
     @test typeof(exo) == ExodusDatabase{Clonglong, Clonglong, Clonglong, Cdouble}
     close(exo)
     Base.Filesystem.rm("./test_output.e")
@@ -53,11 +53,11 @@ end
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Bad int_mode" begin
-    @test_throws ErrorException ExodusDatabase("./test_output.e", "w", "xx-bit", "64-bit")
+    @test_throws ErrorException ExodusDatabase("./test_output.e", "w"; int_mode="xx-bit", float_mode="64-bit")
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Bad float_mode" begin
-    @test_throws ErrorException ExodusDatabase("./test_output.e", "w", "64-bit", "xx-bit")
+    @test_throws ErrorException ExodusDatabase("./test_output.e", "w"; int_mode="64-bit", float_mode="xx-bit")
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Bad Mode - Error" begin

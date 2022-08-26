@@ -1,3 +1,7 @@
+"""
+    read_number_of_nodal_variables(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt,
+                                                                           B <: ExoInt, F <: ExoFloat}
+"""
 function read_number_of_nodal_variables(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt,
                                                                                 B <: ExoInt, F <: ExoFloat}
     num_vars = Ref{Cint}(0) # TODO check to make sure this is right
@@ -5,6 +9,7 @@ function read_number_of_nodal_variables(exo::ExodusDatabase{M, I, B, F}) where {
     return num_vars[]
 end
 
+# TODO this method needs to be updated to use ExodusDatabase
 function read_nodal_variable_names!(exo_id::Cint, num_vars::Cint, var_name::Vector{UInt8}, var_names::Vector{String})
     for n = 1:num_vars
         ex_get_variable_name!(exo_id, EX_NODAL, n, var_name)
