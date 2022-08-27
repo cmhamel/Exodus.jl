@@ -11,6 +11,10 @@ From the package manager simply type
 ```
 add Exodus
 ```
+
+# Dependencies
+The main dependency is Exodus_jll which has a build process that is still being worked out due to evolving changes in NetCDF_jll, HDF5_jll, and LibCURL_jll.
+
 # Read Example
 To read in an exodusII file (typically has a .e or .exo extension) simply do the following
 
