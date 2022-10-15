@@ -48,8 +48,9 @@ jobs:
       #- shell: bash
       #  run: rm -f Manifest.toml
       - run: |
-          julia --color=yes --project=Exodus -e '
+          julia --color=yes -e '
             using Pkg
+            Pkg.add("Exodus")
             Pkg.add(PackageSpec(url="https://github.com/cmhamel/Exodus_jll.git"))
             Pkg.instantiate()
           '
