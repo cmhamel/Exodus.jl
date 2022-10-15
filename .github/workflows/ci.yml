@@ -50,8 +50,8 @@ jobs:
       - run: |
           julia --color=yes -e '
             using Pkg
-            Pkg.add("https://github.com/cmhamel/Exodus_jll.git")
             Pkg.activate(".")
+            Pkg.add(PackageSpec(url="https://github.com/cmhamel/Exodus_jll.git"))
             Pkg.instantiate()
           '
         # end
