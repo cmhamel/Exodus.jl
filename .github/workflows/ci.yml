@@ -45,11 +45,12 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - shell: bash
-        run: rm -f Manifest.toml
+      #- shell: bash
+      #  run: rm -f Manifest.toml
       - run: |
           julia --color=yes -e '
             using Pkg
+            Pkg.add("https://github.com/cmhamel/Exodus_jll.git")
             Pkg.activate(".")
             Pkg.instantiate()
           '
