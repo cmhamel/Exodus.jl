@@ -47,14 +47,14 @@ jobs:
             ${{ runner.os }}-
       #- shell: bash
       #  run: rm -f Manifest.toml
-      - run: |
-          julia --color=yes -e '
-            using Pkg
-            Pkg.activate(".")
-            Pkg.add(PackageSpec(url="https://github.com/cmhamel/Exodus_jll.git"))
-            Pkg.instantiate()
-          '
-        # end
+      #- run: |
+      #    julia --color=yes -e '
+      #      using Pkg
+      #      Pkg.activate(".")
+      #      Pkg.add(PackageSpec(url="https://github.com/cmhamel/Exodus_jll.git"))
+      #      Pkg.instantiate()
+      #    '
+      #  # end
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
