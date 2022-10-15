@@ -7,7 +7,6 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    # runs-on: [self-hosted, linux, x64, my-wsl-ubuntu-18.04.2-LTS]
     strategy:
       fail-fast: false
       matrix:
@@ -17,16 +16,13 @@ jobs:
           - '1.8'
         julia-arch: 
           - x64
-          - x86
         os:
           - ubuntu-latest 
           #- ubuntu-22.04
           #- ubuntu-20.04
           - windows-latest
           - macos-latest
-        # exclude: # TODO change this once we have some better runners
-        #   - julia-arch: x86
-
+        
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
