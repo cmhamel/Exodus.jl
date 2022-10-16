@@ -24,10 +24,10 @@ jobs:
           - macos-latest
         exclude:
           - os: macos-latest
-            julia-version:
-                - '1.6'
-                - '1.7'
-        
+            julia-version: '1.6'
+          - os: macos-latest
+            julia-version: '1.7'
+
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
