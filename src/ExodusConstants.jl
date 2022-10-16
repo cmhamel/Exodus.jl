@@ -11,8 +11,8 @@ const IO_word_size = Int32(8)                # This was what we did before
 # TODO: make this be read in from the OS or something like that
 #
 const version_number_1 = Int32(8)
-const version_number_2 = Int32(17)
-const version_number = Float32(8.17)
+const version_number_2 = Int32(19)
+const version_number = Float32(8.19)
 const version_number_int = Int32(100 * version_number_1 + version_number_2)
 
 # TODO: add the entirity from the exoudsII header
