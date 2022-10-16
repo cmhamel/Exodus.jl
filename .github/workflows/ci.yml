@@ -20,7 +20,7 @@ jobs:
           - ubuntu-latest 
           #- ubuntu-20.04
           #- ubuntu-18.04
-          #- windows-latest
+          - windows-latest
           - macos-latest
         
     steps:
