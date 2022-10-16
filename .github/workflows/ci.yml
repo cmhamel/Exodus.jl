@@ -27,8 +27,12 @@ jobs:
           - macos-latest
           - macos-10.15
         exclude:
+          - os: macos-10.15
+            julia-version: '1.6'
           - os: macos-latest
             julia-version: '1.6'
+          - os: macos-10.15
+            julia-version: '1.7'
           - os: macos-latest
             julia-version: '1.7'
 
