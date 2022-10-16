@@ -18,10 +18,15 @@ jobs:
           - x64
         os:
           - ubuntu-latest 
-          #- ubuntu-20.04
-          #- ubuntu-18.04
+          - ubuntu-20.04
+          - ubuntu-18.04
           - windows-latest
           - macos-latest
+        exclude:
+          - os: macos-latest
+            julia-version:
+                - '1.6'
+                - '1.7'
         
     steps:
       - uses: actions/checkout@v2
