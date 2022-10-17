@@ -22,8 +22,9 @@ jobs:
         run: |
           julia --color=yes --project=docs/ -e '
             using Pkg 
-            Pkg.develop(PackageSpec(path=pwd())) 
-            Pkg.instantiate()
+            #Pkg.develop(PackageSpec(path=pwd())) 
+            #Pkg.instantiate()
+            Pkg.add("Documenter")
           '
       - name: Build and deploy
         env:
