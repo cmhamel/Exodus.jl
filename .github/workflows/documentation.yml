@@ -17,13 +17,14 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.8'
-      #- name: Install dependencies
-      #  run: |
-      #    julia --color=yes --project=docs/ -e '
-      #      using Pkg 
-      #      Pkg.develop(PackageSpec(path=pwd())) 
-      #      Pkg.instantiate()
-      #    '
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Install dependencies
+        run: |
+          julia --color=yes --project=docs/ -e '
+            using Pkg 
+            Pkg.develop(PackageSpec(path=pwd())) 
+            Pkg.instantiate()
+          '
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
