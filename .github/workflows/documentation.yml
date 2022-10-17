@@ -25,6 +25,7 @@ jobs:
             #Pkg.develop(PackageSpec(path=pwd())) 
             #Pkg.instantiate()
             Pkg.add("Documenter")
+            Pkg.add("Exodus")
           '
       - name: Build and deploy
         env:
