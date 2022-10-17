@@ -141,8 +141,8 @@ version = "0.7.0"
 
 [[deps.Seacas_jll]]
 deps = ["Artifacts", "Fmt_jll", "HDF5_jll", "JLLWrappers", "Libdl", "NetCDF_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "36fe4ba9e33007ebf96b428b7667eb448b9a0eca"
-repo-rev = "main"
+git-tree-sha1 = "4439ee2d86aaeddf70dd4514c7a631513aadbbe8"
+repo-rev = "4da967dda642a6b694e0c1db7e2d6ad1447e3036"
 repo-url = "https://github.com/cmhamel/Seacas_jll.jl.git"
 uuid = "6c04193c-bb8d-5d1c-bd15-e38b120f18e4"
 version = "0.1.7+0"
