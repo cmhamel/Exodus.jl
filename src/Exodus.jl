@@ -8,8 +8,8 @@ export copy
 export ExodusDatabase
 export Initialization
 
-#using Exodus_jll
-using Seacas_jll
+using Exodus_jll
+# using Seacas_jll
 
 # some simple types up front
 # we can thus have databases of 4 varieties
