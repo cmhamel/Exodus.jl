@@ -4,7 +4,7 @@ on:
   - pull_request
 
 jobs:
-  test linux and windows:
+  test-linux-and-windows:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -48,7 +48,7 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-  test mac:
+  test-mac:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
