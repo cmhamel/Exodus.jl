@@ -11,31 +11,17 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
-          - '1.6'
-          - '1.7'
+          #- '1.6'
+          #- '1.7'
           - '1.8'
           - 'nightly'
         julia-arch: 
           - x64
         os:
           - ubuntu-latest 
-          - ubuntu-20.04
-          - ubuntu-18.04
           - windows-latest
-          - windows-2019
-          - macos-12
           - macos-latest
-          - macos-10.15
-        #exclude:
-        #  - os: macos-10.15
-        #    julia-version: '1.6'
-        #  - os: macos-latest
-        #    julia-version: '1.6'
-        #  - os: macos-10.15
-        #    julia-version: '1.7'
-        #  - os: macos-latest
-        #    julia-version: '1.7'
-
+        
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -54,16 +40,6 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      #- shell: bash
-      #  run: rm -f Manifest.toml
-      #- run: |
-      #    julia --color=yes -e '
-      #      using Pkg
-      #      Pkg.activate("Exodus")
-      #      Pkg.add(PackageSpec(url="https://github.com/cmhamel/Exodus_jll.git"))
-      #      #Pkg.instantiate()
-      #    '
-      #  # end
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         with:
