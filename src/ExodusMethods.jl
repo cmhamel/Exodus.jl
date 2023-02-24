@@ -116,6 +116,16 @@ function ex_get_elem_cmap!(exoid::Cint, map_id::ex_entity_id, elem_ids, side_ids
     exodus_error_check(error_code, "ex_get_elem_cmap!")
 end
 
+
+# Global variable get methods here
+#
+function ex_get_glob_vars!(exoid::Cint, timestep, num_glob_vars, global_var_vals)
+    error_code = ccall((:ex_get_glob_vars, libexodus), Cint,
+                       (Cint, Cint, Cint, Ptr{Cvoid}),
+                       exoid, timestep, num_glob_vars, global_var_vals)
+    exodus_error_check(error_code, "ex_get_glob_vars")
+end
+
 # this is one of the general methods
 """
     ex_get_ids!(exoid::Cint, exo_const::ex_entity_type, ids::Vector{T}) where {T <: ExoInt}
@@ -385,10 +395,10 @@ function ex_put_time!(exoid::Cint, time_step::Cint, time_value)
     exodus_error_check(error_code, "ex_put_time!")
 end
 
-function ex_put_var!(exoid::Cint, time_step::Cint, var_type::ex_entity_type, var_index::Cint,
+function ex_put_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
                      obj_id::ex_entity_id, num_entries_this_obj, var_vals)
     error_code = ccall((:ex_put_var, libexodus), Cint,
-                       (Cint, Cint, ex_entity_type, Cint, ex_entity_id, Cint, Ptr{Cvoid}),
+                       (Cint, Cint, ex_entity_type, Clong, ex_entity_id, Cint, Ptr{Cvoid}),
                        exoid, time_step, var_type, var_index, obj_id, num_entries_this_obj, var_vals)
     exodus_error_check(error_code, "ex_put_var!")
 end
@@ -400,7 +410,7 @@ function ex_put_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num::C
     exodus_error_check(error_code, "ex_put_variable_name!")
 end
 
-function ex_put_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars::Cint)
+function ex_put_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars)
     error_code = ccall((:ex_put_variable_param, libexodus), Cint,
                        (Cint, ex_entity_type, Cint),
                        exoid, obj_type, num_vars)

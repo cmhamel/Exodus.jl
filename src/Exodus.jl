@@ -39,6 +39,7 @@ include("Initialization.jl")
 
 include("Blocks.jl")
 include("Coordinates.jl")
+include("GlobalVariables.jl")
 include("Maps.jl")
 include("NodeSets.jl")
 include("NodalVariables.jl")

@@ -14,6 +14,7 @@ end
 include("TestBlocks.jl")
 include("TestCoordinates.jl")
 include("TestErrors.jl")
+include("TestGlobalVariables.jl")
 include("TestInitialization.jl")
 include("TestIO.jl")
 include("TestMaps.jl")
