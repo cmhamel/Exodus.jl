@@ -41,6 +41,7 @@ jobs:
       #- uses: julia-actions/julia-buildpkg@v1
       - run: |
           julia --color=yes -e '
+            ENV["JULIA_PKG_IGNORE_HASHES"] = 1
             using Pkg
             Pkg.add("Exodus")
           '
