@@ -3,11 +3,6 @@
 """
 module Exodus
 
-export close
-export copy
-export ExodusDatabase
-export Initialization
-
 using Exodus_jll
 
 # some simple types up front
@@ -29,23 +24,31 @@ ExoFloat = Union{Float32, Float64}
 
 include("Errors.jl")
 
+# exodus constants and type definitions
 include("ExodusConstants.jl")
 include("ExodusTypes.jl")
 include("ExodusMethods.jl")
 
+# setup
 include("IO.jl")
 include("Initialization.jl")
+
+# the basic stuff
+include("Coordinates.jl")
 include("Times.jl")
 
+# blocks, nodesets, sidesets
+include("SetsCommon.jl")
 include("Blocks.jl")
-include("Coordinates.jl")
+include("NodeSets.jl")
 
+# variables
 include("VariablesCommon.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
 
 include("Maps.jl")
-include("NodeSets.jl")
+
 
 # include("NodeMaps.jl") # removing parallel support until serial is fully supported
 
@@ -55,5 +58,12 @@ include("NodeSets.jl")
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
 ex_opts(EX_VERBOSE | EX_ABORT)
+
+# exports
+export close
+export copy
+export ExodusDatabase
+export Initialization
+
 
 end # module

@@ -33,6 +33,38 @@ function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cin
     return exo_id
 end
 
+# this method actually returns something
+# this method will break currently if called
+# TODO figure out how to get #define statements to work from julia artifact
+"""
+    ex_open(path, mode, comp_ws, io_ws)::Cint
+NOT USED
+"""
+function ex_open(path, mode, comp_ws, io_ws)::Cint
+    error_code = ccall(
+        (:ex_open, libexodus), Cint,
+        (Cstring, Cint, Ptr{Cint}, Ptr{Cint}),
+        path, mode, comp_ws, io_ws
+    )
+    exodus_error_check(error_code, "ex_open")
+    return error_code
+end
+
+# this is a hack for now, maybe make a wrapper?
+"""
+    ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::Cint
+FIX TYPES
+"""
+function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::Cint
+    error_code = ccall(
+        (:ex_open_int, libexodus), Cint,
+        (Cstring, Cint, Ref{Cint}, Ref{Cint}, Ref{Cfloat}, Cint),
+        path, mode, comp_ws, io_ws, version, run_version
+    )
+    exodus_error_check(error_code, "ex_open_int")
+    return error_code
+end
+
 """
     ExodusDatabase{M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
 Main entry point for the package whether it's in read or write mode. 
