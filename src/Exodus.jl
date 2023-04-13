@@ -36,14 +36,17 @@ include("ExodusMethods.jl")
 
 include("IO.jl")
 include("Initialization.jl")
+include("Times.jl")
 
 include("Blocks.jl")
 include("Coordinates.jl")
+
+include("VariablesCommon.jl")
 include("GlobalVariables.jl")
+include("NodalVariables.jl")
+
 include("Maps.jl")
 include("NodeSets.jl")
-include("NodalVariables.jl")
-include("Times.jl")
 
 # include("NodeMaps.jl") # removing parallel support until serial is fully supported
 
