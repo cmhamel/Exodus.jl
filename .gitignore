@@ -1,3 +1,5 @@
 cubit*.jou
 history*.jou
 *.swp
+*.e
+*.e.*
