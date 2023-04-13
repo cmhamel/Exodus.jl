@@ -1,3 +1,37 @@
+function ex_get_coord_internal!(exoid::Cint, # TODO need to figure out typing when null is passed for x y or z
+                                x_coords, y_coords, z_coords)
+    error_code = ccall((:ex_get_coord, libexodus), Cint,
+                       (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                        exoid, x_coords, y_coords, z_coords)
+    exodus_error_check(error_code, "ex_get_coord!")
+end
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat} =
+ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat} =
+ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Vector{T}) where {T <: ExoFloat}
+"""
+ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Vector{T}) where {T <: ExoFloat} =
+ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
+
+"""
+ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
+"""
+function ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
+
+    error_code = ccall((:ex_get_coord_names, libexodus), Cint,
+                       (Cint, Ptr{Ptr{UInt8}}),
+                        exo_id, coord_names)
+    exodus_error_check(error_code, "ex_get_coord_names!")
+end
+
 
 """
     read_coordinates(exo::ExodusDatabase{M, I, B, F}, 
@@ -57,6 +91,29 @@ function read_coordinate_names(exo::ExodusDatabase{M, I, B, F},
     end
     return new_coord_names
 end
+
+"""
+    ex_put_coord!(exoid::Cint, x_coords, y_coords, z_coords)
+NOT THAT WELL TESTED
+"""
+function ex_put_coord!(exoid::Cint, # input not to be changed
+                       x_coords, y_coords, z_coords)
+    error_code = ccall((:ex_put_coord, libexodus), Cint,
+                       (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                       exoid, x_coords, y_coords, z_coords)
+    exodus_error_check(error_code, "ex_put_coord!")
+end
+
+"""
+    ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
+"""
+function ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
+    error_code = ccall((:ex_put_coord_names, libexodus), Cint,
+                       (Cint, Ptr{Ptr{UInt8}}),
+                       exoid, coord_names)
+    exodus_error_check(error_code, "ex_put_coord_names!")
+end
+
 
 """
     put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
