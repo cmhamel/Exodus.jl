@@ -27,7 +27,6 @@ include("Errors.jl")
 # exodus constants and type definitions
 include("ExodusConstants.jl")
 include("ExodusTypes.jl")
-include("ExodusMethods.jl")
 
 # setup
 include("IO.jl")
@@ -36,6 +35,11 @@ include("Initialization.jl")
 # the basic stuff
 include("Coordinates.jl")
 include("Times.jl")
+
+# maps
+include("CommunicationMaps.jl")
+include("NodeMaps.jl")
+include("Maps.jl")
 
 # blocks, nodesets, sidesets
 include("SetsCommon.jl")
@@ -46,13 +50,6 @@ include("NodeSets.jl")
 include("VariablesCommon.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
-
-include("Maps.jl")
-
-
-# include("NodeMaps.jl") # removing parallel support until serial is fully supported
-
-# include("CommunicationMaps.jl") # removing parallel support until serial is fully supported
 
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
