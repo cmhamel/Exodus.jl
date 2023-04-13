@@ -65,5 +65,4 @@ export copy
 export ExodusDatabase
 export Initialization
 
-
 end # module
