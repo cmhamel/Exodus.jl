@@ -102,42 +102,6 @@ function ex_get_id_map!(exoid::Cint, map_type::ex_entity_type, map::Vector{T}) w
     exodus_error_check(error_code, "ex_get_id_map!")
 end
 
-# TODO add types
-"""
-    ex_get_init!(exoid::Cint, 
-                 title::Vector{UInt8},
-                 num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
-                 num_elem_blk::Ref{Clonglong}, num_node_sets::Ref{Clonglong}, num_side_sets::Ref{Clonglong})
-"""
-function ex_get_init!(exoid::Cint, 
-                      title::Vector{UInt8},
-                      num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
-                      num_elem_blk::Ref{Clonglong}, num_node_sets::Ref{Clonglong}, num_side_sets::Ref{Clonglong}) # TODO get the types right
-    error_code = ccall((:ex_get_init, libexodus), Cint,
-                       (Cint, Ptr{UInt8},
-                        Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
-                        Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
-                       exoid, title,
-                       num_dim, num_nodes, num_elem,
-                       num_elem_blk, num_node_sets, num_side_sets)
-    title = unsafe_string(pointer(title))
-    exodus_error_check(error_code, "ex_get_init!")
-end
-
-function ex_get_init_global!(exoid::Cint, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g) # TODO get the types right
-    error_code = ccall((:ex_get_init_global, libexodus), Cint,
-                       (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
-                       exoid, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g)
-    exodus_error_check(error_code, "ex_get_init_global!")
-end
-
-function ex_get_init_info!(exoid::Cint, num_proc, num_proc_in_f, ftype)
-    error_code = ccall((:ex_get_init_info, libexodus), Cint,
-                       (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{UInt8}),
-                       exoid, num_proc, num_proc_in_f, ftype)
-    exodus_error_check(error_code, "ex_get_init_info!")
-end
-
 function ex_get_loadbal_param!(exoid::Cint,
                                num_int_nodes, num_bor_nodes, num_ext_nodes,
                                num_int_elems, num_bor_elems,
@@ -217,18 +181,6 @@ function ex_get_set_param!(exoid::Cint, set_type::ex_entity_type, set_id::Clongl
     exodus_error_check(error_code, "ex_get_set_param!")
 end
 
-# """
-#     ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
-#                 obj_id::ex_entity_id, num_entry_this_obj, var_vals)
-# """
-# function ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
-#                      obj_id::ex_entity_id, num_entry_this_obj, var_vals)
-#     error_code = ccall((:ex_get_var, libexodus), Cint,
-#                        (Cint, Cint, ex_entity_type, Cint, ex_entity_id, Clonglong, Ptr{Cvoid}),
-#                        exoid, time_step, var_type, var_index, obj_id, num_entry_this_obj, var_vals)
-#     exodus_error_check(error_code, "ex_get_var!")
-# end
-
 """
     ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
 """
@@ -283,20 +235,6 @@ function ex_opts(options)
     error_code = ccall((:ex_opts, libexodus), Cint, (Cint,), options)
     exodus_error_check(error_code, "ex_opts")
     return error_code
-end
-
-function ex_put_init!(exoid::Cint, 
-                      title,
-                      num_dim, num_nodes, num_elem, 
-                      num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
-    error_code = ccall((:ex_put_init, libexodus), Cint,
-                       (Cint, Ptr{UInt8},
-                        Clonglong, Clonglong, Clonglong,
-                        Clonglong, Clonglong, Clonglong),
-                       exoid, title,
-                       num_dim, num_nodes, num_elem,
-                       num_elem_blk, num_node_sets, num_side_sets)
-    exodus_error_check(error_code, "ex_put_init!")
 end
 
 function ex_put_time!(exoid::Cint, time_step::Cint, time_value)

@@ -2,9 +2,11 @@
 # Global variable get methods here
 #
 function ex_get_glob_vars!(exoid::Cint, timestep, num_glob_vars, global_var_vals)
-    error_code = ccall((:ex_get_glob_vars, libexodus), Cint,
-                       (Cint, Cint, Cint, Ptr{Cvoid}),
-                       exoid, timestep, num_glob_vars, global_var_vals)
+    error_code = ccall(
+        (:ex_get_glob_vars, libexodus), Cint,
+        (Cint, Cint, Cint, Ptr{Cvoid}),
+        exoid, timestep, num_glob_vars, global_var_vals
+    )
     exodus_error_check(error_code, "ex_get_glob_vars")
 end
 

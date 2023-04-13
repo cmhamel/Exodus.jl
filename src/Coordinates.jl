@@ -98,9 +98,11 @@ NOT THAT WELL TESTED
 """
 function ex_put_coord!(exoid::Cint, # input not to be changed
                        x_coords, y_coords, z_coords)
-    error_code = ccall((:ex_put_coord, libexodus), Cint,
-                       (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
-                       exoid, x_coords, y_coords, z_coords)
+    error_code = ccall(
+        (:ex_put_coord, libexodus), Cint,
+        (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+        exoid, x_coords, y_coords, z_coords
+    )
     exodus_error_check(error_code, "ex_put_coord!")
 end
 
@@ -108,9 +110,11 @@ end
     ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
 """
 function ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
-    error_code = ccall((:ex_put_coord_names, libexodus), Cint,
-                       (Cint, Ptr{Ptr{UInt8}}),
-                       exoid, coord_names)
+    error_code = ccall(
+        (:ex_put_coord_names, libexodus), Cint,
+        (Cint, Ptr{Ptr{UInt8}}),
+        exoid, coord_names
+    )
     exodus_error_check(error_code, "ex_put_coord_names!")
 end
 
