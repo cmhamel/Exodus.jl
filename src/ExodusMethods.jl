@@ -1,37 +1,3 @@
-# please put these in alphabetical order
-# also they should mimic the exodus C interface
-# such that no temp variables are created
-
-# goal is to be all in place methods
-# error_code checking should be done in this wrapper maybe?
-
-# TODO maybe make a macro to handle ccall into error_code check
-
-"""
-    ex_close!(exoid::Cint)
-"""
-function ex_close!(exoid::Cint)
-    error_code = ccall((:ex_close, libexodus), Cint, (Cint,), exoid)
-    exodus_error_check(error_code, "ex_close!")
-end
-
-"""
-    ex_copy!(in_exoid::Cint, out_exoid::Cint)
-"""
-function ex_copy!(in_exoid::Cint, out_exoid::Cint)
-    error_code = ccall((:ex_copy, libexodus), Cint, (Cint, Cint), in_exoid, out_exoid)
-    exodus_error_check(error_code, "ex_copy!")
-end
-
-# TODO figure out right type for cmode in the ex_create_int julia call
-function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cint)
-    exo_id = ccall((:ex_create_int, libexodus), Cint,
-                   (Cstring, Cint, Ref{Cint}, Ref{Cint}, Cint),
-                   path, cmode, comp_ws, io_ws, run_version)
-    exodus_error_check(exo_id, "create_exodus_database")
-    return exo_id
-end
-
 function ex_get_all_times!(exoid::Cint, time_values::Vector{T}) where {T <: ExoFloat}
     error_code = ccall((:ex_get_all_times, libexodus), Cint,
                        (Cint, Ptr{Cvoid}),
