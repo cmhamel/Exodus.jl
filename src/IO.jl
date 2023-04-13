@@ -33,6 +33,51 @@ function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cin
     return exo_id
 end
 
+"""
+    ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
+"""
+function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
+    info = ccall((:ex_inquire_int, libexodus), Cint,
+                 (Cint, ex_inquiry), 
+                 exoid, req_info)
+    exodus_error_check(info, "ex_inquire_int")
+    return info
+end
+
+"""
+    ex_int64_status(exoid::Cint)
+"""
+function ex_int64_status(exoid::Cint)
+    status = ccall(
+        (:ex_int64_status, libexodus), UInt32, 
+        (Cint,), 
+        exoid
+    )
+    return status
+end
+
+"""
+    ex_opts(options)
+"""
+function ex_opts(options)
+    error_code = ccall(
+        (:ex_opts, libexodus), Cint, 
+        (Cint,), 
+        options
+    )
+    exodus_error_check(error_code, "ex_opts")
+    return error_code
+end
+
+function ex_set_max_name_length(exoid::Cint, len::Cint)
+    error_code = ccall(
+        (:ex_set_max_name_length, libexodus), Cint,
+        (Cint, Cint), 
+        exoid, len
+    )
+    exodus_error_check(error_code, "ex_set_max_name_length")
+end
+
 # this method actually returns something
 # this method will break currently if called
 # TODO figure out how to get #define statements to work from julia artifact

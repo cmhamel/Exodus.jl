@@ -1,3 +1,36 @@
+function ex_get_block!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id,
+                      entity_descrip, 
+                      num_entries_this_blk, num_nodes_per_entry,
+                      num_edges_per_entry, num_faces_per_entry,
+                      num_attr_per_entry) # TODO get the types right
+    error_code = ccall(
+        (:ex_get_block, libexodus), Cint,
+        (
+            Cint, ex_entity_type, ex_entity_id,
+            Ptr{UInt8}, 
+            Ptr{void_int}, Ptr{void_int}, 
+            Ptr{void_int}, Ptr{void_int}, 
+            Ptr{void_int}
+        ),
+        exoid, blk_type, blk_id,
+        entity_descrip, 
+        num_entries_this_blk, num_nodes_per_entry, 
+        num_edges_per_entry, num_faces_per_entry, 
+        num_attr_per_entry
+    )
+    exodus_error_check(error_code, "ex_get_block!")
+end
+
+function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id, nned to figure this out
+                      nodeconn, faceconn, edgeconn) # TODO get the types right
+    error_code = ccall(
+        (:ex_get_conn, libexodus), Cint,
+        (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
+        exoid, blk_type, blk_id, nodeconn, faceconn, edgeconn
+    )
+    exodus_error_check(error_code, "ex_get_conn") 
+end
+
 """
     Block{I <: ExoInt, B <: ExoInt}
 Container for reading in blocks
