@@ -1,6 +1,6 @@
 @exodus_unit_test_set "Test Global Variables Write" begin
     @exodus_unit_test_set "Single time step" begin
-        exo = ExodusDatabase("global_vars_test.e", "w")
+        exo = ExodusDatabase("./example_output/global_vars_test.gold", "w")
         init = Initialization(2, 1, 1, 1, 0, 0)
         Exodus.put_initialization(exo, init)
         Exodus.write_time(exo, 1, 0.)
@@ -16,7 +16,7 @@
     end
 
     @exodus_unit_test_set "Multi time step" begin
-        exo = ExodusDatabase("global_vars_test.e", "w")
+        exo = ExodusDatabase("./example_output/global_vars_test.gold", "w")
         init = Initialization(2, 1, 1, 1, 0, 0)
         Exodus.put_initialization(exo, init)
         Exodus.write_time(exo, 1, 0.)

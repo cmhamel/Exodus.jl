@@ -1,5 +1,5 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
-    exo = ExodusDatabase("../example_output/output.gold", "r")
+    exo = ExodusDatabase("./example_output/output.gold", "r")
     @test typeof(exo) == ExodusDatabase{Cint, Cint, Cint, Cdouble}
     close(exo)
 end
@@ -33,7 +33,7 @@ end
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Copy Mode" begin
-    exo_old = ExodusDatabase("../example_output/output.gold", "r")
+    exo_old = ExodusDatabase("./example_output/output.gold", "r")
     copy(exo_old, "./test_output.gold")
     exo_new = ExodusDatabase("./test_output.gold", "r")
     init_old = Initialization(exo_old)
