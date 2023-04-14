@@ -60,7 +60,7 @@ include("ExoDiff.jl")
 ex_opts(EX_VERBOSE | EX_ABORT)
 
 # export macros
-export exodiff
+export @exodiff
 
 # export types
 export ExodusDatabase
