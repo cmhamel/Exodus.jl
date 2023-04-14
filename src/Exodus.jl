@@ -3,13 +3,7 @@
 """
 module Exodus
 
-export close
-export copy
-export ExodusDatabase
-export Initialization
-
 using Exodus_jll
-# using Seacas_jll
 
 # some simple types up front
 # we can thus have databases of 4 varieties
@@ -30,27 +24,80 @@ ExoFloat = Union{Float32, Float64}
 
 include("Errors.jl")
 
+# exodus constants and type definitions
 include("ExodusConstants.jl")
 include("ExodusTypes.jl")
-include("ExodusMethods.jl")
 
+# setup
 include("IO.jl")
 include("Initialization.jl")
 
-include("Blocks.jl")
+# the basic stuff
 include("Coordinates.jl")
-include("Maps.jl")
-include("NodeSets.jl")
-include("NodalVariables.jl")
 include("Times.jl")
 
-# include("NodeMaps.jl") # removing parallel support until serial is fully supported
+# maps
+include("CommunicationMaps.jl")
+include("NodeMaps.jl")
+include("Maps.jl")
 
-# include("CommunicationMaps.jl") # removing parallel support until serial is fully supported
+# blocks, nodesets, sidesets
+include("SetsCommon.jl")
+include("Blocks.jl")
+include("NodeSets.jl")
+
+# variables
+include("VariablesCommon.jl")
+include("GlobalVariables.jl")
+include("NodalVariables.jl")
+
+# tooling
+include("ExoDiff.jl")
 
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
 ex_opts(EX_VERBOSE | EX_ABORT)
+
+# export macros
+export @exodiff
+
+# export types
+export ExodusDatabase
+export Initialization
+export NodeSet
+
+# export methods
+export close
+export copy
+
+export put_coordinates
+export put_coordinate_names
+
+export read_blocks
+export read_block_ids
+
+export read_coordinates
+export read_coordinate_names
+
+export read_element_map
+
+export read_node_sets
+export read_node_set_ids
+
+export read_number_of_global_variables
+export read_global_variables
+export write_number_of_global_variables
+export write_global_variable_values
+
+export read_number_of_nodal_variables
+export read_nodal_variable_names
+export read_nodal_variable_values
+
+export put_initialization
+
+export read_number_of_time_steps
+export read_times
+export write_time
 
 end # module

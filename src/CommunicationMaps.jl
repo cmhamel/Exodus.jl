@@ -1,3 +1,22 @@
+
+function ex_get_elem_cmap!(exoid::Cint, map_id::ex_entity_id, elem_ids, side_ids, proc_ids, processor)
+    error_code = ccall(
+        (:ex_get_elem_cmap, libexodus), Cint,
+        (Cint, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Cint),
+        exoid, map_id, elem_ids, side_ids, proc_ids, processor
+    )
+    exodus_error_check(error_code, "ex_get_elem_cmap!")
+end
+
+function ex_get_node_cmap!(exoid::Cint, map_id::ex_entity_id, node_ids, proc_ids, processor::Cint)
+    error_code = ccall(
+        (:ex_get_node_cmap, libexodus), Cint,
+        (Cint, ex_entity_id, Ptr{void_int}, Ptr{void_int}, Cint),
+        exoid, map_id, node_ids, proc_ids, processor
+    )
+    exodus_error_check(error_code, "ex_get_node_cmap!")
+end
+
 # struct NodeCommunicationMap <: FEMContainer
 #     ids::Vector{IntKind}
 #     node_ids::Vector{Vector{IntKind}}
