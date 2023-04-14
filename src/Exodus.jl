@@ -51,10 +51,16 @@ include("VariablesCommon.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
 
+# tooling
+include("ExoDiff.jl")
+
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
 ex_opts(EX_VERBOSE | EX_ABORT)
+
+# export macros
+export exodiff
 
 # export types
 export ExodusDatabase
