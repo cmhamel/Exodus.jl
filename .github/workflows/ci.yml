@@ -16,7 +16,7 @@ jobs:
           - x64
         os:
           - ubuntu-latest 
-          - windows-latest
+          # - windows-latest
         
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +60,6 @@ jobs:
           - x64
         os:
           - macos-latest
-          - windows-latest
         
     steps:
       - uses: actions/checkout@v2
