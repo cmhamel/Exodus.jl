@@ -13,7 +13,7 @@ number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 function test_read_coordinates_on_square_mesh(n::Int64)
     exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
     init = Initialization(exo)
-    coords = Exodus.read_coordinates(exo, init)
+    coords = read_coordinates(exo, init)
     @test size(coords) == (init.num_nodes, init.num_dim)
     close(exo)
 end
@@ -21,7 +21,7 @@ end
 function test_read_coordinate_names_on_square_mesh(n::Int64)
     exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
     init = Initialization(exo)
-    coord_names = Exodus.read_coordinate_names(exo, init)
+    coord_names = read_coordinate_names(exo, init)
     @test coord_names == ["x", "y"]
     close(exo)
 end
@@ -31,12 +31,12 @@ function test_put_coordinates_on_square_mesh(n::Int64)
     exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
 
     init_old = Initialization(exo_old)
-    Exodus.put_initialization(exo_new, init_old)
+    put_initialization(exo_new, init_old)
     init_new = Initialization(exo_new)
 
-    coords_old = Exodus.read_coordinates(exo_old, init_old)
-    Exodus.put_coordinates(exo_new, coords_old)
-    coords_new = Exodus.read_coordinates(exo_new, init_new)
+    coords_old = read_coordinates(exo_old, init_old)
+    put_coordinates(exo_new, coords_old)
+    coords_new = read_coordinates(exo_new, init_new)
     @test coords_old == coords_new
 
     close(exo_old)
@@ -49,17 +49,17 @@ function test_put_coordinate_names_on_square_mesh(n::Int64)
     exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
     exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
     init_old = Initialization(exo_old) # Don't forget this
-    Exodus.put_initialization(exo_new, init_old)             # Don't forget this
+    put_initialization(exo_new, init_old)             # Don't forget this
     init_new = Initialization(exo_new)
-    coord_names_old = Exodus.read_coordinate_names(exo_old, init_old)
-    Exodus.put_coordinate_names(exo_new, coord_names_old)
-    coord_names_new = Exodus.read_coordinate_names(exo_new, init_new)
+    coord_names_old = read_coordinate_names(exo_old, init_old)
+    put_coordinate_names(exo_new, coord_names_old)
+    coord_names_new = read_coordinate_names(exo_new, init_new)
     @test coord_names_new == coord_names_old
     @test coord_names_new[1] == "x"
     @test coord_names_new[2] == "y"
     # cleanup, maybe wrap this in a macro?
-    Exodus.close(exo_old)
-    Exodus.close(exo_new)
+    close(exo_old)
+    close(exo_new)
     Base.Filesystem.rm("./test_output.e")
 end
 

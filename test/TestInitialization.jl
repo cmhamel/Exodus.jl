@@ -27,7 +27,7 @@ function test_put_initialization_on_square_mesh(n::Int64)
     exo = ExodusDatabase("./test_output.e", "w") # using Defaults
 
     init_old = Initialization(exo_old)
-    Exodus.put_initialization(exo, init_old)
+    put_initialization(exo, init_old)
     init = Initialization(exo)
     @test init.num_dim       == init_old.num_dim
     @test init.num_nodes     == init_old.num_nodes

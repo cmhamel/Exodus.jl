@@ -38,10 +38,10 @@ end
     exo_new = ExodusDatabase("./test_output.gold", "r")
     init_old = Initialization(exo_old)
     init_new = Initialization(exo_new)
-    coords_old = Exodus.read_coordinates(exo_old, init_old)
-    coords_new = Exodus.read_coordinates(exo_new, init_new)
-    coords_names_old = Exodus.read_coordinate_names(exo_old, init_old)
-    coords_names_new = Exodus.read_coordinate_names(exo_new, init_new)
+    coords_old = read_coordinates(exo_old, init_old)
+    coords_new = read_coordinates(exo_new, init_new)
+    coords_names_old = read_coordinate_names(exo_old, init_old)
+    coords_names_new = read_coordinate_names(exo_new, init_new)
     
     @test init_old         == init_new
     @test coords_old       == coords_new
