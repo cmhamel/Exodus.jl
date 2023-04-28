@@ -11,51 +11,53 @@ number_of_nodes = [4, 9, 25, 81, 289, 1089, 4225, 16641]
 number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 
 function test_read_initialization_on_square_mesh(n::Int64)
-    exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    init = Initialization(exo)
-    @test init.num_dim       == 2
-    @test init.num_nodes     == number_of_nodes[n]
-    @test init.num_elems     == number_of_elements[n]
-    @test init.num_elem_blks == 1
-    @test init.num_node_sets == 4
-    @test init.num_side_sets == 4
-    close(exo)
+  exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+  # init = Initialization(exo)
+  init = exo.init
+  @test init.num_dim       == 2
+  @test init.num_nodes     == number_of_nodes[n]
+  @test init.num_elems     == number_of_elements[n]
+  @test init.num_elem_blks == 1
+  @test init.num_node_sets == 4
+  @test init.num_side_sets == 4
+  close(exo)
 end
 
 function test_put_initialization_on_square_mesh(n::Int64)
-    exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
-    exo = ExodusDatabase("./test_output.e", "w") # using Defaults
+  exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
+  exo = ExodusDatabase("./test_output.e", "w") # using Defaults
 
-    init_old = Initialization(exo_old)
-    put_initialization(exo, init_old)
-    init = Initialization(exo)
-    @test init.num_dim       == init_old.num_dim
-    @test init.num_nodes     == init_old.num_nodes
-    @test init.num_elems     == init_old.num_elems
-    @test init.num_elem_blks == init_old.num_elem_blks
-    @test init.num_node_sets == init_old.num_node_sets
-    @test init.num_side_sets == init_old.num_side_sets
+  init_old = Initialization(exo_old)
+  put_initialization!(exo, init_old)
 
-    close(exo_old)
-    close(exo)
-    Base.Filesystem.rm("./test_output.e")
+  # init = Initialization(exo)
+  init = exo.init
+  @test init.num_dim       == init_old.num_dim
+  @test init.num_nodes     == init_old.num_nodes
+  @test init.num_elems     == init_old.num_elems
+  @test init.num_elem_blks == init_old.num_elem_blks
+  @test init.num_node_sets == init_old.num_node_sets
+  @test init.num_side_sets == init_old.num_side_sets
+
+  close(exo_old)
+  close(exo)
+  Base.Filesystem.rm("./test_output.e")
 end
 
 @exodus_unit_test_set "Square Mesh Read Initialization" begin
-    for (n, mesh) in enumerate(mesh_file_names)
-        test_read_initialization_on_square_mesh(n)
-    end
+  for (n, mesh) in enumerate(mesh_file_names)
+    test_read_initialization_on_square_mesh(n)
+  end
 end
 
 @exodus_unit_test_set "Square Mesh Put Initialization" begin
-    for (n, mesh) in enumerate(mesh_file_names)
-        test_put_initialization_on_square_mesh(n)
-    end
+  for (n, mesh) in enumerate(mesh_file_names)
+    test_put_initialization_on_square_mesh(n)
+  end
 end
 
 @exodus_unit_test_set "Test Initialization - Print" begin
-    exo = ExodusDatabase(abspath(mesh_file_names[1]), "r")
-    init = Initialization(exo)
-    @show init
-    close(exo)
+  exo = ExodusDatabase(abspath(mesh_file_names[1]), "r")
+  init = Initialization(exo)
+  close(exo)
 end
