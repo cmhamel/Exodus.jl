@@ -20,3 +20,6 @@ function read_element_map(exo::ExodusDatabase{M, I, B, F}, init::Initialization)
   ex_get_map!(exo.exo, elem_map)
   return elem_map
 end
+
+# local exports
+export read_element_map

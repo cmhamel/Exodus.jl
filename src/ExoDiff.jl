@@ -7,3 +7,6 @@ macro exodiff(ex_1, ex_2)
     run(`$exe $ex_1 $ex_2`)
   end
 end
+
+# local exports
+export @exodiff

@@ -16,7 +16,7 @@ end
   exo_old = ExodusDatabase("./example_output/output.gold", "r")
   exo_new = ExodusDatabase("./test_output.gold", "w") # using defaults
   init_old = Initialization(exo_old)
-  put_initialization!(exo_new, init_old)
+  write_initialization!(exo_new, init_old)
   init_new = Initialization(exo_new)
 
   write_time(exo_new, 1, 0.0)

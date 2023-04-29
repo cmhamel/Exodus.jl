@@ -31,7 +31,7 @@ function test_write_coordinates_on_square_mesh(n::Int64)
   exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
 
   init_old = Initialization(exo_old)
-  put_initialization!(exo_new, init_old)
+  write_initialization!(exo_new, init_old)
 
   coords_old = read_coordinates(exo_old)
   write_coordinates(exo_new, coords_old)
@@ -48,7 +48,7 @@ function test_write_coordinate_names_on_square_mesh(n::Int64)
   exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
   exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
   init_old = Initialization(exo_old) # Don't forget this
-  put_initialization!(exo_new, init_old)
+  write_initialization!(exo_new, init_old)
   coord_names_old = read_coordinate_names(exo_old)
   write_coordinate_names(exo_new, coord_names_old)
   coord_names_new = read_coordinate_names(exo_new)

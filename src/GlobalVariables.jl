@@ -43,3 +43,8 @@ function write_global_variable_values(
   ex_put_var!(exo.exo, timestep, EX_GLOBAL, 1, 1, length(var_values), var_values)
 end
 
+# local exports
+export read_number_of_global_variables
+export read_global_variables
+export write_number_of_global_variables
+export write_global_variable_values

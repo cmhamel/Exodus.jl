@@ -80,3 +80,8 @@ function read_node_sets(exo::ExodusDatabase{M, I, B, F},
   read_node_sets!(node_sets, exo, node_set_ids)
   return node_sets
 end
+
+# local exports
+export NodeSet
+export read_node_sets
+export read_node_set_ids

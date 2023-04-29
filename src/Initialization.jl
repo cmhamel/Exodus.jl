@@ -73,20 +73,6 @@ function ex_get_loadbal_param!(exoid::Cint,
   exodus_error_check(error_code, "ex_get_loadbal_param!")
 end
 
-# # TODO should maybe make this parametric for Int32 vs. Int64
-# """
-#   Initialization
-# Container that should be setup first thing after getting an exo ID
-# """
-# struct Initialization
-#   num_dim::Clonglong
-#   num_nodes::Clonglong
-#   num_elems::Clonglong
-#   num_elem_blks::Clonglong
-#   num_node_sets::Clonglong
-#   num_side_sets::Clonglong
-# end
-
 """
   Initialization(exo::ExodusDatabase)
 """
@@ -133,9 +119,9 @@ print(io, "Initialization:\n",
       "\tNumber of side sets = ", init.num_side_sets, "\n")
 
 function ex_put_init!(exoid::Cint, 
-            title,
-            num_dim, num_nodes, num_elem, 
-            num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
+                      title,
+                      num_dim, num_nodes, num_elem, 
+                      num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
   error_code = ccall(
     (:ex_put_init, libexodus), Cint,
     (
@@ -151,9 +137,9 @@ function ex_put_init!(exoid::Cint,
 end
 
 """
-  put_initialization(exo::ExodusDatabase, init::Initialization)
+  write_initialization(exo::ExodusDatabase, init::Initialization)
 """
-function put_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
+function write_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
 
   # to set in the exo object
   ExodusDatabase!(exo, init)
@@ -265,3 +251,6 @@ end
 # print(io, "ParallelInitialization:\n",
 #       "\tNumber of processors     = ", init.number_of_procesors, "\n",
 #       "\tNumber of processors in file = ", init.number_of_procesors_in_file, "\n")
+
+# local exports
+export write_initialization!

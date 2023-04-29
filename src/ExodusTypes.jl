@@ -31,3 +31,8 @@ mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Rea
   exo::Cint
   init::Initialization
 end
+
+# local exports
+export ExodusDatabase
+export Initialization
+# export NodeSet
