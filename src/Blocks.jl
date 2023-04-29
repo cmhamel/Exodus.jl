@@ -44,7 +44,7 @@ function Block(exo::ExodusDatabase{M, I, B, F}, block_id::I) where {M <: Integer
   conn = read_block_connectivity(exo, block_id)
   return Block{I, B}(block_id, num_elem, num_nodes, element_type, conn)
 end
-Base.show(io::IO, block::Block) =
+Base.show(io::IO, block::B) where {B <: Block} =
 print(io, "Block:\n",
       "\tBlock ID       = ", block.block_id, "\n",
       "\tNum elem       = ", block.num_elem, "\n",

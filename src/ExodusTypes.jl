@@ -44,8 +44,18 @@ struct Block{I <: Integer, B <: Integer}
   conn::Array{B} # TODO look into what they mean by "BULK data"
 end
 
+"""
+  NodeSet
+Container for node sets.
+"""
+struct NodeSet{I <: Integer, B <: Integer}
+  node_set_id::I
+  num_nodes::Clonglong
+  nodes::Vector{B}
+end
+
 # local exports
 export Block
 export ExodusDatabase
 export Initialization
-# export NodeSet
+export NodeSet

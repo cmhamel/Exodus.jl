@@ -1,12 +1,4 @@
-"""
-  NodeSet{I <: ExoInt, B <: ExoInt}
-Container for node sets.
-"""
-struct NodeSet{I <: Integer, B <: Integer}
-  node_set_id::I
-  num_nodes::Clonglong
-  nodes::Vector{B}
-end
+
 
 """
   NodeSet(exo::ExodusDatabase, node_set_id::I)
@@ -25,7 +17,7 @@ end
 """
 Base.length(nset::NodeSet) = length(nset.nodes)
 
-Base.show(io::IO, node_set::NodeSet{I, B}) where {I <: Integer, B <: Integer} =
+Base.show(io::IO, node_set::N) where {N <: NodeSet} =
 print(io, "NodeSet:\n",
       "\tNode set ID   = ", node_set.node_set_id, "\n",
       "\tNumber of nodes = ", node_set.num_nodes, "\n")
