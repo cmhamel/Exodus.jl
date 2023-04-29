@@ -15,7 +15,7 @@ number_of_elements = [1, 2^2, 4^2, 8^2, 16^2, 32^2, 64^2, 128^2]
 function test_read_coordinates_on_square_mesh(n::Int64)
   exo = ExodusDatabase(abspath(mesh_file_names[n]), "r")
   coords = read_coordinates(exo)
-  @test size(coords) == (exo.init.num_nodes, exo.init.num_dim)
+  @test size(coords) == (exo.init.num_dim, exo.init.num_nodes)
   close(exo)
 end
 
