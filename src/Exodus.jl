@@ -51,17 +51,9 @@ export Initialization
 export NodeSet
 
 # export methods
-export close
-export copy
-
-export put_coordinates
-export put_coordinate_names
 
 export read_blocks
 export read_block_ids
-
-export read_coordinates
-export read_coordinate_names
 
 export read_element_map
 

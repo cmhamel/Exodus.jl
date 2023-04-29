@@ -213,3 +213,7 @@ function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
   ex_copy!(exo.exo, new_exo_id)
   ex_close!(new_exo_id)
 end
+
+# local exports
+export close
+export copy

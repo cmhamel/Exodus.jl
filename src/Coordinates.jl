@@ -113,14 +113,12 @@ end
 
 
 """
-  put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
-             coords::Matrix{F}) where {M <: ExoInt, I <: ExoInt,
-                           B <: ExoInt, F <: ExoFloat}
+  put_coordinates(exo::ExodusDatabase, coords::Matrix)
 Work in progress... not that well tested
 """
-function put_coordinates(exo::ExodusDatabase{M, I, B, F}, 
-             coords::Matrix{F}) where {M <: Integer, I <: Integer,
-                           B <: Integer, F <: Real}
+function write_coordinates(exo::ExodusDatabase{M, I, B, F}, 
+                           coords::Matrix{F}) where {M <: Integer, I <: Integer,
+                                                     B <: Integer, F <: Real}
   # NOTE THIS ASSUMES SOMETHING ABOUT COORDS ORDERING IN LESS THEN 3D
 
   if size(coords, 2) == 1
@@ -145,13 +143,19 @@ end
 
 # TODO we can likely remove some allocations
 """
-  put_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
+  write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
 Work in progress...
 """
-function put_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
+function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
   new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
   for (n, coord_name) in enumerate(coord_names)
     new_coord_names[n] = Vector{UInt8}(coord_name)
   end
   ex_put_coord_names!(exo.exo, new_coord_names)
 end
+
+# local exports
+export read_coordinates
+export read_coordinate_names
+export write_coordinates
+export write_coordinate_names

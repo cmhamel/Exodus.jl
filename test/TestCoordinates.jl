@@ -26,7 +26,7 @@ function test_read_coordinate_names_on_square_mesh(n::Int64)
   close(exo)
 end
 
-function test_put_coordinates_on_square_mesh(n::Int64)
+function test_write_coordinates_on_square_mesh(n::Int64)
   exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
   exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
 
@@ -34,7 +34,7 @@ function test_put_coordinates_on_square_mesh(n::Int64)
   put_initialization!(exo_new, init_old)
 
   coords_old = read_coordinates(exo_old)
-  put_coordinates(exo_new, coords_old)
+  write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
   @test coords_old == coords_new
 
@@ -44,13 +44,13 @@ function test_put_coordinates_on_square_mesh(n::Int64)
   Base.Filesystem.rm("./test_output.e")
 end
 
-function test_put_coordinate_names_on_square_mesh(n::Int64)
+function test_write_coordinate_names_on_square_mesh(n::Int64)
   exo_old = ExodusDatabase(abspath(mesh_file_names[n]), "r")
   exo_new = ExodusDatabase("./test_output.e", "w") # using defaults
   init_old = Initialization(exo_old) # Don't forget this
   put_initialization!(exo_new, init_old)
   coord_names_old = read_coordinate_names(exo_old)
-  put_coordinate_names(exo_new, coord_names_old)
+  write_coordinate_names(exo_new, coord_names_old)
   coord_names_new = read_coordinate_names(exo_new)
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
@@ -75,12 +75,12 @@ end
 
 @exodus_unit_test_set "Square Mesh Put Coordinates" begin
   for (n, mesh) in enumerate(mesh_file_names)
-    test_put_coordinates_on_square_mesh(n)
+    test_write_coordinates_on_square_mesh(n)
   end
 end
 
 @exodus_unit_test_set "Square Mesh Put Coordinate Names" begin
   for (n, mesh) in enumerate(mesh_file_names)
-    test_put_coordinate_names_on_square_mesh(n)
+    test_write_coordinate_names_on_square_mesh(n)
   end
 end
