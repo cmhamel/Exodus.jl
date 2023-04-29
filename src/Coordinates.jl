@@ -34,37 +34,34 @@ end
 
 
 """
-  read_coordinates(exo::ExodusDatabase{M, I, B, F}, 
-           init::Initialization) where {M <: ExoInt, I <: ExoInt,
-                          B <: ExoInt, F <: ExoFloat}
+  read_coordinates(exo::ExodusDatabase{M, I, B, F})
 Method to read coordinates. Returns a matrix that is n_nodes x n_dim.
 
 TODO... This method should really return n_dim x n_nodes but there's
 TODO... issues encountered downstream with some views found in Tardigrade
 """
-function read_coordinates(exo::ExodusDatabase{M, I, B, F}, 
-              init::Initialization) where {M <: Integer, I <: Integer,
-                             B <: Integer, F <: Real}
-  if init.num_dim == 1
-    x_coords = Array{F}(undef, init.num_nodes)
+function read_coordinates(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, I <: Integer,
+                                                                  B <: Integer, F <: Real}
+  if exo.init.num_dim == 1
+    x_coords = Array{F}(undef, exo.init.num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
-  elseif init.num_dim == 2
-    x_coords = Array{F}(undef, init.num_nodes)
-    y_coords = Array{F}(undef, init.num_nodes)
+  elseif exo.init.num_dim == 2
+    x_coords = Array{F}(undef, exo.init.num_nodes)
+    y_coords = Array{F}(undef, exo.init.num_nodes)
     z_coords = C_NULL
-  elseif init.num_dim == 3
-    x_coords = Array{F}(undef, init.num_nodes)
-    y_coords = Array{F}(undef, init.num_nodes)
-    z_coords = Array{F}(undef, init.num_nodes)
+  elseif exo.init.num_dim == 3
+    x_coords = Array{F}(undef, exo.init.num_nodes)
+    y_coords = Array{F}(undef, exo.init.num_nodes)
+    z_coords = Array{F}(undef, exo.init.num_nodes)
   end
   # calling exodus method
   ex_get_coord!(exo.exo, x_coords, y_coords, z_coords)
-  if init.num_dim == 1
+  if exo.init.num_dim == 1
     error("One dimension isn't really supported and exodusII is likely overkill")
-  elseif init.num_dim == 2
+  elseif exo.init.num_dim == 2
     coords = hcat(x_coords, y_coords)
-  elseif init.num_dim == 3
+  elseif exo.init.num_dim == 3
     coords = hcat(x_coords, y_coords, z_coords)
   else
     error("Should never get here")
@@ -73,16 +70,16 @@ function read_coordinates(exo::ExodusDatabase{M, I, B, F},
 end
 
 """
-  read_coordinate_names(exo::ExodusDatabase, init::Initialization)
+  read_coordinate_names(exo::ExodusDatabase)
 """
-function read_coordinate_names(exo::E, init::Initialization) where {E <: ExodusDatabase}
-  coord_names = Vector{Vector{UInt8}}(undef, init.num_dim)
-  for n in 1:init.num_dim
+function read_coordinate_names(exo::E) where {E <: ExodusDatabase}
+  coord_names = Vector{Vector{UInt8}}(undef, exo.init.num_dim)
+  for n in 1:exo.init.num_dim
     coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   end
   ex_get_coord_names!(exo.exo, coord_names)
-  new_coord_names = Vector{String}(undef, init.num_dim)
-  for n in 1:init.num_dim
+  new_coord_names = Vector{String}(undef, exo.init.num_dim)
+  for n in 1:exo.init.num_dim
     new_coord_names[n] = unsafe_string(pointer(coord_names[n]))
   end
   return new_coord_names
