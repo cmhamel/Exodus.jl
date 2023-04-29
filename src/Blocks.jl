@@ -37,8 +37,9 @@ Init method for block container.
 
 Wraps `ex_get_block!` and `ex_get_conn!`
 """
-function Block(exo::ExodusDatabase{M, I, B, F}, block_id::I) where {M <: Integer, I <: Integer,
-                                                                    B <: Integer, F <: Real}
+function Block(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M <: Integer, I <: Integer,
+                                                                          B <: Integer, F <: Real}
+  block_id = convert(I, block_id) # for convenience interfacing
   element_type, num_elem, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
   conn = read_block_connectivity(exo, block_id)
