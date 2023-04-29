@@ -57,3 +57,8 @@ function write_nodal_variable_values(exo_id::Cint, time_step,
   num_nodes = size(var_values, 1)
   ex_put_var!(exo_id, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
 end
+
+# local exports
+export read_number_of_nodal_variables
+export read_nodal_variable_names
+export read_nodal_variable_values

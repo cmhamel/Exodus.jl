@@ -46,3 +46,8 @@ function write_time(exo::ExodusDatabase{M, I, B, F},
                            B <: Integer, F <: Real}
   ex_put_time!(exo.exo, Int32(time_step), time_value)
 end 
+
+# local exports
+export read_number_of_time_steps
+export read_times
+export write_time

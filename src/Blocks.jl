@@ -127,3 +127,7 @@ function read_blocks(exo::ExodusDatabase{M, I, B, F},
   read_blocks!(blocks, exo, block_ids)
   return blocks
 end
+
+# local exports
+export read_blocks
+export read_block_ids

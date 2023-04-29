@@ -42,18 +42,4 @@ include("ExoDiff.jl")
 # TODO some optional input arguments like int and float mode
 ex_opts(EX_VERBOSE | EX_ABORT)
 
-# export macros
-
-export read_blocks
-export read_block_ids
-
-export read_number_of_nodal_variables
-export read_nodal_variable_names
-export read_nodal_variable_values
-
-
-export read_number_of_time_steps
-export read_times
-export write_time
-
 end # module
