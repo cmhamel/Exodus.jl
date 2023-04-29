@@ -32,18 +32,6 @@ function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entit
 end
 
 """
-  Block{I <: ExoInt, B <: ExoInt}
-Container for reading in blocks
-"""
-struct Block{I <: Integer, B <: Integer} # maybe don't need M?
-  block_id::I
-  num_elem::Clonglong
-  num_nodes_per_elem::Clonglong
-  elem_type::String # TODO maybe just make an index
-  conn::Array{B} # TODO look into what they mean by "BULK data"
-end
-
-"""
   Block(exo::ExodusDatabase, block_id::I)
 Init method for block container.
 
@@ -56,7 +44,7 @@ function Block(exo::ExodusDatabase{M, I, B, F}, block_id::I) where {M <: Integer
   conn = read_block_connectivity(exo, block_id)
   return Block{I, B}(block_id, num_elem, num_nodes, element_type, conn)
 end
-Base.show(io::IO, block::Block{I, B}) where {I <: Integer, B <: Integer} =
+Base.show(io::IO, block::Block) =
 print(io, "Block:\n",
       "\tBlock ID       = ", block.block_id, "\n",
       "\tNum elem       = ", block.num_elem, "\n",
@@ -107,10 +95,9 @@ function read_block_connectivity(exo::ExodusDatabase{M, I, B, F},
   return conn
 end
 
-function read_blocks!(blocks::Vector{Block{I}}, 
-                      exo::ExodusDatabase{M, I, B, F}, 
-                      block_ids::Vector{I}) where {M <: Integer, I <: Integer,
-                                                   B <: Integer, F <: Real}
+function read_blocks!(blocks::Vector{B}, 
+                      exo::ExodusDatabase, 
+                      block_ids::Vector{I}) where {B <: Block, I <: Integer}
   for (n, block_id) in enumerate(block_ids)
     blocks[n] = Block(exo, block_id)
   end

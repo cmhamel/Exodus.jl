@@ -32,7 +32,20 @@ mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Rea
   init::Initialization
 end
 
+"""
+  Block{I <: ExoInt, B <: ExoInt}
+Container for reading in blocks
+"""
+struct Block{I <: Integer, B <: Integer}
+  block_id::I
+  num_elem::Clonglong
+  num_nodes_per_elem::Clonglong
+  elem_type::String # TODO maybe just make an index
+  conn::Array{B} # TODO look into what they mean by "BULK data"
+end
+
 # local exports
+export Block
 export ExodusDatabase
 export Initialization
 # export NodeSet
