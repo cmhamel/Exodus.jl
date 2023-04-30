@@ -5,6 +5,7 @@ module Exodus
 
 using DocStringExtensions
 using Exodus_jll
+using Suppressor
 
 # for docs
 @template (FUNCTIONS, METHODS, MACROS) = 
@@ -51,6 +52,7 @@ include("GlobalVariables.jl")
 include("NodalVariables.jl")
 
 # tooling
+include("Decomp.jl")
 include("ExoDiff.jl")
 
 # TODO eventually make these options initialized through a flag or something
