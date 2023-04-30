@@ -4,3 +4,5 @@ history*.jou
 *.g.*
 *.e
 *.e.*
+decomp.log
+exodiff.log

@@ -4,9 +4,12 @@
 """
 """
 macro exodiff(ex_1, ex_2)
-  println("ex_1 = $ex_1, ex_2 = $ex_2")
-  exodiff_exe() do exe
+  ex_1, ex_2 = abspath(ex_1), abspath(ex_2)
+  exodiff_output = @capture_out @capture_err exodiff_exe() do exe
     run(`$exe $ex_1 $ex_2`)
+  end
+  open("exodiff.log", "w") do file
+    write(file, exodiff_output)
   end
 end
 
