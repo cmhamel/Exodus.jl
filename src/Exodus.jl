@@ -3,6 +3,7 @@
 """
 module Exodus
 
+using DocStringExtensions
 using Exodus_jll
 
 include("Errors.jl")
