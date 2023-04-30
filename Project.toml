@@ -1,13 +1,12 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.1.8"
+version = "0.1.9"
 
 [deps]
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 julia = "1"
