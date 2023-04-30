@@ -1,3 +1,4 @@
+# @show "disabling exodiff tests for now"
 @exodus_unit_test_set "exodiff" begin
   if Sys.iswindows()
     @show "skipping exodiff tests for windows"
