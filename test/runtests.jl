@@ -13,6 +13,7 @@ end
 
 include("TestBlocks.jl")
 include("TestCoordinates.jl")
+include("TestEpu.jl")
 include("TestErrors.jl")
 include("TestDecomp.jl")
 include("TestExoDiff.jl")

@@ -53,6 +53,7 @@ include("NodalVariables.jl")
 
 # tooling
 include("Decomp.jl")
+include("Epu.jl")
 include("ExoDiff.jl")
 
 # TODO eventually make these options initialized through a flag or something
