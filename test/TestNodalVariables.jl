@@ -14,8 +14,7 @@ end
 
 @exodus_unit_test_set "Test NodalVariables.jl - read nodal variable" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
-  init = Initialization(exo)
-  u = read_nodal_variable_values(exo, 1, 1, init.num_nodes)
-  @test length(u) == init.num_nodes
+  u = read_nodal_variable_values(exo, 1, 1)
+  @test length(u) == exo.init.num_nodes
   close(exo)
 end
