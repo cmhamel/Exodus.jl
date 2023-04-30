@@ -1,5 +1,4 @@
 """
-  exodus_error_check(error_code::T)
 Generic error handling method.
 # Arguments
 - `error_code::T`: error code, usually negative means something went bad

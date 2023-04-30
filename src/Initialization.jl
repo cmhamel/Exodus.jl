@@ -9,12 +9,6 @@ function ex_get_cmap_params!(exoid::Cint, node_cmap_ids, node_cmap_node_cnts, el
 end
 
 # TODO add types
-"""
-  ex_get_init!(exoid::Cint, 
-         title::Vector{UInt8},
-         num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
-         num_elem_blk::Ref{Clonglong}, num_node_sets::Ref{Clonglong}, num_side_sets::Ref{Clonglong})
-"""
 function ex_get_init!(exoid::Cint, 
             title::Vector{UInt8},
             num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
@@ -74,9 +68,7 @@ function ex_get_loadbal_param!(exoid::Cint,
 end
 
 """
-  Initialization(exo::ExodusDatabase)
 """
-
 function Initialization(exo_id::I) where {I <: Integer}
   num_dim     = Ref{Clonglong}(0)
   num_nodes   = Ref{Clonglong}(0)
@@ -93,6 +85,8 @@ function Initialization(exo_id::I) where {I <: Integer}
               num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
+"""
+"""
 function Initialization(exo::E) where {E <: ExodusDatabase}
   num_dim     = Ref{Clonglong}(0)
   num_nodes   = Ref{Clonglong}(0)
@@ -109,6 +103,8 @@ function Initialization(exo::E) where {E <: ExodusDatabase}
               num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
+"""
+"""
 Base.show(io::IO, init::Initialization) =
 print(io, "Initialization:\n",
       "\tNumber of dim     = ", init.num_dim, "\n",
@@ -137,7 +133,6 @@ function ex_put_init!(exoid::Cint,
 end
 
 """
-  write_initialization(exo::ExodusDatabase, init::Initialization)
 """
 function write_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
 

@@ -1,4 +1,3 @@
-
 function ex_get_elem_cmap!(exoid::Cint, map_id::ex_entity_id, elem_ids, side_ids, proc_ids, processor)
   error_code = ccall(
     (:ex_get_elem_cmap, libexodus), Cint,

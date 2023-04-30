@@ -1,6 +1,4 @@
 """
-  read_number_of_nodal_variables(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, I <: Integer,
-                                       B <: Integer, F <: Real}
 """
 function read_number_of_nodal_variables(exo::E) where {E <: ExodusDatabase} 
   num_vars = Ref{Cint}(0) # TODO check to make sure this is right
@@ -9,6 +7,8 @@ function read_number_of_nodal_variables(exo::E) where {E <: ExodusDatabase}
 end
 
 # TODO this method needs to be updated to use ExodusDatabase
+"""
+"""
 function read_nodal_variable_names!(exo_id::Cint, num_vars::Cint, var_name::Vector{UInt8}, var_names::Vector{String})
   for n = 1:num_vars
     ex_get_variable_name!(exo_id, EX_NODAL, n, var_name)
@@ -16,6 +16,8 @@ function read_nodal_variable_names!(exo_id::Cint, num_vars::Cint, var_name::Vect
   end
 end
 
+"""
+"""
 function read_nodal_variable_names(exo::E) where {E <: ExodusDatabase}
   num_vars = read_number_of_nodal_variables(exo)
   var_names = Vector{String}(undef, num_vars)
@@ -24,11 +26,13 @@ function read_nodal_variable_names(exo::E) where {E <: ExodusDatabase}
   return var_names
 end
 
+"""
+"""
 function read_nodal_variable_values(exo::ExodusDatabase{M, I, B, F}, 
-                  time_step, 
-                  variable_index, 
-                  num_nodes) where {M <: Integer, I <: Integer,
-                                    B <: Integer, F <: Real}
+                                    time_step, 
+                                    variable_index, 
+                                    num_nodes) where {M <: Integer, I <: Integer,
+                                                      B <: Integer, F <: Real}
   values = Vector{F}(undef, num_nodes)
   # TODO figure out what the 1 in the call is really doing for nodal values
   # TODO for element variables that should be associated with a block number or soemthing like that
@@ -37,11 +41,15 @@ function read_nodal_variable_values(exo::ExodusDatabase{M, I, B, F},
 end
 
 # TODO fix these
+"""
+"""
 function write_number_of_nodal_variables(exo_id::Cint, num_vars)
   ex_put_variable_param!(exo_id, EX_NODAL, num_vars)
 end
 
 # TODO check types everywhere in this file
+"""
+"""
 function write_nodal_variable_names(exo_id::Cint, var_indices::Vector{Cint}, var_names::Vector{String})
   if size(var_indices, 1) != size(var_names, 1)
     AssertionError("Indices and Names need to be the same length")
@@ -52,6 +60,8 @@ function write_nodal_variable_names(exo_id::Cint, var_indices::Vector{Cint}, var
   end
 end
 
+"""
+"""
 function write_nodal_variable_values(exo_id::Cint, time_step, 
                    var_index, var_values::Vector{Float64})
   num_nodes = size(var_values, 1)

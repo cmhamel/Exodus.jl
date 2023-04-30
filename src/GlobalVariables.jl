@@ -10,14 +10,16 @@ function ex_get_glob_vars!(exoid::Cint, timestep, num_glob_vars, global_var_vals
   exodus_error_check(error_code, "ex_get_glob_vars")
 end
 
-
-
+"""
+"""
 function read_number_of_global_variables(exo::E) where {E <: ExodusDatabase}
   num_vars = Ref{Cint}(0) # TODO check to make sure this is right
   ex_get_variable_param!(exo.exo, EX_GLOBAL, num_vars)
   return num_vars[]
 end
 
+"""
+"""
 function read_global_variables(
   exo::ExodusDatabase{M, I, B, F}, 
   timestep, num_glob_vars
@@ -28,6 +30,8 @@ function read_global_variables(
   return glob_var_vals
 end
 
+"""
+"""
 function write_number_of_global_variables(
   exo::E,
   num_vars
@@ -35,6 +39,8 @@ function write_number_of_global_variables(
   ex_put_variable_param!(exo.exo, EX_GLOBAL, num_vars)
 end
 
+"""
+"""
 function write_global_variable_values(
   exo::E,
   timestep, var_values

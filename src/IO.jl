@@ -1,6 +1,3 @@
-"""
-  ex_close!(exoid::Cint)
-"""
 function ex_close!(exoid::Cint)
   error_code = ccall(
     (:ex_close, libexodus), Cint, 
@@ -10,9 +7,6 @@ function ex_close!(exoid::Cint)
   exodus_error_check(error_code, "ex_close!")
 end
 
-"""
-  ex_copy!(in_exoid::Cint, out_exoid::Cint)
-"""
 function ex_copy!(in_exoid::Cint, out_exoid::Cint)
   error_code = ccall(
     (:ex_copy, libexodus), Cint, 
@@ -33,9 +27,6 @@ function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cin
   return exo_id
 end
 
-"""
-  ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
-"""
 function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
   info = ccall((:ex_inquire_int, libexodus), Cint,
          (Cint, ex_inquiry), 
@@ -44,9 +35,6 @@ function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
   return info
 end
 
-"""
-  ex_int64_status(exoid::Cint)
-"""
 function ex_int64_status(exoid::Cint)
   status = ccall(
     (:ex_int64_status, libexodus), UInt32, 
@@ -56,9 +44,6 @@ function ex_int64_status(exoid::Cint)
   return status
 end
 
-"""
-  ex_opts(options)
-"""
 function ex_opts(options)
   error_code = ccall(
     (:ex_opts, libexodus), Cint, 
@@ -81,10 +66,7 @@ end
 # this method actually returns something
 # this method will break currently if called
 # TODO figure out how to get #define statements to work from julia artifact
-"""
-  ex_open(path, mode, comp_ws, io_ws)::Cint
-NOT USED
-"""
+# NOT USED
 function ex_open(path, mode, comp_ws, io_ws)::Cint
   error_code = ccall(
     (:ex_open, libexodus), Cint,
@@ -96,10 +78,7 @@ function ex_open(path, mode, comp_ws, io_ws)::Cint
 end
 
 # this is a hack for now, maybe make a wrapper?
-"""
-  ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::Cint
-FIX TYPES
-"""
+# FIX TYPES
 function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::Cint
   error_code = ccall(
     (:ex_open_int, libexodus), Cint,
@@ -111,7 +90,6 @@ function ex_open_int(path, mode, comp_ws, io_ws, version, run_version)::Cint
 end
 
 """
-  ExodusDatabase(file_name::String, mode::String; int_mode="32-bit", float_mode="64-bit")
 Init method.
 # Arguments
 - `file_name::String`: absolute path to exodus file
@@ -190,12 +168,13 @@ function ExodusDatabase(file_name::String, mode::String; int_mode="32-bit", floa
   return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(exo, init)
 end
 
+"""
+"""
 function ExodusDatabase!(e::E, init::Initialization) where {E <: ExodusDatabase}
   e.init = init
 end
 
 """
-  Base.close(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
 Used to close and ExodusDatabase.
 """
 function Base.close(exo::E) where {E <: ExodusDatabase}
@@ -203,8 +182,6 @@ function Base.close(exo::E) where {E <: ExodusDatabase}
 end
 
 """
-  Base.copy(exo::ExodusDatabase{M, I, B, F},
-        new_file_name::String) where {M <: ExoInt, I <: ExoInt, B <: ExoInt, F <: ExoFloat}
 Used to copy an ExodusDatabase. As of right now this is the best way to create a new ExodusDatabase
 for output. Not all of the put methods have been wrapped and properly tested. This one has though.
 """

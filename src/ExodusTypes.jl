@@ -11,8 +11,6 @@ ex_entity_id = Clonglong
 
 # derived types
 """
-$(TYPEDEF)
-$(TYPEDFIELDS)
 """
 struct Initialization
   """
@@ -42,8 +40,6 @@ struct Initialization
 end
 
 """
-$(TYPEDEF)
-$(TYPEDFIELDS)
 """
 mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
   """
@@ -57,8 +53,6 @@ mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Rea
 end
 
 """
-$(TYPEDEF)
-$(TYPEDFIELDS)
 """
 struct Block{I <: Integer, B <: Integer}
   """
@@ -84,8 +78,6 @@ struct Block{I <: Integer, B <: Integer}
 end
 
 """
-$(TYPEDEF)
-$(TYPEDFIELDS)
 """
 struct NodeSet{I <: Integer, B <: Integer}
   """

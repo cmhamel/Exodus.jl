@@ -32,7 +32,6 @@ function ex_get_conn!(exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entit
 end
 
 """
-  Block(exo::ExodusDatabase, block_id::I)
 Init method for block container.
 
 Wraps `ex_get_block!` and `ex_get_conn!`
@@ -53,7 +52,6 @@ print(io, "Block:\n",
       "\tElem type      = ", block.elem_type, "\n")
 
 """
-  read_block_ids(exo::ExodusDatabase, init::Initialization)
 Retrieves numerical block ids.
 
 Wraps ex_get_ids!
@@ -66,6 +64,8 @@ function read_block_ids(exo::ExodusDatabase{M, I, B, F},
   return block_ids
 end
 
+"""
+"""
 function read_element_block_parameters(exo::ExodusDatabase{M, I, B, F}, 
                                        block_id::I) where {M <: Integer, I <: Integer,
                                                            B <: Integer, F <: Real}
@@ -84,6 +84,8 @@ function read_element_block_parameters(exo::ExodusDatabase{M, I, B, F},
   return element_type, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 
+"""
+"""
 function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, 
                                  block_id::I) where {M <: Integer, I <: Integer,
                                                      B <: Integer, F <: Real}
@@ -96,6 +98,8 @@ function read_block_connectivity(exo::ExodusDatabase{M, I, B, F},
   return conn
 end
 
+"""
+"""
 function read_blocks!(blocks::Vector{B}, 
                       exo::ExodusDatabase, 
                       block_ids::Vector{I}) where {B <: Block, I <: Integer}
@@ -105,7 +109,6 @@ function read_blocks!(blocks::Vector{B},
 end
 
 """
-  read_blocks(exo::ExodusDatabase, block_ids::Vector{I})
 Helper method for initializing blocks.
 """
 function read_blocks(exo::ExodusDatabase{M, I, B, F}, 

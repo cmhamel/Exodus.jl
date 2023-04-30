@@ -1,6 +1,6 @@
-"""
-  ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num, var_name)
-"""
+# """
+#   ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num, var_name)
+# """
 function ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num, var_name)
   error_code = ccall(
     (:ex_get_variable_name, libexodus), Cint,
@@ -10,10 +10,10 @@ function ex_get_variable_name!(exoid::Cint, obj_type::ex_entity_type, var_num, v
   exodus_error_check(error_code, "ex_get_variable_name")
 end
 
-"""
-  ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
-        obj_id::ex_entity_id, num_entry_this_obj, var_vals)
-"""
+# """
+#   ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
+#         obj_id::ex_entity_id, num_entry_this_obj, var_vals)
+# """
 function ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index,
            obj_id::ex_entity_id, num_entry_this_obj, var_vals)
   error_code = ccall(
@@ -24,9 +24,9 @@ function ex_get_var!(exoid::Cint, time_step, var_type::ex_entity_type, var_index
   exodus_error_check(error_code, "ex_get_var!")
 end
 
-"""
-  ex_get_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars)
-"""
+# """
+#   ex_get_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars)
+# """
 function ex_get_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars)
   error_code = ccall(
     (:ex_get_variable_param, libexodus), Cint,

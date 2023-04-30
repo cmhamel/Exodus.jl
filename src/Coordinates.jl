@@ -5,25 +5,13 @@ function ex_get_coord_internal!(exoid::Cint, # TODO need to figure out typing wh
             exoid, x_coords, y_coords, z_coords)
   exodus_error_check(error_code, "ex_get_coord!")
 end
-"""
-ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
-"""
 ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}) where {T <: Real} =
 ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
-"""
-ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Ptr{Cvoid}) where {T <: ExoFloat}
-"""
 ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Ptr{Cvoid}) where {T <: Real} =
 ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
-"""
-ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Vector{T}) where {T <: ExoFloat}
-"""
 ex_get_coord!(exoid::Cint, x_coords::Vector{T}, y_coords::Vector{T}, z_coords::Vector{T}) where {T <: Real} =
 ex_get_coord_internal!(exoid, x_coords, y_coords, z_coords)
 
-"""
-ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
-"""
 function ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
 
   error_code = ccall((:ex_get_coord_names, libexodus), Cint,
@@ -34,7 +22,6 @@ end
 
 
 """
-  read_coordinates(exo::ExodusDatabase{M, I, B, F})
 Method to read coordinates. Returns a matrix that is n_nodes x n_dim.
 
 TODO... This method should really return n_dim x n_nodes but there's
@@ -70,7 +57,6 @@ function read_coordinates(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, 
 end
 
 """
-  read_coordinate_names(exo::ExodusDatabase)
 """
 function read_coordinate_names(exo::E) where {E <: ExodusDatabase}
   coord_names = Vector{Vector{UInt8}}(undef, exo.init.num_dim)
@@ -86,7 +72,6 @@ function read_coordinate_names(exo::E) where {E <: ExodusDatabase}
 end
 
 """
-  ex_put_coord!(exoid::Cint, x_coords, y_coords, z_coords)
 NOT THAT WELL TESTED
 """
 function ex_put_coord!(exoid::Cint, # input not to be changed
@@ -99,9 +84,6 @@ function ex_put_coord!(exoid::Cint, # input not to be changed
   exodus_error_check(error_code, "ex_put_coord!")
 end
 
-"""
-  ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
-"""
 function ex_put_coord_names!(exoid::Cint, coord_names::Vector{Vector{UInt8}})
   error_code = ccall(
     (:ex_put_coord_names, libexodus), Cint,
@@ -113,7 +95,6 @@ end
 
 
 """
-  put_coordinates(exo::ExodusDatabase, coords::Matrix)
 Work in progress... not that well tested
 """
 function write_coordinates(exo::ExodusDatabase{M, I, B, F}, 
@@ -143,7 +124,6 @@ end
 
 # TODO we can likely remove some allocations
 """
-  write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
 Work in progress...
 """
 function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})

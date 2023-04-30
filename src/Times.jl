@@ -8,7 +8,6 @@ function ex_get_all_times!(exoid::Cint, time_values::Vector{T}) where {T <: Real
 end
 
 """
-  read_number_of_time_steps(exo::ExodusDatabase)
 """
 function read_number_of_time_steps(exo::E) where {E <: ExodusDatabase}
   num_steps = ex_inquire_int(exo.exo, EX_INQ_TIME)
@@ -16,8 +15,6 @@ function read_number_of_time_steps(exo::E) where {E <: ExodusDatabase}
 end
 
 """
-  read_times(exo::ExodusDatabase{M, I, B, F}) where {M <: ExoInt, I <: ExoInt,
-                             B <: ExoInt, F <: ExoFloat}
 """
 function read_times(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, I <: Integer,
                               B <: Integer, F <: Real}
@@ -37,9 +34,6 @@ function ex_put_time!(exoid::Cint, time_step::Cint, time_value)
 end
 
 """
-  write_time(exo::ExodusDatabase{M, I, B, F}, 
-         time_step, time_value::F) where {M <: ExoInt, I <: ExoInt,
-                        B <: ExoInt, F <: ExoFloat}
 """
 function write_time(exo::ExodusDatabase{M, I, B, F}, 
           time_step, time_value::F) where {M <: Integer, I <: Integer,

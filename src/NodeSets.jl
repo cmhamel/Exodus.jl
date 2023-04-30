@@ -1,7 +1,4 @@
-
-
 """
-  NodeSet(exo::ExodusDatabase, node_set_id::I)
 Init method for a NodeSet with ID node_set_id.
 """
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, 
@@ -13,17 +10,16 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F},
 end
 
 """
-  Base.length(nset::NodeSet)
 """
 Base.length(nset::NodeSet) = length(nset.nodes)
-
+"""
+"""
 Base.show(io::IO, node_set::N) where {N <: NodeSet} =
 print(io, "NodeSet:\n",
       "\tNode set ID   = ", node_set.node_set_id, "\n",
       "\tNumber of nodes = ", node_set.num_nodes, "\n")
 
 """
-  read_node_set_ids(exo::ExodusDatabase, init::Initialization)
 """
 function read_node_set_ids(exo::ExodusDatabase{M, I, B, F},
                            init::Initialization) where {M <: Integer, I <: Integer,
@@ -33,6 +29,8 @@ function read_node_set_ids(exo::ExodusDatabase{M, I, B, F},
   return node_set_ids
 end
 
+"""
+"""
 function read_node_set_parameters(exo::ExodusDatabase{M, I, B, F}, 
                                   node_set_id::I) where {M <: Integer, I <: Integer,
                                                          B <: Integer, F <: Real}
@@ -42,6 +40,8 @@ function read_node_set_parameters(exo::ExodusDatabase{M, I, B, F},
   return num_nodes[], num_df[]
 end
 
+"""
+"""
 function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, 
                              node_set_id::I) where {M <: Integer, I <: Integer,
                                                     B <: Integer, F <: Real}
@@ -53,6 +53,8 @@ function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F},
   return node_set_nodes
 end
 
+"""
+"""
 function read_node_sets!(node_sets::Vector{NodeSet},
                          exo::ExodusDatabase{M, I, B, F}, 
                          node_set_ids::Vector{I}) where {M <: Integer, I <: Integer,
@@ -63,7 +65,6 @@ function read_node_sets!(node_sets::Vector{NodeSet},
 end
 
 """
-  read_node_sets(exo::ExodusDatabase, node_set_ids::Array)
 """
 function read_node_sets(exo::ExodusDatabase{M, I, B, F}, 
                         node_set_ids::Array{I}) where {M <: Integer, I <: Integer,
