@@ -29,4 +29,12 @@ Seventh release which majorly refactored the code to handle the many different p
 08/23/2022
 
 ## v0.1.7
-Coming soon...
+Moved from Seacas_jll to Exodus_jll
+
+## v0.1.8
+Some refactors to remove ExoInt and ExoFloat types
+
+Also added an exodiff macro
+
+## v0.1.9
+Moved to better auto-docing started add element variables read commands
