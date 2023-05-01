@@ -4,9 +4,8 @@ Init method for a NodeSet with ID node_set_id.
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, 
                  node_set_id::I) where {M <: Integer, I <: Integer,
                                         B <: Integer, F <: Real}
-  num_nodes, _ = read_node_set_parameters(exo, node_set_id)
   node_set_nodes = read_node_set_nodes(exo, node_set_id)
-  return NodeSet{I, B}(node_set_id, num_nodes, node_set_nodes)
+  return NodeSet{I, B}(node_set_id, length(node_set_nodes), node_set_nodes)
 end
 
 """
@@ -21,10 +20,9 @@ print(io, "NodeSet:\n",
 
 """
 """
-function read_node_set_ids(exo::ExodusDatabase{M, I, B, F},
-                           init::Initialization) where {M <: Integer, I <: Integer,
-                                                        B <: Integer, F <: Real}
-  node_set_ids = Array{I}(undef, init.num_node_sets)
+function read_node_set_ids(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, I <: Integer,
+                                                                   B <: Integer, F <: Real}
+  node_set_ids = Array{I}(undef, exo.init.num_node_sets)
   ex_get_ids!(exo.exo, EX_NODE_SET, node_set_ids)
   return node_set_ids
 end
@@ -78,3 +76,4 @@ end
 export NodeSet
 export read_node_sets
 export read_node_set_ids
+export read_node_set_parameters

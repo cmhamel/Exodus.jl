@@ -94,8 +94,30 @@ struct NodeSet{I <: Integer, B <: Integer}
   nodes::Vector{B}
 end
 
+"""
+"""
+struct SideSet{I <: Integer, B <: Integer}
+  """
+  ID of side set
+  """
+  side_set_id::I
+  """
+  Number of elements in the side set
+  """
+  num_elements::Clonglong
+  """
+  Element IDs
+  """
+  elements::Vector{B}
+  """
+  Sides
+  """
+  sides::Vector{B}
+end
+
 # local exports
 export Block
 export ExodusDatabase
 export Initialization
 export NodeSet
+export SideSet
