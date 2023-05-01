@@ -57,19 +57,6 @@ function ex_get_set_param!(
 ) where {T <: Integer}
   error_code = ccall(
     (:ex_get_set_param, libexodus), Cint,
-    (Cint, ex_entity_type, Cint, Ptr{void_int}, Ptr{void_int}),
-    exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set
-  )
-  exodus_error_check(error_code, "ex_get_set_param!")
-end
-
-function ex_get_set_param!(
-  # exoid::Cint, set_type::ex_entity_type, set_id::ex_entity_id,
-  exoid::Cint, set_type::ex_entity_type, set_id,
-  num_entry_in_set::Ref{T}, num_dist_fact_in_set::Ref{T}
-) where {T <: Integer}
-  error_code = ccall(
-    (:ex_get_set_param, libexodus), Cint,
     (Cint, ex_entity_type, Clonglong, Ptr{void_int}, Ptr{void_int}),
     exoid, set_type, set_id, num_entry_in_set, num_dist_fact_in_set
   )
