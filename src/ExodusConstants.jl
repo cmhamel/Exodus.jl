@@ -15,6 +15,10 @@ const version_number_2 = Int32(19)
 const version_number = Float32(8.19)
 const version_number_int = Int32(100 * version_number_1 + version_number_2)
 
+const EX_API_VERS = Float32(8.19)
+const EX_API_VERS_NODOT = Int32(100 * version_number_1 + version_number_2)
+const EX_VERS = EX_API_VERS
+
 # TODO: add the entirity from the exoudsII header
 #
 const EX_WRITE         = 0x0001          #< ex_open(): open existing file for appending. */

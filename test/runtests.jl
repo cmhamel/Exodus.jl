@@ -13,6 +13,7 @@ end
 
 include("TestBlocks.jl")
 include("TestCoordinates.jl")
+include("TestElementVariables.jl")
 include("TestEpu.jl")
 include("TestErrors.jl")
 include("TestDecomp.jl")
@@ -23,4 +24,5 @@ include("TestIO.jl")
 include("TestMaps.jl")
 include("TestNodalVariables.jl")
 include("TestNodeSets.jl")
+include("TestSideSets.jl")
 include("TestTimes.jl")

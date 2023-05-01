@@ -39,15 +39,45 @@ struct Initialization
   num_side_sets::Clonglong
 end
 
-"""
-"""
-mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
+# """
+# """
+# mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
+#   """
+#   ID of exodus file
+#   """
+#   exo::Cint
+#   """
+#   Initiailization object
+#   """
+#   init::Initialization
+# end
+struct ExodusDatabase
   """
   ID of exodus file
   """
   exo::Cint
   """
-  Initiailization object
+  Mode
+  """
+  mode::String
+  """
+  Type of integer stuff # make this a better comment 
+  """
+  M::Type
+  """
+  Integer type of IDs
+  """
+  I::Type
+  """
+  Integer type of set IDs
+  """
+  B::Type
+  """
+  Floating type
+  """
+  F::Type
+  """
+  Initialization type
   """
   init::Initialization
 end
@@ -94,8 +124,30 @@ struct NodeSet{I <: Integer, B <: Integer}
   nodes::Vector{B}
 end
 
+"""
+"""
+struct SideSet{I <: Integer, B <: Integer}
+  """
+  ID of side set
+  """
+  side_set_id::I
+  """
+  Number of elements in the side set
+  """
+  num_elements::Clonglong
+  """
+  Element IDs
+  """
+  elements::Vector{B}
+  """
+  Sides
+  """
+  sides::Vector{B}
+end
+
 # local exports
 export Block
 export ExodusDatabase
 export Initialization
 export NodeSet
+export SideSet

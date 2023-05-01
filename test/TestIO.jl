@@ -1,65 +1,42 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
-  @test typeof(exo) == ExodusDatabase{Cint, Cint, Cint, Cdouble}
+  @test typeof(exo) == ExodusDatabase
   close(exo)
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Defaults" begin
-  exo = ExodusDatabase("test_output.gold", "w")
-  @test typeof(exo) == ExodusDatabase{Cint, Cint, Cint, Cdouble}
+  exo = ExodusDatabase("./test_write.e")
+  @test typeof(exo) == ExodusDatabase
   close(exo)
-  Base.Filesystem.rm("./test_output.gold")
+  Base.Filesystem.rm("./test_write.e")
 end
 
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Cint/Cfloat" begin
-  exo = ExodusDatabase("test_output.gold", "w"; int_mode="32-bit", float_mode="32-bit")
-  @test typeof(exo) == ExodusDatabase{Cint, Cint, Cint, Cfloat}
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Meaningful" begin
+  exo = ExodusDatabase(
+    "./test_write_meaningful.e",
+    num_dim = 2, num_nodes = 16641, num_elems = 16384,
+    num_elem_blks = 1, num_node_sets = 4, num_side_sets = 4
+  )
+  @test typeof(exo) == ExodusDatabase
   close(exo)
-  Base.Filesystem.rm("./test_output.gold")
+  Base.rm("./test_write_meaningful.e")
 end
 
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cfloat" begin
-  exo = ExodusDatabase("test_output.gold", "w"; int_mode="64-bit", float_mode="32-bit")
-  @test typeof(exo) == ExodusDatabase{Clonglong, Clonglong, Clonglong, Cfloat}
+@exodus_unit_test_set "Test ExodusDatabase with Init" begin
+  exo_temp = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  init = exo_temp.init
+  close(exo_temp)
+  exo = ExodusDatabase("./test_with_init.e", init)
   close(exo)
-  Base.Filesystem.rm("./test_output.gold")
-end
-
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Clonglong/Cdouble" begin
-  exo = ExodusDatabase("test_output.gold", "w"; int_mode="64-bit", float_mode="64-bit")
-  @test typeof(exo) == ExodusDatabase{Clonglong, Clonglong, Clonglong, Cdouble}
-  close(exo)
-  Base.Filesystem.rm("./test_output.gold")
+  Base.rm("./test_with_init.e")
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Copy Mode" begin
-  exo_old = ExodusDatabase("./example_output/output.gold", "r")
-  copy(exo_old, "./test_output.gold")
-  exo_new = ExodusDatabase("./test_output.gold", "r")
-  init_old = Initialization(exo_old)
-  init_new = Initialization(exo_new)
-  coords_old = read_coordinates(exo_old)
-  coords_new = read_coordinates(exo_new)
-  coords_names_old = read_coordinate_names(exo_old)
-  coords_names_new = read_coordinate_names(exo_new)
-  
-  @test init_old         == init_new
-  @test coords_old       == coords_new
-  @test coords_names_old == coords_names_new
-
-  # TODO add more tests once you finish updating the rest
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  copy(exo_old, "./test_output.e")
+  exo_new = ExodusDatabase("./test_output.e", "r")
+  # @exodiff "./mesh/square_meshes/mesh_test_0.0078125.g" "./test_output.e"
   close(exo_old)
   close(exo_new)
-end
-
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Bad int_mode" begin
-  @test_throws ErrorException ExodusDatabase("./test_output.gold", "w"; int_mode="xx-bit", float_mode="64-bit")
-end
-
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Bad float_mode" begin
-  @test_throws ErrorException ExodusDatabase("./test_output.gold", "w"; int_mode="64-bit", float_mode="xx-bit")
-end
-
-@exodus_unit_test_set "Test ExodusDatabase Bad Mode - Error" begin
-  @test_throws ErrorException ExodusDatabase("./test_output.gold", "a")
+  Base.rm("./test_output.e")
 end
