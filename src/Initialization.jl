@@ -85,32 +85,34 @@ function Initialization(exo_id::I) where {I <: Integer}
               num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
-"""
-"""
-function Initialization(exo::E) where {E <: ExodusDatabase}
-  num_dim     = Ref{Clonglong}(0)
-  num_nodes   = Ref{Clonglong}(0)
-  num_elems   = Ref{Clonglong}(0)
-  num_elem_blks = Ref{Clonglong}(0)
-  num_node_sets = Ref{Clonglong}(0)
-  num_side_sets = Ref{Clonglong}(0)
-  title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
-         num_dim, num_nodes, num_elems, 
-         num_elem_blks, num_node_sets, num_side_sets)
-  title = unsafe_string(pointer(title))
-  return Initialization(num_dim[], num_nodes[], num_elems[],
-              num_elem_blks[], num_node_sets[], num_side_sets[])
-end
+Initialization(e::ExodusDatabase) = Initialization(e.exo)
+
+# """
+# """
+# function Initialization(exo::E) where {E <: ExodusDatabase}
+#   num_dim     = Ref{Clonglong}(0)
+#   num_nodes   = Ref{Clonglong}(0)
+#   num_elems   = Ref{Clonglong}(0)
+#   num_elem_blks = Ref{Clonglong}(0)
+#   num_node_sets = Ref{Clonglong}(0)
+#   num_side_sets = Ref{Clonglong}(0)
+#   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+#   ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
+#          num_dim, num_nodes, num_elems, 
+#          num_elem_blks, num_node_sets, num_side_sets)
+#   title = unsafe_string(pointer(title))
+#   return Initialization(num_dim[], num_nodes[], num_elems[],
+#               num_elem_blks[], num_node_sets[], num_side_sets[])
+# end
 
 """
 """
 Base.show(io::IO, init::Initialization) =
 print(io, "Initialization:\n",
-      "\tNumber of dim     = ", init.num_dim, "\n",
-      "\tNumber of nodes   = ", init.num_nodes, "\n",
-      "\tNumber of elem    = ", init.num_elems, "\n",
-      "\tNumber of blocks  = ", init.num_elem_blks, "\n",
+      "\tNumber of dim       = ", init.num_dim, "\n",
+      "\tNumber of nodes     = ", init.num_nodes, "\n",
+      "\tNumber of elem      = ", init.num_elems, "\n",
+      "\tNumber of blocks    = ", init.num_elem_blks, "\n",
       "\tNumber of node sets = ", init.num_node_sets, "\n",
       "\tNumber of side sets = ", init.num_side_sets, "\n")
 
@@ -133,16 +135,26 @@ function ex_put_init!(exoid::Cint,
 end
 
 """
+Used to set up a exodus database in write mode
 """
-function write_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
-
-  # to set in the exo object
-  ExodusDatabase!(exo, init)
+function write_initialization!(exoid::Cint, init::Initialization)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  ex_put_init!(exo.exo, title,
+  ex_put_init!(exoid, title,
                init.num_dim, init.num_nodes, init.num_elems,
                init.num_elem_blks, init.num_node_sets, init.num_side_sets)
 end
+
+# """
+# """
+# function write_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
+
+#   # to set in the exo object
+#   ExodusDatabase!(exo, init)
+#   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+#   ex_put_init!(exo.exo, title,
+#                init.num_dim, init.num_nodes, init.num_elems,
+#                init.num_elem_blks, init.num_node_sets, init.num_side_sets)
+# end
 
 # commenting out parallel stuff for now until I have time to better support and test it
 # # note that this needs to be used on mesh.g.xx.xx files not .g.nem files

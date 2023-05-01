@@ -9,9 +9,8 @@ end
 
 """
 """
-function read_element_map(exo::ExodusDatabase{M, I, B, F}, init::Initialization) where {M <: Integer, I <: Integer,
-                                            B <: Integer, F <: Real}
-  elem_map = Vector{M}(undef, init.num_elems)
+function read_element_map(exo::ExodusDatabase)
+  elem_map = Vector{exo.M}(undef, exo.init.num_elems)
   ex_get_map!(exo.exo, elem_map)
   return elem_map
 end

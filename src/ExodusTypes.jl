@@ -39,15 +39,45 @@ struct Initialization
   num_side_sets::Clonglong
 end
 
-"""
-"""
-mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
+# """
+# """
+# mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
+#   """
+#   ID of exodus file
+#   """
+#   exo::Cint
+#   """
+#   Initiailization object
+#   """
+#   init::Initialization
+# end
+struct ExodusDatabase
   """
   ID of exodus file
   """
   exo::Cint
   """
-  Initiailization object
+  Mode
+  """
+  mode::String
+  """
+  Type of integer stuff # make this a better comment 
+  """
+  M::Type
+  """
+  Integer type of IDs
+  """
+  I::Type
+  """
+  Integer type of set IDs
+  """
+  B::Type
+  """
+  Floating type
+  """
+  F::Type
+  """
+  Initialization type
   """
   init::Initialization
 end

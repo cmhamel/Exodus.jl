@@ -16,10 +16,9 @@ end
 
 """
 """
-function read_times(exo::ExodusDatabase{M, I, B, F}) where {M <: Integer, I <: Integer,
-                              B <: Integer, F <: Real}
+function read_times(exo::ExodusDatabase)
   num_steps = read_number_of_time_steps(exo)
-  times = Vector{F}(undef, num_steps)
+  times = Vector{exo.F}(undef, num_steps)
   ex_get_all_times!(exo.exo, times)
   return times
 end
@@ -35,11 +34,11 @@ end
 
 """
 """
-function write_time(exo::ExodusDatabase{M, I, B, F}, 
-          time_step, time_value::F) where {M <: Integer, I <: Integer,
-                           B <: Integer, F <: Real}
-  ex_put_time!(exo.exo, Int32(time_step), time_value)
-end 
+function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <: Integer, F <: Real}
+  time_step = convert(Cint, time_step)
+  time_value = convert(exo.F, time_value)
+  ex_put_time!(exo.exo, time_step, time_value)
+end
 
 # local exports
 export read_number_of_time_steps
