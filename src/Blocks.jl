@@ -111,7 +111,6 @@ end
 Helper method for initializing blocks.
 """
 function read_blocks(exo::ExodusDatabase, block_ids::Vector{<:Integer})
-  # block_ids = convert(Vector{exo.I}, block_ids)
   block_ids = map(x -> convert(exo.I, x), block_ids)
   blocks = Vector{Block{exo.I}}(undef, size(block_ids, 1))
   read_blocks!(blocks, exo, block_ids)
