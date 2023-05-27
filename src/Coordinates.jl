@@ -41,9 +41,9 @@ function read_coordinates(exo::ExodusDatabase)
   if exo.init.num_dim == 1
     error("One dimension isn't really supported and exodusII is likely overkill")
   elseif exo.init.num_dim == 2
-    coords = collect(hcat(x_coords, y_coords)')
+    coords = collect(hcat(x_coords, y_coords))
   elseif exo.init.num_dim == 3
-    coords = collect(hcat(x_coords, y_coords, z_coords)')
+    coords = collect(hcat(x_coords, y_coords, z_coords))
   else
     error("Should never get here")
   end
@@ -98,20 +98,20 @@ Work in progress... not that well tested
 function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: Real}
   # NOTE THIS ASSUMES SOMETHING ABOUT COORDS ORDERING IN LESS THEN 3D
 
-  if size(coords, 1) == 1
-    x_coords = coords[1, :]
+  if size(coords, 2) == 1
+    x_coords = coords[:, 1]
     y_coords = C_NULL
     z_coords = C_NULL
-  elseif size(coords, 1) == 2
+  elseif size(coords, 2) == 2
     # 2D case
-    x_coords = coords[1, :]
-    y_coords = coords[2, :]
+    x_coords = coords[:, 1]
+    y_coords = coords[:, 2]
     z_coords = C_NULL
-  elseif size(coords, 1) == 3
+  elseif size(coords, 2) == 3
     # 3D case
-    x_coords = coords[1, :]
-    y_coords = coords[2, :]
-    z_coords = coords[3, :]
+    x_coords = coords[:, 1]
+    y_coords = coords[:, 2]
+    z_coords = coords[:, 3]
   else
     error("This should never happen!")
   end

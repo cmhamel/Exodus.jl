@@ -46,3 +46,16 @@ end
   @test var_names == ["displ_x", "displ_y"]
   close(exo)
 end
+
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values" begin
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  copy(exo_old, "./temp.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp.e", "rw")
+  coords = read_coordinates(exo)
+  write_time(exo, 1, 0.0)
+  write_number_of_nodal_variables(exo, 2)
+
+
+  close(exo)
+end
