@@ -53,9 +53,13 @@ end
   close(exo_old)
   exo = ExodusDatabase("./temp.e", "rw")
   coords = read_coordinates(exo)
+
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 2)
 
-
+  u = randn(size(coords, 1))
+  write_nodal_variable_values(exo, 1, 1, u)
+  u_read = read_nodal_variable_values(exo, 1, 1)
+  @test u ≈ u_read
   close(exo)
 end

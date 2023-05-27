@@ -72,3 +72,4 @@ export read_nodal_variable_names
 export read_nodal_variable_values
 export write_number_of_nodal_variables
 export write_nodal_variable_names
+export write_nodal_variable_values
