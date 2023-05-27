@@ -2,7 +2,7 @@
 Init method for a NodeSet with ID node_set_id.
 """
 function NodeSet(exo::ExodusDatabase, node_set_id::Integer)
-  # node_set_id = convert(exo.I, node_set_id)
+  node_set_id = convert(exo.I, node_set_id)
   node_set_nodes = read_node_set_nodes(exo, node_set_id)
   return NodeSet{exo.I, exo.B}(node_set_id, length(node_set_nodes), node_set_nodes)
 end
@@ -21,16 +21,14 @@ print(io, "NodeSet:\n",
 """
 function read_node_set_ids(exo::ExodusDatabase)
   node_set_ids = Array{exo.I}(undef, exo.init.num_node_sets)
-  # node_set_ids = Array{Int32}(undef, exo.init.num_node_sets)
   ex_get_ids!(exo.exo, EX_NODE_SET, node_set_ids)
-  # node_set_ids = convert(Vector{exo.I}, node_set_ids) # hack for now
   return node_set_ids
 end
 
 """
 """
 function read_node_set_parameters(exo::ExodusDatabase, node_set_id::Integer)
-  # node_set_id = convert(exo.I, node_set_id)
+  node_set_id = convert(exo.I, node_set_id)
   num_nodes = Ref{exo.I}(0)
   num_df = Ref{exo.I}(0)
   ex_get_set_param!(exo.exo, EX_NODE_SET, node_set_id, num_nodes, num_df)
