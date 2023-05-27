@@ -19,7 +19,6 @@ end
 """
 """
 function read_nodal_variable_name(exo::ExodusDatabase, var_index::Integer)
-  var_index = convert(exo.I, var_index)
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   ex_get_variable_name!(exo.exo, EX_NODAL, var_index, var_name)
   return unsafe_string(pointer(var_name))
@@ -37,7 +36,7 @@ end
 
 """
 """
-function read_nodal_variable_values(exo::ExodusDatabase, time_step, variable_index)
+function read_nodal_variable_values(exo::ExodusDatabase, time_step, variable_index::I_1) where I_1 <: Integer
   values = Vector{exo.F}(undef, exo.init.num_nodes)
   ex_get_var!(exo.exo, time_step, EX_NODAL, variable_index, 1, exo.init.num_nodes, values)
   return values
@@ -84,7 +83,8 @@ end
 """
 """
 function write_nodal_variable_values(exo::ExodusDatabase, time_step, 
-                                     var_index, var_values::Vector{<:Real}) # TODO add types
+                                     var_index::Integer, var_values::Vector{<:Real}) # TODO add types
+  var_index = convert(exo.I, var_index)
   num_nodes = size(var_values, 1)
   ex_put_var!(exo.exo, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
 end

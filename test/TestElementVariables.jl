@@ -47,3 +47,64 @@ end
   close(exo)
   run(`rm -f ./temp_element_variables_index.e`)
 end
+
+@testset "ElementVariables.jl - write element variable values" begin
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  copy(exo_old, "./temp_element_variables_index.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
+  block = Block(exo, 1)
+  write_time(exo, 1, 0.0)
+  write_number_of_element_variables(exo, 3)
+
+  stress_xx = randn(block.num_elem)
+  stress_yy = randn(block.num_elem)
+  stress_xy = randn(block.num_elem)
+
+  write_element_variable_values(exo, 1, 1, 1, stress_xx)
+  write_element_variable_values(exo, 1, 1, 2, stress_yy)
+  write_element_variable_values(exo, 1, 1, 3, stress_xy)
+
+  stress_xx_read = read_element_variable_values(exo, 1, 1, 1)
+  stress_yy_read = read_element_variable_values(exo, 1, 1, 2)
+  stress_xy_read = read_element_variable_values(exo, 1, 1, 3)
+
+  @test stress_xx ≈ stress_xx_read
+  @test stress_yy ≈ stress_yy_read
+  @test stress_xy ≈ stress_xy_read
+
+  close(exo)
+  run(`rm -f ./temp_element_variables_index.e`)
+end
+
+@testset "ElementVariables.jl - write element variable values with names" begin
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  copy(exo_old, "./temp_element_variables_index.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
+  block = Block(exo, 1)
+  write_time(exo, 1, 0.0)
+  write_number_of_element_variables(exo, 3)
+  write_element_variable_name(exo, 1, "stress_xx")
+  write_element_variable_name(exo, 2, "stress_yy")
+  write_element_variable_name(exo, 3, "stress_xy")
+
+  stress_xx = randn(block.num_elem)
+  stress_yy = randn(block.num_elem)
+  stress_xy = randn(block.num_elem)
+
+  write_element_variable_values(exo, 1, 1, "stress_xx", stress_xx)
+  write_element_variable_values(exo, 1, 1, "stress_yy", stress_yy)
+  write_element_variable_values(exo, 1, 1, "stress_xy", stress_xy)
+
+  stress_xx_read = read_element_variable_values(exo, 1, 1, "stress_xx")
+  stress_yy_read = read_element_variable_values(exo, 1, 1, "stress_yy")
+  stress_xy_read = read_element_variable_values(exo, 1, 1, "stress_xy")
+
+  @test stress_xx ≈ stress_xx_read
+  @test stress_yy ≈ stress_yy_read
+  @test stress_xy ≈ stress_xy_read
+
+  close(exo)
+  run(`rm -f ./temp_element_variables_index.e`)
+end

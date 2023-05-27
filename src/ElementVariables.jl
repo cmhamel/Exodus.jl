@@ -40,15 +40,29 @@ end
 function read_element_variable_values(
   exo::ExodusDatabase, 
   time_step, 
-  variable_index::Integer,
-  block::Block
+  block_id::Integer,
+  variable_index::Integer
 )
-  variable_index = convert(exo.I, variable_index)
-  values = Vector{exo.F}(undef, block.num_elem)
-  # TODO figure out what the 1 in the call is really doing for nodal values
-  # TODO for element variables that should be associated with a block number or soemthing like that
-  ex_get_var!(exo.exo, time_step, EX_ELEMENT, variable_index, block.block_id, block.num_elem, values)
+  _, num_elem, _, _, _, _ = read_element_block_parameters(exo, block_id)
+  values = Vector{exo.F}(undef, num_elem)
+  ex_get_var!(exo.exo, time_step, EX_ELEM_BLOCK, variable_index, block_id, num_elem, values)
   return values
+end
+
+"""
+"""
+function read_element_variable_values(
+  exo::ExodusDatabase, 
+  time_step, 
+  block_id::Integer,
+  var_name::String
+)
+  var_name_index = findall(x -> x == var_name, read_element_variable_names(exo))
+  if length(var_name_index) > 1
+    throw(ErrorException("This shoudl never happen"))
+  end
+  var_name_index = var_name_index[1]
+  read_element_variable_values(exo, time_step, block_id, var_name_index)
 end
 
 """
@@ -79,6 +93,37 @@ function write_element_variable_names(exo::ExodusDatabase, var_indices::Vector{<
   end
 end
 
+"""
+"""
+function write_element_variable_values(
+  exo::ExodusDatabase, 
+  time_step::Integer, 
+  block_id::Integer,
+  var_index::Integer, 
+  var_values::Vector{<:Real}
+)
+  var_index = convert(exo.I, var_index)
+  num_elements = size(var_values, 1)
+  ex_put_var!(exo.exo, time_step, EX_ELEM_BLOCK, var_index, block_id, num_elements, var_values)
+end
+
+"""
+"""
+function write_element_variable_values(
+  exo::ExodusDatabase, 
+  time_step::Integer, 
+  block_id::Integer,
+  var_name::String, 
+  var_values::Vector{<:Real}
+)
+  var_name_index = findall(x -> x == var_name, read_element_variable_names(exo))
+  if length(var_name_index) > 1
+    throw(ErrorException("This shoudl never happen"))
+  end
+  var_name_index = var_name_index[1]
+  write_element_variable_values(exo, time_step, block_id, var_name_index, var_values)
+end
+
 # local exports
 export read_element_variable_name
 export read_element_variable_names
@@ -86,4 +131,5 @@ export read_element_variable_values
 export read_number_of_element_variables
 export write_element_variable_name
 export write_element_variable_names
+export write_element_variable_values
 export write_number_of_element_variables
