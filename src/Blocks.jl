@@ -45,6 +45,7 @@ function Block(exo::ExodusDatabase, block_id::Integer)
   element_type, num_elem, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
   conn = read_block_connectivity(exo, block_id)
+  conn = reshape(conn, (num_nodes, num_elem))'
   return Block{exo.I, exo.B}(block_id, num_elem, num_nodes, element_type, conn)
 end
 Base.show(io::IO, block::B) where {B <: Block} =
