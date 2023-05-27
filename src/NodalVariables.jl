@@ -46,22 +46,24 @@ end
 # TODO check types everywhere in this file
 """
 """
-function write_nodal_variable_names(exo_id::Cint, var_indices::Vector{Cint}, var_names::Vector{String})
+function write_nodal_variable_names(exo::ExodusDatabase, var_indices::Vector{<:Integer}, var_names::Vector{String})
+  var_indices = convert.((exo.I,), var_indices)
   if size(var_indices, 1) != size(var_names, 1)
     AssertionError("Indices and Names need to be the same length")
   end
-  for n = 1:size(var_indices, 1)
+
+  for n in axes(var_indices, 1)
     temp = Vector{UInt8}(var_names[n])
-    ex_put_variable_name!(exo_id, EX_NODAL, var_indices[n], temp)
+    ex_put_variable_name!(exo.exo, EX_NODAL, var_indices[n], temp)
   end
 end
 
 """
 """
-function write_nodal_variable_values(exo_id::Cint, time_step, 
+function write_nodal_variable_values(exo::ExodusDatabase, time_step, 
                                      var_index, var_values::Vector{Float64})
   num_nodes = size(var_values, 1)
-  ex_put_var!(exo_id, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
+  ex_put_var!(exo.exo, time_step, EX_NODAL, var_index, 1, num_nodes, var_values)
 end
 
 # local exports
@@ -69,3 +71,4 @@ export read_number_of_nodal_variables
 export read_nodal_variable_names
 export read_nodal_variable_values
 export write_number_of_nodal_variables
+export write_nodal_variable_names

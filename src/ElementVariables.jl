@@ -45,6 +45,8 @@ function write_number_of_element_variables(exo::ExodusDatabase, num_vars::Intege
   ex_put_variable_param!(exo.exo, EX_ELEM_BLOCK, num_vars)
 end
 
+# function write_element_variable_names(exo::ExodusDatabase)
+
 # local exports
 export read_element_variable_names
 export read_element_variable_values
