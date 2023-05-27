@@ -41,7 +41,7 @@ Init method for block container.
 Wraps `ex_get_block!` and `ex_get_conn!`
 """
 function Block(exo::ExodusDatabase, block_id::Integer)
-  # block_id = convert(exo.I, block_id) # for convenience interfacing
+  block_id = convert(exo.I, block_id) # for convenience interfacing
   element_type, num_elem, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
   conn = read_block_connectivity(exo, block_id)
@@ -68,7 +68,7 @@ end
 """
 """
 function read_element_block_parameters(exo::ExodusDatabase, block_id::Integer)
-  # block_id = convert(exo.I, block_id)
+  block_id = convert(exo.I, block_id)
   element_type   = Vector{UInt8}(undef, MAX_STR_LENGTH)
   num_elem       = Ref{exo.I}(0)
   num_nodes      = Ref{exo.I}(0)
@@ -87,7 +87,7 @@ end
 """
 """
 function read_block_connectivity(exo::ExodusDatabase, block_id::Integer)
-  # block_id = convert(exo.I, block_id)
+  block_id = convert(exo.I, block_id)
   element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
   read_element_block_parameters(exo, block_id)
   conn = Vector{exo.B}(undef, num_nodes * num_elem)
@@ -112,6 +112,7 @@ Helper method for initializing blocks.
 """
 function read_blocks(exo::ExodusDatabase, block_ids::Vector{<:Integer})
   # block_ids = convert(Vector{exo.I}, block_ids)
+  block_ids = map(x -> convert(exo.I, x), block_ids)
   blocks = Vector{Block{exo.I}}(undef, size(block_ids, 1))
   read_blocks!(blocks, exo, block_ids)
   return blocks
