@@ -2,7 +2,7 @@
 """
 function read_number_of_element_variables(exo::ExodusDatabase)
   num_vars = Ref{Cint}(0) # TODO check to make sure this is right
-  ex_get_variable_param!(exo.exo, EX_ELEMENT, num_vars)
+  ex_get_variable_param!(exo.exo, EX_ELEM_BLOCK, num_vars)
   return num_vars[]
 end
 
@@ -41,9 +41,12 @@ function read_element_variable_values(
   return values
 end
 
-# function write_number_of_element_variables(exo_id::)
+function write_number_of_element_variables(exo::ExodusDatabase, num_vars::Integer)
+  ex_put_variable_param!(exo.exo, EX_ELEM_BLOCK, num_vars)
+end
 
 # local exports
 export read_element_variable_names
 export read_element_variable_values
 export read_number_of_element_variables
+export write_number_of_element_variables
