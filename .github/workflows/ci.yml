@@ -10,6 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
+          - '1.9'
           - '1.8'
           - 'nightly'
         julia-arch: 
@@ -54,6 +55,7 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
+          - '1.9'
           - '1.8'
           - 'nightly'
         julia-arch: 

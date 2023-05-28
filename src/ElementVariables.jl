@@ -12,7 +12,7 @@ function read_element_variable_names!(
   var_name::Vector{UInt8}, var_names::Vector{String}
 )
   for n = 1:num_vars
-    ex_get_variable_name!(exo.exo, EX_ELEM_BLOCK, n, var_name)
+    ex_get_variable_name!(exo.exo, EX_ELEM_BLOCK, convert(Cint, n), var_name)
     var_names[n] = unsafe_string(pointer(var_name))
   end
 end
@@ -20,6 +20,7 @@ end
 """
 """
 function read_element_variable_name(exo::ExodusDatabase, var_index::Integer)
+  var_index = convert(Cint, var_index)
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   ex_get_variable_name!(exo.exo, EX_ELEM_BLOCK, var_index, var_name)
   return unsafe_string(pointer(var_name))
@@ -45,7 +46,8 @@ function read_element_variable_values(
 )
   _, num_elem, _, _, _, _ = read_element_block_parameters(exo, block_id)
   values = Vector{exo.F}(undef, num_elem)
-  ex_get_var!(exo.exo, time_step, EX_ELEM_BLOCK, variable_index, block_id, num_elem, values)
+  ex_get_var!(exo.exo, convert(Cint, time_step), EX_ELEM_BLOCK, 
+              convert(Cint, variable_index), block_id, convert(Clonglong, num_elem), values)
   return values
 end
 
@@ -102,9 +104,10 @@ function write_element_variable_values(
   var_index::Integer, 
   var_values::Vector{<:Real}
 )
-  var_index = convert(exo.I, var_index)
   num_elements = size(var_values, 1)
-  ex_put_var!(exo.exo, time_step, EX_ELEM_BLOCK, var_index, block_id, num_elements, var_values)
+  ex_put_var!(exo.exo, convert(Cint, time_step), EX_ELEM_BLOCK, 
+              convert(Cint, var_index), block_id, 
+              convert(Clonglong, num_elements), var_values)
 end
 
 """
@@ -121,7 +124,7 @@ function write_element_variable_values(
     throw(ErrorException("This shoudl never happen"))
   end
   var_name_index = var_name_index[1]
-  write_element_variable_values(exo, time_step, block_id, var_name_index, var_values)
+  write_element_variable_values(exo, convert(Cint, time_step), block_id, convert(Cint, var_name_index), var_values)
 end
 
 # local exports
