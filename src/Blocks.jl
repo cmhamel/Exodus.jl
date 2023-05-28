@@ -56,6 +56,18 @@ print(io, "Block:\n",
       "\tElem type      = ", block.elem_type, "\n")
 
 """
+"""
+function Block(exo::ExodusDatabase, block_name::String)
+  block_ids = read_block_ids(exo)
+  name_index = findall(x -> x == block_name, read_block_names(exo))
+  if length(name_index) > 1
+    throw(ErrorException("This shoudl never happen"))
+  end
+  name_index = name_index[1]
+  return Block(exo, block_ids[name_index])
+end
+
+"""
 Retrieves numerical block ids.
 
 Wraps ex_get_ids!
@@ -64,6 +76,15 @@ function read_block_ids(exo::ExodusDatabase)
   block_ids = Vector{exo.I}(undef, exo.init.num_elem_blks)
   ex_get_ids!(exo.exo, EX_ELEM_BLOCK, block_ids)
   return block_ids
+end
+
+"""
+"""
+function read_block_names(exo::ExodusDatabase)
+  var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_block_ids(exo))]
+  ex_get_names!(exo.exo, EX_ELEM_BLOCK, var_names)
+  var_names = map(x -> unsafe_string(pointer(x)), var_names)
+  return var_names
 end
 
 """

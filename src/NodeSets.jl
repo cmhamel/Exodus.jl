@@ -9,6 +9,18 @@ end
 
 """
 """
+function NodeSet(exo::ExodusDatabase, nset_name::String)
+  nset_ids = read_node_set_ids(exo)
+  name_index = findall(x -> x == nset_name, read_node_set_names(exo))
+  if length(name_index) > 1
+    throw(ErrorException("This shoudl never happen"))
+  end
+  name_index = name_index[1]
+  return NodeSet(exo, nset_ids[name_index])
+end
+
+"""
+"""
 Base.length(nset::NodeSet) = length(nset.nodes)
 """
 """
@@ -23,6 +35,15 @@ function read_node_set_ids(exo::ExodusDatabase)
   node_set_ids = Array{exo.I}(undef, exo.init.num_node_sets)
   ex_get_ids!(exo.exo, EX_NODE_SET, node_set_ids)
   return node_set_ids
+end
+
+"""
+"""
+function read_node_set_names(exo::ExodusDatabase)
+  var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_node_set_ids(exo))]
+  ex_get_names!(exo.exo, EX_NODE_SET, var_names)
+  var_names = map(x -> unsafe_string(pointer(x)), var_names)
+  return var_names
 end
 
 """
@@ -66,8 +87,17 @@ function read_node_sets(exo::ExodusDatabase, node_set_ids::Array{<:Integer})
   return node_sets
 end
 
+# function write_node_set_names(exo::ExodusDatabase, nodeset_names)
+#   # nodeset_names = Vector{UInt8}.(nodeset_names)
+#   # @show nodeset_names
+#   # @show typeof(nodeset_names)
+#   ex_put_names!(exo.exo, EX_NODE_SET, nodeset_names)
+# end
+
 # local exports
 export NodeSet
 export read_node_sets
 export read_node_set_ids
+export read_node_set_names
 export read_node_set_parameters
+export write_node_set_names

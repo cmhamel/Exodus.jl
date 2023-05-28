@@ -26,3 +26,16 @@ end
   test_read_side_set_ids_on_square_meshes()
   test_read_side_set_elements_and_sides_on_square_meshes()
 end
+
+@exodus_unit_test_set "Initialize side set from name" begin
+  exo = ExodusDatabase(mesh_file_name, "r")
+  for n in [1, 2, 3, 4]
+    sset_1 = SideSet(exo, "sset_$n")
+    sset_2 = SideSet(exo, n)
+    @test sset_1.side_set_id  == sset_2.side_set_id
+    @test sset_1.num_elements == sset_2.num_elements
+    @test sset_1.elements     == sset_2.elements
+    @test sset_1.sides        == sset_2.sides
+  end
+  close(exo)
+end

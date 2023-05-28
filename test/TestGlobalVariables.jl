@@ -78,12 +78,7 @@
     write_global_variable_name(exo, 1, "v1")
     write_global_variable_name(exo, 2, "v2")
 
-    # write_global_variable_values(exo, 1, 1, 10.0)
-    # write_global_variable_values(exo, 1, 2, 20.0)
-
     write_global_variable_values(exo, 1, 2, [10.0, 20.0])
-    # @test read_global_variable_values(exo, 1, 1) == 10.0
-    # @test read_global_variable_values(exo, 1, 2) == 20.0
     global_vars = read_global_variable_values(exo, 1, 2)
     @test global_vars[1] ≈ 10.0
     @test global_vars[2] ≈ 20.0
@@ -92,47 +87,3 @@
     run(`rm -f ./example_output/global_vars_temp.e`)
   end
 end
-# @exodus_unit_test_set "Test Global Variables Write" begin
-#   @exodus_unit_test_set "Single time step" begin
-#     init = Initialization(2, 1, 1, 1, 0, 0)
-#     exo = ExodusDatabase("./example_output/global_vars_test.e", init)
-    
-#     write_time(exo, 1, 0.)
-#     write_number_of_global_variables(exo, 5)
-
-#     num_global_vars = read_number_of_global_variables(exo)
-#     @test num_global_vars == 5
-
-#     write_global_variable_values(exo, 1, [10. 20. 30. 40. 50.])
-#     glob_var_values = read_global_variables(exo, 1, 5)
-#     @test glob_var_values == [10., 20., 30., 40., 50.]
-#     close(exo)
-
-#     Base.rm("./example_output/global_vars_test.e")
-#   end
-
-#   @exodus_unit_test_set "Multi time step" begin
-#     init = Initialization(2, 1, 1, 1, 0, 0)
-#     exo = ExodusDatabase("./example_output/global_vars_test.e", init)
-#     write_time(exo, 1, 0.)
-
-#     write_number_of_global_variables(exo, 5)
-
-#     num_global_vars = read_number_of_global_variables(exo)
-#     @test num_global_vars == 5
-
-#     write_global_variable_values(exo, 1, [10. 20. 30. 40. 50.])
-#     glob_var_values = read_global_variables(exo, 1, 5)
-#     @test glob_var_values == [10., 20., 30., 40., 50.]
-
-#     write_time(exo, 2, 1.)
-
-#     write_global_variable_values(exo, 2, [1. 2. 3. 4. 5.])
-#     glob_var_values = read_global_variables(exo, 2, 5)
-#     @test glob_var_values == [1., 2., 3., 4., 5.]
-
-#     close(exo)
-
-#     Base.rm("./example_output/global_vars_test.e")
-#   end
-# end

@@ -44,6 +44,8 @@ function read_nodal_variable_values(exo::ExodusDatabase, time_step, variable_ind
   return values
 end
 
+"""
+"""
 function read_nodal_variable_values(exo::ExodusDatabase, time_step, var_name::String)
   var_name_index = findall(x -> x == var_name, read_nodal_variable_names(exo))
   if length(var_name_index) > 1

@@ -29,3 +29,17 @@ end
   test_read_block_ids_on_square_meshes()
   test_read_blocks_on_square_meshes()
 end
+
+@exodus_unit_test_set "Test block read from name" begin
+  exo = ExodusDatabase(abspath(mesh_file_name), "r")
+  block_1 = Block(exo, "block_1")
+  block_2 = Block(exo, 1)
+
+  @test block_1.block_id           == block_2.block_id
+  @test block_1.num_elem           == block_2.num_elem
+  @test block_1.num_nodes_per_elem == block_2.num_nodes_per_elem
+  @test block_1.elem_type          == block_2.elem_type
+  @test block_1.conn               == block_2.conn
+
+  close(exo)
+end

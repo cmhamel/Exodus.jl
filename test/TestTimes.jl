@@ -13,10 +13,14 @@ end
 end
 
 @exodus_unit_test_set "Test Write Times" begin
-  exo = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "rw")
+  exo = ExodusDatabase(
+    "./example_output/times_temp.e", 
+    Initialization(2, 1, 1, 1, 0, 0)
+  )
   write_time(exo, 1, 0.)
   write_time(exo, 2, 1.)
   times = read_times(exo)
   @test times == [0., 1.]
   close(exo)
+  run(`rm -f ./example_output/times_temp.e`)
 end
