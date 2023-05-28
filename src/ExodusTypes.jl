@@ -104,7 +104,7 @@ struct Block{I <: Integer, B <: Integer}
   """
   Connectivty of integer type consistent with exodus database
   """
-  conn::Array{B} # TODO look into what they mean by "BULK data"
+  conn::Matrix{B}
 end
 
 """

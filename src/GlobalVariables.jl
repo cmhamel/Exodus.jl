@@ -1,15 +1,3 @@
-
-# Global variable get methods here
-#
-function ex_get_glob_vars!(exoid::Cint, timestep, num_glob_vars, global_var_vals)
-  error_code = ccall(
-    (:ex_get_glob_vars, libexodus), Cint,
-    (Cint, Cint, Cint, Ptr{Cvoid}),
-    exoid, timestep, num_glob_vars, global_var_vals
-  )
-  exodus_error_check(error_code, "ex_get_glob_vars")
-end
-
 """
 """
 function read_number_of_global_variables(exo::ExodusDatabase)
@@ -20,10 +8,45 @@ end
 
 """
 """
-function read_global_variables(exo::ExodusDatabase, timestep, num_glob_vars)
-  glob_var_vals = Vector{exo.F}(undef, num_glob_vars)
-  ex_get_glob_vars!(exo.exo, timestep, num_glob_vars, glob_var_vals)
-  return glob_var_vals
+function read_global_variable_names!(
+  exo::ExodusDatabase, num_vars::Cint,
+  var_name::Vector{UInt8}, var_names::Vector{String}
+)
+  for n = 1:num_vars
+    ex_get_variable_name!(exo.exo, EX_GLOBAL, convert(Cint, n), var_name)
+    var_names[n] = unsafe_string(pointer(var_name))
+  end
+end
+
+"""
+"""
+function read_global_variable_name(exo::ExodusDatabase, var_index::Integer)
+  var_index = convert(Cint, var_index)
+  var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  ex_get_variable_name!(exo.exo, EX_GLOBAL, var_index, var_name)
+  return unsafe_string(pointer(var_name))
+end
+
+"""
+"""
+function read_global_variable_names(exo::ExodusDatabase)
+  num_vars = read_number_of_global_variables(exo)
+  var_names = Vector{String}(undef, num_vars)
+  var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  read_global_variable_names!(exo, num_vars, var_name, var_names)
+  return var_names
+end
+
+"""
+"""
+function read_global_variable_values(
+  exo::ExodusDatabase, timestep::Integer, num_vars::Integer
+)
+  values = Vector{exo.F}(undef, num_vars)
+  ex_get_var!(exo.exo, convert(Cint, timestep), EX_GLOBAL, 
+              Int32(1), 1, 
+              num_vars, values)
+  return values
 end
 
 """
@@ -34,13 +57,42 @@ end
 
 """
 """
-function write_global_variable_values(exo::ExodusDatabase, timestep, var_values)
-  # vals = Vector{F}([var_value])
-  ex_put_var!(exo.exo, timestep, EX_GLOBAL, 1, 1, length(var_values), var_values)
+function write_global_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String)
+  var_index = convert(exo.I, var_index)
+  temp = Vector{UInt8}(var_name)
+  ex_put_variable_name!(exo.exo, EX_GLOBAL, convert(Cint, var_index), temp)
+end
+
+"""
+"""
+function write_global_variable_names(exo::ExodusDatabase, var_indices::Vector{<:Integer}, var_names::Vector{String})
+  if size(var_indices, 1) != size(var_names, 1)
+    AssertionError("Indices and Names need to be the same length")
+  end
+
+  for n in axes(var_indices, 1)
+    temp = Vector{UInt8}(var_names[n])
+    ex_put_variable_name!(exo.exo, EX_GLOBAL, convert(Cint, var_indices[n]), temp)
+  end
+end
+
+"""
+"""
+function write_global_variable_values(
+  exo::ExodusDatabase, timestep::Integer, num_vars::Integer, var_values::Vector{<:Real}
+)
+  ex_put_var!(exo.exo, convert(Cint, timestep), 
+              EX_GLOBAL, Int32(1), 1, 
+              num_vars, var_values)
 end
 
 # local exports
+export read_global_variable_name
+export read_global_variable_names
+export read_global_variable_values
 export read_number_of_global_variables
-export read_global_variables
-export write_number_of_global_variables
+export write_global_variable_name
+export write_global_variable_names
 export write_global_variable_values
+export write_number_of_global_variables
+

@@ -23,6 +23,17 @@ function ex_get_id_map!(exoid::Cint, map_type::ex_entity_type, map::Vector{T}) w
   exodus_error_check(error_code, "ex_get_id_map!")
 end
 
+function ex_get_names!(exoid::Cint, set_type::ex_entity_type, names)
+  # error_code = ccal(
+  #   (:ex_get_names, libexodus), Cint,
+  #   (Cint, ex_entity_type, Ptr{Ptr{UInt8}}),
+  #   exoid, set_type, names 
+  # )
+  error_code = @ccall libexodus.ex_get_names(exoid::Cint, set_type::ex_entity_type, names::Ptr{Ptr{UInt8}})::Cint
+  exodus_error_check(error_code, "ex_get_names!")
+  return names
+end
+
 # function ex_get_set_internal!(exoid::Cint, set_type::ex_entity_type, set_id, set_entry_list, set_extra_list)
 #   error_code = ccall(
 #     (:ex_get_set, libexodus), Cint,
@@ -62,5 +73,19 @@ function ex_get_set_param!(
   )
   exodus_error_check(error_code, "ex_get_set_param!")
 end
+
+# function ex_put_names!(exoid::Cint, set_type::ex_entity_type, names::Vector{Vector{UInt8}})
+#   error_code = ccall(
+#     (:ex_put_names, libexodus), Cint,
+#     (Cint, ex_entity_type, Ptr{Ptr{UInt8}}),
+#     exoid, set_type, names
+#   )
+#   exodus_error_check(error_code, "ex_put_names!")
+# end
+
+# function ex_put_names!(exoid::Cint, set_type::ex_entity_type, names)
+#   @ccall libexodus.ex_put_names(exoid::Cint, set_type::ex_entity_type, names::Ptr{Ptr{UInt8}})::Cint
+#   # return names
+# end
 
 # function

@@ -1,15 +1,23 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"
 
 [compat]
 DocStringExtensions = "0.9"
 Suppressor = "0.2"
 julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"
+
+[targets]
+test = ["Test", "TestSetExtensions"]

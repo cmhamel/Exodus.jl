@@ -12,6 +12,14 @@ From the package manager simply type
 add Exodus
 ```
 
+# Installation bug on mac due to hash mismatch
+To overcome a hash mistmatch error do the following while we work this out
+```
+ENV["JULIA_PKG_IGNORE_HASHES"] = 1
+using Pkg
+Pkg.add("Exodus")
+```
+
 # Dependencies
 The main dependency is Exodus_jll which has a build process that is still being worked out due to evolving changes in NetCDF_jll, HDF5_jll, and LibCURL_jll.
 
@@ -38,13 +46,37 @@ Full code example:
 ```julia
 using Exodus
 exo = ExodusDatabase("../path-to-file/file.e", "r") # read only format
-coords    = read_coordinates(exo) # matrix of n_nodes x n_dim
-block_ids = read_block_ids(exo)
-blocks    = read_blocks(exo, block_ids) # contains connectivity information
-nset_ids  = read_node_set_ids(exo)
-nsets     = read_node_sets(exo, nset_ids) # contains nodes on boundaries
+coords          = read_coordinates(exo) # matrix of n_nodes x n_dim
+block_ids       = read_block_ids(exo)
+blocks          = read_blocks(exo, block_ids) # contains connectivity information
+nset_ids        = read_node_set_ids(exo)
+nsets           = read_node_sets(exo, nset_ids) # contains nodes on boundaries
+nodal_var_names = read_nodal_variable_names(exo)
+elem_var_names  = read_element_variable_names(exo)
 close(exo) # cleanup
 ```
 
-# Write Example
-Coming soon...
+# Write Example where the mesh is first copied
+```julia
+using Exodus
+exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+copy(exo_old, "./temp_element_variables.e")
+close(exo_old)
+exo = ExodusDatabase("./temp_element_variables.e", "rw")
+
+write_time(exo, 1, 0.0)
+write_number_of_nodal_variables(exo, 2)
+write_number_of_element_variables(exo, 3)
+
+write_nodal_variable_name(exo, 1, "displ_x")
+write_nodal_variable_name(exo, 2, "displ_y")
+
+write_element_variable_name(exo, 1, "stress_xx")
+write_element_variable_name(exo, 2, "stress_yy")
+write_element_variable_name(exo, 3, "stress_xy")
+
+write_nodal_variable_value(exo, 1, 1, randn(...))
+... # and so on.
+
+close(exo)
+```
