@@ -38,3 +38,9 @@ Also added an exodiff macro
 
 ## v0.1.9
 Moved to better auto-docing started add element variables read commands
+
+## v0.2.0
+First major update to try to wrangle the library
+
+## v0.2.1
+added capabilities to grab sets by name as well as read/write variables by name for global/nodal/element variables
