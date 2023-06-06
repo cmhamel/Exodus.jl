@@ -60,6 +60,13 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Show nodeset" begin
+  exo = ExodusDatabase(mesh_file_name, "r")
+  nset = NodeSet(exo, 1)
+  @show nset
+  close(exo)
+end
+
 # @exodus_unit_test_set "Test write nodeset names" begin
 #   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
 #   copy(exo_old, "./temp_nodesets.e")

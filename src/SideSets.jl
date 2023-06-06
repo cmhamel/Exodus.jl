@@ -17,6 +17,17 @@ function SideSet(exo::ExodusDatabase, sset_name::String)
   return SideSet(exo, sset_ids[name_index])
 end
 
+"""
+"""
+Base.length(sset::SideSet) = length(sset.num_elements)
+
+"""
+"""
+Base.show(io::IO, sset::SideSet) = 
+print(io, "SideSet:\n",
+      "\tSide set ID        = ", sset.num_elements, "\n",
+      "\tNumber of elements = ", sset.num_elements, "\n"
+)
 
 """
 """

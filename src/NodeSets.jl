@@ -27,7 +27,8 @@ Base.length(nset::NodeSet) = length(nset.nodes)
 Base.show(io::IO, node_set::N) where {N <: NodeSet} =
 print(io, "NodeSet:\n",
       "\tNode set ID   = ", node_set.node_set_id, "\n",
-      "\tNumber of nodes = ", node_set.num_nodes, "\n")
+      "\tNumber of nodes = ", node_set.num_nodes, "\n"
+)
 
 """
 """
