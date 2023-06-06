@@ -39,3 +39,10 @@ end
   end
   close(exo)
 end
+
+@exodus_unit_test_set "Show sideset" begin
+  exo = ExodusDatabase(mesh_file_name, "r")
+  sset = SideSet(exo, 1)
+  @show sset
+  close(exo)
+end
