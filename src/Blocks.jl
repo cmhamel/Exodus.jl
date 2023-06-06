@@ -132,13 +132,25 @@ end
 """
 Helper method for initializing blocks.
 """
-function read_blocks(exo::ExodusDatabase, block_ids::Vector{<:Integer})
-  block_ids = map(x -> convert(exo.I, x), block_ids)
-  blocks = Vector{Block{exo.I}}(undef, size(block_ids, 1))
-  read_blocks!(blocks, exo, block_ids)
-  return blocks
+function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integer, Vector{<:Integer}}
+  if typeof(block_ids) <: Integer
+    block_id = convert(exo.I, block_id)
+    block = Block(exo, block_id)
+    return block
+  else
+    block_ids = map(x -> convert(exo.I, x), block_ids)
+    blocks = Vector{Block{exo.I}}(undef, size(block_ids, 1))
+    read_blocks!(blocks, exo, block_ids)
+    return blocks
+  end
 end
 
 # local exports
+export Block
+
 export read_blocks
 export read_block_ids
+export read_block_names
+export read_block_connectivity
+export read_element_block_parameters
+

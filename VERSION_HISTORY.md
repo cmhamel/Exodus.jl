@@ -44,3 +44,8 @@ First major update to try to wrangle the library
 
 ## v0.2.1
 added capabilities to grab sets by name as well as read/write variables by name for global/nodal/element variables
+
+## v0.2.2
+add more exports and a few quality of life methods
+
+
