@@ -5,8 +5,8 @@ number_of_elements = 128^2
 function test_read_coordinates_on_square_mesh()
   exo = ExodusDatabase(abspath(mesh_file_name), "r")
   coords = read_coordinates(exo)
-  # @test size(coords) == (2, number_of_nodes)
-  @test size(coords) == (number_of_nodes, 2)
+  @test size(coords) == (2, number_of_nodes)
+  # @test size(coords) == (number_of_nodes, 2)
   close(exo)
 end
 
