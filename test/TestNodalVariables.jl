@@ -102,5 +102,6 @@ end
 
   @test displ_x ≈ displ_x_read
   @test displ_y ≈ displ_y_read
+  close(exo)
   rm("./temp_nodal_variables.e", force=true)
 end
