@@ -33,7 +33,7 @@ end
   close(exo)
 end
 
-@exodus_unit_test_set "Test NodalVariables.jl - write number of ndoal variables" begin
+@exodus_unit_test_set "Test NodalVariables.jl - write number of ndoal variables 2D" begin
   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
@@ -47,7 +47,21 @@ end
   rm("./temp_nodal_variables.e", force=true)
 end
 
-@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names" begin
+@exodus_unit_test_set "Test NodalVariables.jl - write number of ndoal variables 3D" begin
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  copy(exo_old, "./temp_nodal_variables.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
+
+  write_time(exo, 1, 0.0)
+  write_number_of_nodal_variables(exo, 5)
+  n_vars = read_number_of_nodal_variables(exo)
+  @test n_vars == 5
+  close(exo)
+  rm("./temp_nodal_variables.e", force=true)
+end
+
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names 2D" begin
   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
@@ -63,7 +77,23 @@ end
   rm("./temp_nodal_variables.e", force=true)
 end
 
-@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values" begin
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names 3D" begin
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  copy(exo_old, "./temp_nodal_variables.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
+
+  write_time(exo, 1, 0.0)
+  write_number_of_nodal_variables(exo, 3)
+  write_nodal_variable_names(exo, [1, 2, 3], ["displ_x", "displ_y", "displ_z"])
+
+  var_names = read_nodal_variable_names(exo)
+  @test var_names == ["displ_x", "displ_y", "displ_z"]
+  close(exo)
+  rm("./temp_nodal_variables.e", force=true)
+end
+
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values 2D" begin
   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
@@ -81,7 +111,25 @@ end
   rm("./temp_nodal_variables.e", force=true)
 end
 
-@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names" begin
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values 3D" begin
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  copy(exo_old, "./temp_nodal_variables.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
+  coords = read_coordinates(exo)
+
+  write_time(exo, 1, 0.0)
+  write_number_of_nodal_variables(exo, 2)
+
+  u = randn(size(coords, 2))
+  write_nodal_variable_values(exo, 1, 1, u)
+  u_read = read_nodal_variable_values(exo, 1, 1)
+  @test u ≈ u_read
+  close(exo)
+  rm("./temp_nodal_variables.e", force=true)
+end
+
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names 2D" begin
   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
@@ -102,6 +150,35 @@ end
 
   @test displ_x ≈ displ_x_read
   @test displ_y ≈ displ_y_read
+  close(exo)
+  rm("./temp_nodal_variables.e", force=true)
+end
+
+@exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names 3D" begin
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  copy(exo_old, "./temp_nodal_variables.e")
+  close(exo_old)
+  exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
+  coords = read_coordinates(exo)
+
+  write_time(exo, 1, 0.0)
+  write_number_of_nodal_variables(exo, 3)
+  write_nodal_variable_names(exo, [1, 2, 3], ["displ_x", "displ_y", "displ_z"])
+
+  displ_x = randn(size(coords, 2))
+  displ_y = randn(size(coords, 2))
+  displ_z = randn(size(coords, 2))
+
+  write_nodal_variable_values(exo, 1, "displ_x", displ_x)
+  write_nodal_variable_values(exo, 1, "displ_y", displ_y)
+  write_nodal_variable_values(exo, 1, "displ_z", displ_z)
+  displ_x_read = read_nodal_variable_values(exo, 1, "displ_x")
+  displ_y_read = read_nodal_variable_values(exo, 1, "displ_y")
+  displ_z_read = read_nodal_variable_values(exo, 1, "displ_z")
+
+  @test displ_x ≈ displ_x_read
+  @test displ_y ≈ displ_y_read
+  @test displ_z ≈ displ_z_read
   close(exo)
   rm("./temp_nodal_variables.e", force=true)
 end
