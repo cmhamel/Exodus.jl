@@ -1,0 +1,44 @@
+reset
+
+#element_length = {element_length = 1.0 / 8}
+brick x 1.0
+volume 1 size {element_length}
+mesh volume 1
+
+block 1 add volume 1
+block 1 element type hex8
+
+block 1 name "block_1"
+
+sideset 1 add surface 1
+sideset 2 add surface 2
+sideset 3 add surface 3
+sideset 4 add surface 4
+sideset 5 add surface 5
+sideset 6 add surface 6
+
+nodeset 1 add surface in sideset 1
+nodeset 2 add surface in sideset 2
+nodeset 3 add surface in sideset 3
+nodeset 4 add surface in sideset 4
+nodeset 5 add surface in sideset 5
+nodeset 6 add surface in sideset 6
+
+sideset 1 name "sset_1"
+sideset 2 name "sset_2"
+sideset 3 name "sset_3"
+sideset 4 name "sset_4"
+sideset 5 name "sset_5"
+sideset 6 name "sset_6"
+
+nodeset 1 name "nset_1"
+nodeset 2 name "nset_2"
+nodeset 3 name "nset_3"
+nodeset 4 name "nset_4"
+nodeset 5 name "nset_5"
+nodeset 6 name "nset_6"
+
+export genesis 'mesh_test_{element_length}.g' overwrite
+
+
+
