@@ -10,14 +10,17 @@ jobs:
       fail-fast: false
       matrix:
         julia-version: 
+          - 'nightly'
           - '1.9'
           - '1.8'
-          - 'nightly'
         julia-arch: 
           - x64
         os:
           - ubuntu-latest 
-          # - windows-latest
+          - windows-latest
+        exclude:
+          - os: windows-latest
+            julia-version: 'nightly'
         
     steps:
       - uses: actions/checkout@v2

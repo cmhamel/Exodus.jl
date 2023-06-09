@@ -5,4 +5,7 @@
   else
     @exodiff "./example_output/output.gold" "./example_output/output.gold"
   end
+  # @test begin
+  #   @exodiff "./example_output/output.gold" "./example_output/output.gold"
+  # end skip=Sys.iswindows() 
 end

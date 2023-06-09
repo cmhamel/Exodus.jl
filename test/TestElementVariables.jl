@@ -9,7 +9,7 @@
   n_vars = read_number_of_element_variables(exo)
   @test n_vars == 4
   close(exo)
-  run(`rm -f ./temp_element_variables.e`)
+  rm("./temp_element_variables.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable names" begin
@@ -24,7 +24,7 @@ end
   var_names = read_element_variable_names(exo)
   @test var_names == ["stress_xx", "stress_yy", "stress_xy"]
   close(exo)
-  run(`rm -f ./temp_element_variables.e`)
+  rm("./temp_element_variables.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable names by index" begin
@@ -45,7 +45,7 @@ end
   @test var_2 == "stress_yy"
   @test var_3 == "stress_xy"
   close(exo)
-  run(`rm -f ./temp_element_variables_index.e`)
+  rm("./temp_element_variables.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values" begin
@@ -74,7 +74,7 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  run(`rm -f ./temp_element_variables_index.e`)
+  rm("./temp_element_variables.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values with names" begin
@@ -106,5 +106,5 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  run(`rm -f ./temp_element_variables_index.e`)
+  rm("./temp_element_variables.e", force=true)
 end
