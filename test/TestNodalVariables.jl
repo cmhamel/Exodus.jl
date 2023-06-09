@@ -44,7 +44,7 @@ end
   n_vars = read_number_of_nodal_variables(exo)
   @test n_vars == 5
   close(exo)
-  run(`rm -f ./temp_nodal_variables.e`)
+  rm("./temp_nodal_variables.e", force=true)
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names" begin
@@ -60,7 +60,7 @@ end
   var_names = read_nodal_variable_names(exo)
   @test var_names == ["displ_x", "displ_y"]
   close(exo)
-  run(`rm -f ./temp_nodal_variables.e`)
+  rm("./temp_nodal_variables.e", force=true)
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values" begin
@@ -78,7 +78,7 @@ end
   u_read = read_nodal_variable_values(exo, 1, 1)
   @test u ≈ u_read
   close(exo)
-  run(`rm -f ./temp_nodal_variables.e`)
+  rm("./temp_nodal_variables.e", force=true)
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names" begin
@@ -102,5 +102,5 @@ end
 
   @test displ_x ≈ displ_x_read
   @test displ_y ≈ displ_y_read
-  run(`rm -f ./temp_nodal_variables.e`)
+  rm("./temp_nodal_variables.e", force=true)
 end

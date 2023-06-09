@@ -22,5 +22,5 @@ end
   times = read_times(exo)
   @test times == [0., 1.]
   close(exo)
-  run(`rm -f ./example_output/times_temp.e`)
+  rm("./example_output/times_temp.e", force=true)
 end

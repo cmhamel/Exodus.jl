@@ -76,6 +76,6 @@ end
 #   write_node_set_names(exo, ["nset_1", "nset_2"])
 
 #   close(exo)
-#   run(`rm -f ./temp_nodesets.e`)
+#   rm("./temp_nodesets.e", force=true)
 # end
 

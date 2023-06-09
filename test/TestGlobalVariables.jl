@@ -11,7 +11,7 @@
     @test read_number_of_global_variables(exo) == 5
 
     close(exo)
-    run(`rm -f ./example_output/global_vars_temp.e`)
+    rm("./example_output/global_vars_temp.e", force=true)
   end
 
   @exodus_unit_test_set "Read/Write global variable names by index" begin
@@ -37,7 +37,7 @@
     @test read_global_variable_name(exo, 5) == "global_var_5"
 
     close(exo)
-    run(`rm -f ./example_output/global_vars_temp.e`)
+    rm("./example_output/global_vars_temp.e", force=true)
   end
 
   @exodus_unit_test_set "Read/Write global variable names all" begin
@@ -63,7 +63,7 @@
     @test global_vars[5] == "global_var_5"
 
     close(exo)
-    run(`rm -f ./example_output/global_vars_temp.e`)
+    rm("./example_output/global_vars_temp.e", force=true)
   end
 
   @exodus_unit_test_set "Read/Write global variables" begin
@@ -84,6 +84,6 @@
     @test global_vars[2] ≈ 20.0
 
     close(exo)
-    run(`rm -f ./example_output/global_vars_temp.e`)
+    rm("./example_output/global_vars_temp.e", force=true)
   end
 end
