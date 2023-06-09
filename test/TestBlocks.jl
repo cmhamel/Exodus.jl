@@ -21,7 +21,8 @@ function test_read_blocks_on_square_meshes()
   @test blocks[1].num_nodes_per_elem == 4
   @test blocks[1].elem_type          == "QUAD4"
   # @test length(blocks[1].conn)       == 4 * number_of_elements
-  @test size(blocks[1].conn)         == (number_of_elements, 4)
+  # @test size(blocks[1].conn)         == (number_of_elements, 4)
+  @test size(blocks[1].conn)         == (4, number_of_elements)
   close(exo)
 end
 

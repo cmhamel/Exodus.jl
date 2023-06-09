@@ -73,7 +73,7 @@ end
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 2)
 
-  u = randn(size(coords, 1))
+  u = randn(size(coords, 2))
   write_nodal_variable_values(exo, 1, 1, u)
   u_read = read_nodal_variable_values(exo, 1, 1)
   @test u ≈ u_read
@@ -92,8 +92,8 @@ end
   write_number_of_nodal_variables(exo, 2)
   write_nodal_variable_names(exo, [1, 2], ["displ_x", "displ_y"])
 
-  displ_x = randn(size(coords, 1))
-  displ_y = randn(size(coords, 1))
+  displ_x = randn(size(coords, 2))
+  displ_y = randn(size(coords, 2))
 
   write_nodal_variable_values(exo, 1, "displ_x", displ_x)
   write_nodal_variable_values(exo, 1, "displ_y", displ_y)
