@@ -46,3 +46,17 @@ end
   @show sset
   close(exo)
 end
+
+@exodus_unit_test_set "read sideset node list" begin
+  exo = ExodusDatabase(mesh_file_name, "r")
+
+  for id in [1, 2, 3, 4]
+    nset = NodeSet(exo, id)
+    sset = SideSet(exo, id)
+    a, b = read_side_set_node_list(exo, id)
+    @test length(a) == sset.num_elements
+    unique_ids = unique(b) |> sort
+    @test sort(nset.nodes) == unique_ids
+  end
+  close(exo)
+end
