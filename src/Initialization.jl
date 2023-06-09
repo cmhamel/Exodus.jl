@@ -78,8 +78,8 @@ function Initialization(exo_id::I) where {I <: Integer}
   num_side_sets = Ref{Clonglong}(0)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   ex_get_init!(exo_id, title, # maybe find a way to avoid exo.exo calls
-         num_dim, num_nodes, num_elems, 
-         num_elem_blks, num_node_sets, num_side_sets)
+               num_dim, num_nodes, num_elems, 
+               num_elem_blks, num_node_sets, num_side_sets)
   title = unsafe_string(pointer(title))
   return Initialization(num_dim[], num_nodes[], num_elems[],
               num_elem_blks[], num_node_sets[], num_side_sets[])

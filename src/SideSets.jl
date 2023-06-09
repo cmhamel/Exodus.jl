@@ -69,6 +69,18 @@ function read_side_set_elements_and_sides(exo::ExodusDatabase, side_set_id::Inte
   return side_set_elems, side_set_sides
 end
 
+function ex_get_side_set_node_list_len!(
+  exoid::Cint, side_set_id::ex_entity_id,
+  side_set_node_list_len # TODO add type
+)
+  error_code = ccall(
+    (:ex_get_side_set_node_list_len, libexodus), Cint,
+    (Cint, ex_entity_id, Ptr{Cint}),
+    exoid, side_set_id, side_set_node_list_len
+  )
+  exodus_error_check(error_code, "ex_get_side_set_node_list_len!")
+end
+
 function ex_get_side_set_node_list!(
   exoid::Cint, side_set_id::ex_entity_id,
   side_set_node_cnt_list::Vector{B}, side_set_node_list::Vector{B}
@@ -82,10 +94,13 @@ function ex_get_side_set_node_list!(
 end
 
 function read_side_set_node_list(exo::ExodusDatabase, side_set_id::Integer)
+  side_set_node_list_len = Ref{Cint}(0)
+  ex_get_side_set_node_list_len!(exo.exo, side_set_id, side_set_node_list_len)
   side_set_id = convert(exo.I, side_set_id)
   num_sides, _ = read_side_set_parameters(exo, side_set_id)
-  side_set_node_cnt_list = Vector{B}(undef, num_sides)
-  side_set_node_list = Vector{B}(undef, num_sides * 21)
+  side_set_node_cnt_list = Vector{exo.B}(undef, num_sides)
+  # side_set_node_list = Vector{exo.B}(undef, num_sides * 21) # the 21 here assumes no distribution factors are stored. This is probably not general enough
+  side_set_node_list = Vector{exo.B}(undef, side_set_node_list_len[]) # the 21 here assumes no distribution factors are stored. This is probably not general enough
   ex_get_side_set_node_list!(
     exo.exo, convert(Int64, side_set_id), 
     side_set_node_cnt_list, side_set_node_list
