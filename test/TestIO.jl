@@ -11,11 +11,22 @@ end
   Base.Filesystem.rm("./test_write.e")
 end
 
-@exodus_unit_test_set "Test ExodusDatabase Write Mode - Meaningful" begin
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Meaningful 2D" begin
   exo = ExodusDatabase(
     "./test_write_meaningful.e",
     num_dim = 2, num_nodes = 16641, num_elems = 16384,
     num_elem_blks = 1, num_node_sets = 4, num_side_sets = 4
+  )
+  @test typeof(exo) == ExodusDatabase
+  close(exo)
+  Base.rm("./test_write_meaningful.e")
+end
+
+@exodus_unit_test_set "Test ExodusDatabase Write Mode - Meaningful 3D" begin
+  exo = ExodusDatabase(
+    "./test_write_meaningful.e",
+    num_dim = 3, num_nodes = 729, num_elems = 512,
+    num_elem_blks = 1, num_node_sets = 6, num_side_sets = 6
   )
   @test typeof(exo) == ExodusDatabase
   close(exo)
