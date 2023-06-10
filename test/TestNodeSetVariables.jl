@@ -58,7 +58,7 @@ end
   exo = ExodusDatabase("./temp_node_set_variables.e", "rw")
 
   write_time(exo, 1, 0.0)
-  write_number_of_node_set_variables(exo, 2)
+  write_number_of_node_set_variables(exo, 1)
   write_node_set_variable_names(exo, [1], ["nset_displ_x"])
 
   nset_names = read_node_set_names(exo)
