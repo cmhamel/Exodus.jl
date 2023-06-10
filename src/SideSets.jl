@@ -93,6 +93,8 @@ function ex_get_side_set_node_list!(
   exodus_error_check(error_code, "ex_get_side_set_node_list!")
 end
 
+"""
+"""
 function read_side_set_node_list(exo::ExodusDatabase, side_set_id::Integer)
   side_set_node_list_len = Ref{Cint}(0)
   ex_get_side_set_node_list_len!(exo.exo, side_set_id, side_set_node_list_len)
