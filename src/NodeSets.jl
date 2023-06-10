@@ -95,6 +95,10 @@ end
 #   ex_put_names!(exo.exo, EX_NODE_SET, nodeset_names)
 # end
 
+"""
+"""
+# function write_node_set_variable_values()
+
 # local exports
 export NodeSet
 export read_node_sets

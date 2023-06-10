@@ -51,6 +51,7 @@ include("VariablesCommon.jl")
 include("ElementVariables.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
+include("NodeSetVariables.jl")
 
 # # tooling
 include("Decomp.jl")
