@@ -1,3 +1,4 @@
+using Aqua
 using Exodus
 using Test
 using TestSetExtensions
@@ -13,3 +14,5 @@ macro exodus_unit_test_set(test_name::String, ex)
 end
 
 @includetests ARGS
+
+Aqua.test_all(Exodus)

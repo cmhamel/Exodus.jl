@@ -289,4 +289,4 @@ export close
 export copy
 export exo_int_types
 export exo_float_type
-export ExodusDatabase!
+# export ExodusDatabase!
