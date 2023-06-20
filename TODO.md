@@ -10,11 +10,6 @@
     - Nodeset IDs
     - Nodeset nodes
     - Nodeset names
-- Write methods for nodal variables
-    - put variables names
-    - put number of variables
-- Read/Write methods for element variables
-- Global variable stuff
 
 After this you can probably release a serial version as Exodus.jl v0.1.6 and possibly announce it
 
@@ -23,3 +18,4 @@ After this you can probably release a serial version as Exodus.jl v0.1.6 and pos
 
 # Documentation!
 - Need to start documentation and examples so people can actually use this!
+- Continue with DocStringExtensions.jl
