@@ -89,3 +89,11 @@ end
 # end
 
 # function
+
+
+# local exports
+export ex_get_ids!
+export ex_get_id_map!
+export ex_get_names!
+export ex_get_set!
+export ex_get_set_param!

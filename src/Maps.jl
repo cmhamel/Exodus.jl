@@ -16,4 +16,6 @@ function read_element_map(exo::ExodusDatabase)
 end
 
 # local exports
+export ex_get_map!
+
 export read_element_map

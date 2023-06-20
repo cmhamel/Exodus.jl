@@ -30,3 +30,5 @@ end
 #       "\tNumber of border nodes   = ", length(node_map.border_nodes), "\n",
 #       "\tNumber of external nodes = ", length(node_map.external_nodes), "\n",
 #       "\tProcessor        = ", node_map.processor)
+
+export ex_get_processor_node_maps!

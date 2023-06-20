@@ -110,6 +110,10 @@ function read_side_set_node_list(exo::ExodusDatabase, side_set_id::Integer)
   return side_set_node_cnt_list, side_set_node_list
 end
 
+# local exports
+export ex_get_side_set_node_list!
+export ex_get_side_set_node_list_len!
+
 export read_side_set_ids
 export read_side_set_names
 export read_side_set_parameters

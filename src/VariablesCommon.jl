@@ -64,3 +64,10 @@ function ex_put_variable_param!(exoid::Cint, obj_type::ex_entity_type, num_vars:
   )
   exodus_error_check(error_code, "ex_put_variable_param!")
 end
+
+# local exports
+export ex_get_variable_name!
+export ex_get_var!
+export ex_get_variable_param!
+export ex_put_variable_name!
+export ex_put_variable_param!

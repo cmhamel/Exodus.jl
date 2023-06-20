@@ -41,6 +41,9 @@ function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <
 end
 
 # local exports
+export ex_get_all_times!
+export ex_put_time!
+
 export read_number_of_time_steps
 export read_times
 export write_time
