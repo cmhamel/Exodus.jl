@@ -101,3 +101,10 @@ end
 
   close(exo)
 end
+
+# @exodus_unit_test_set "Test ExodusBlock" begin
+#   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+#   block_1 = ExodusBlock(exo, 1)
+#   @show block_1
+#   close(exo)
+# end

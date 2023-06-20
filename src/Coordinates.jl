@@ -18,6 +18,22 @@ function ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
   exodus_error_check(error_code, "ex_get_coord_names!")
 end
 
+function ex_get_partial_coord!(
+  exoid::Cint,
+  start_node_num::Cint,
+  num_nodes::Cint,
+  x_coords::Union{Vector{<:Real}, Ptr},
+  y_coords::Union{Vector{<:Real}, Ptr},
+  z_coords::Union{Vector{<:Real}, Ptr}
+)
+  error_code = ccall(
+    (:ex_get_partial_coord, libexodus), Cint,
+    (Cint, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+    exoid, start_node_num, num_nodes, x_coords, y_coords, z_coords
+  )
+  exodus_error_check(error_code, "ex_get_partial_coord!")
+end
+
 
 """
 Method to read coordinates. Returns a matrix that is n_dim x n_nodes.
@@ -46,6 +62,35 @@ function read_coordinates(exo::ExodusDatabase)
     coords = hcat(x_coords, y_coords)' |> collect
   elseif exo.init.num_dim == 3
     # coords = collect(hcat(x_coords, y_coords, z_coords))
+    coords = hcat(x_coords, y_coords, z_coords)' |> collect
+  else
+    error("Should never get here")
+  end
+  return coords
+end
+
+function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_nodes::I) where I <: Integer
+  if exo.init.num_dim == 1
+    x_coords = Array{exo.F}(undef, num_nodes)
+    y_coords = C_NULL
+    z_coords = C_NULL
+  elseif exo.init.num_dim == 2
+    x_coords = Array{exo.F}(undef, num_nodes)
+    y_coords = Array{exo.F}(undef, num_nodes)
+    z_coords = C_NULL
+  elseif exo.init.num_dim == 3
+    x_coords = Array{exo.F}(undef, num_nodes)
+    y_coords = Array{exo.F}(undef, num_nodes)
+    z_coords = Array{exo.F}(undef, num_nodes)
+  end
+  ex_get_partial_coord!(exo.exo, 
+                        convert(exo.I, start_node_num), convert(exo.I, num_nodes),
+                        x_coords, y_coords, z_coords)
+  if exo.init.num_dim == 1
+    error("One dimension isn't really supported and exodusII is likely overkill")
+  elseif exo.init.num_dim == 2
+    coords = hcat(x_coords, y_coords)' |> collect
+  elseif exo.init.num_dim == 3
     coords = hcat(x_coords, y_coords, z_coords)' |> collect
   else
     error("Should never get here")
@@ -137,10 +182,12 @@ end
 
 export ex_get_coord!
 export ex_get_coord_names!
+export ex_get_partial_coord!
 export ex_put_coord!
 export ex_put_coord_names!
 
 export read_coordinates
 export read_coordinate_names
+export read_partial_coordinates
 export write_coordinates
 export write_coordinate_names

@@ -13,6 +13,14 @@ function test_read_coordinates_on_square_mesh()
   close(exo)
 end
 
+function test_read_partial_coordinates_on_square_mesh()
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  coords = read_coordinates(exo)
+  partial_coords = read_partial_coordinates(exo, 10, 100)
+  @test coords[:, 10:110 - 1] ≈ partial_coords
+  close(exo)
+end
+
 function test_read_coordinate_names_on_square_mesh()
   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
   coord_names = read_coordinate_names(exo)
@@ -27,6 +35,14 @@ function test_read_coordinates_on_cube_mesh()
   close(exo)
 end
 
+function test_read_partial_coordinates_on_cube_mesh()
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  coords = read_coordinates(exo)
+  partial_coords = read_partial_coordinates(exo, 10, 100)
+  @test coords[:, 10:110 - 1] ≈ partial_coords
+  close(exo)
+end
+
 function test_read_coordinate_names_on_cube_mesh()
   exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
   coord_names = read_coordinate_names(exo)
@@ -36,8 +52,10 @@ end
 
 @exodus_unit_test_set "Coorinates.jl - Read" begin
   test_read_coordinates_on_square_mesh()
+  test_read_partial_coordinates_on_square_mesh()
   test_read_coordinate_names_on_square_mesh()
   test_read_coordinates_on_cube_mesh()
+  test_read_partial_coordinates_on_cube_mesh()
   test_read_coordinate_names_on_cube_mesh()
 end
 

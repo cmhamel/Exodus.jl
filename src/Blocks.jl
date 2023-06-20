@@ -35,6 +35,15 @@ function ex_get_block_id_map!(
   exodus_error_check(error_code, "ex_get_block_id_map!")
 end
 
+# function ex_get_block_param!(exoid::Cint, block::ExodusBlock)
+#   error_code = ccall(
+#     (:ex_get_block_param, libexodus), Cint,
+#     (Cint, ExodusBlock),
+#     exoid, block
+#   )
+#   exodus_error_check(error_code, "ex_get_block_param!")
+# end
+
 function ex_get_conn!(
   exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id, nned to figure this out
   nodeconn, faceconn, edgeconn
@@ -78,6 +87,24 @@ function Block(exo::ExodusDatabase, block_name::String)
   name_index = name_index[1]
   return Block(exo, block_ids[name_index])
 end
+
+
+
+# """
+# default dummy constructor
+# """
+# function ExodusBlock()
+#   return ExodusBlock(0, EX_ELEM_BLOCK, Vector{UInt8}(undef, MAX_STR_LENGTH), 0, 0, 0, 0, 0)
+# end
+
+# """
+# """
+# function ExodusBlock(exo::ExodusDatabase, block_id::I) where I <: Integer
+#   block_id = convert(exo.I, block_id)
+#   block = ExodusBlock()
+#   ex_get_block_param!(exo.exo, block)
+#   return block
+# end
 
 """
 Retrieves numerical block ids.
@@ -172,6 +199,7 @@ export ex_get_block_id_map!
 export ex_get_conn!
 
 export Block
+# export ExodusBlock
 
 export read_blocks
 export read_block_id_map
