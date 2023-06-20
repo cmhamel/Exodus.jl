@@ -48,4 +48,10 @@ added capabilities to grab sets by name as well as read/write variables by name 
 ## v0.2.2
 add more exports and a few quality of life methods
 
+## v0.2.3
+Lots of cleanup and extensions to help port over Norma.jl from exodus.py to Exodus.jl
+
+## v0.2.4
+
+
 
