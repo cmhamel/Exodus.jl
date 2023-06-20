@@ -5,6 +5,14 @@
   close(exo)
 end
 
+@exodus_unit_test_set "Test Read Time" begin
+  exo = ExodusDatabase("./example_output/output.gold", "r")
+  @show read_time(exo, 1)
+  @test read_time(exo, 1) == 0.0
+  @test read_time(exo, 2) == 1.0
+  close(exo)
+end
+
 @exodus_unit_test_set "Test Read Times" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
   times = read_times(exo)
