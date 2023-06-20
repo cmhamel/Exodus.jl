@@ -113,6 +113,28 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Test read partial block connectivity" begin
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  block = Block(exo, 1)
+  conn = read_block_connectivity(exo, 1)
+  conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
+  partial_conn = read_partial_block_connectivity(exo, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
+
+  @test conn[:, 10:110 - 1] ≈ partial_conn
+  close(exo)
+
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  block = Block(exo, 1)
+  conn = read_block_connectivity(exo, 1)
+  conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
+  partial_conn = read_partial_block_connectivity(exo, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
+
+  @test conn[:, 10:110 - 1] ≈ partial_conn
+  close(exo)
+end
+
 # @exodus_unit_test_set "Test ExodusBlock" begin
 #   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
 #   block_1 = ExodusBlock(exo, 1)

@@ -56,6 +56,25 @@ function ex_get_conn!(
   exodus_error_check(error_code, "ex_get_conn") 
 end
 
+function ex_get_partial_conn!(
+  exoid::Cint, blk_type::ex_entity_type, blk_id, 
+  start_num::Clonglong, num_ent::Clonglong,
+  nodeconn, faceconn, edgeconn
+)
+  error_code = ccall(
+    (:ex_get_partial_conn, libexodus), Cint,
+    (
+      Cint, ex_entity_type, ex_entity_id,
+      Clonglong, Clonglong,
+      Ptr{void_int}, Ptr{void_int}, Ptr{void_int}
+    ),
+    exoid, blk_type, blk_id,
+    start_num, num_ent,
+    nodeconn, faceconn, edgeconn
+  )
+  exodus_error_check(error_code, "ex_get_partial_conn!")
+end
+
 function ex_get_elem_type!(exoid::Cint, elem_blk_id::I, elem_type::Vector{UInt8}) where I <: Integer
   error_code = ccall(
     (:ex_get_elem_type, libexodus), Cint,
@@ -178,7 +197,21 @@ end
 
 """
 """
-function read_element_type(exo::ExodusDatabase, block_id::I) where {I <: Integer}
+function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start_num::I, num_ent::I) where I <: Integer
+  block_id = convert(exo.I, block_id)
+  element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
+  read_element_block_parameters(exo, block_id)
+  conn = Vector{exo.B}(undef, num_nodes * num_ent)
+  conn_face = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
+  conn_edge = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
+  ex_get_partial_conn!(exo.exo, EX_ELEM_BLOCK, block_id, start_num, num_ent,
+                       conn, conn_face, conn_edge)
+  return conn
+end
+
+"""
+"""
+function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
   element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
   ex_get_elem_type!(exo.exo, convert(exo.I, block_id), element_type)
   return unsafe_string(pointer(element_type))
@@ -215,6 +248,7 @@ export ex_get_block!
 export ex_get_block_id_map!
 export ex_get_conn!
 export ex_get_elem_type!
+export ex_get_partial_conn!
 
 export Block
 # export ExodusBlock
@@ -226,4 +260,5 @@ export read_block_names
 export read_block_connectivity
 export read_element_block_parameters
 export read_element_type
+export read_partial_block_connectivity
 
