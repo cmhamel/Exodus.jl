@@ -134,6 +134,12 @@ function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String}
 end
 
 # local exports
+
+export ex_get_coord!
+export ex_get_coord_names!
+export ex_put_coord!
+export ex_put_coord_names!
+
 export read_coordinates
 export read_coordinate_names
 export write_coordinates

@@ -146,6 +146,9 @@ function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integ
 end
 
 # local exports
+export ex_get_block!
+export ex_get_conn!
+
 export Block
 
 export read_blocks
