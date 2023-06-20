@@ -56,6 +56,15 @@ function ex_get_conn!(
   exodus_error_check(error_code, "ex_get_conn") 
 end
 
+function ex_get_elem_type!(exoid::Cint, elem_blk_id::I, elem_type::Vector{UInt8}) where I <: Integer
+  error_code = ccall(
+    (:ex_get_elem_type, libexodus), Cint,
+    (Cint, ex_entity_id, Ptr{UInt8}),
+    exoid, elem_blk_id, elem_type
+  )
+  exodus_error_check(error_code, "ex_get_elem_type!")
+end
+
 """
 Init method for block container.
 
@@ -169,6 +178,14 @@ end
 
 """
 """
+function read_element_type(exo::ExodusDatabase, block_id::I) where {I <: Integer}
+  element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  ex_get_elem_type!(exo.exo, convert(exo.I, block_id), element_type)
+  return unsafe_string(pointer(element_type))
+end
+
+"""
+"""
 function read_blocks!(blocks::Vector{B}, 
                       exo::ExodusDatabase, 
                       block_ids::Vector{I}) where {B <: Block, I <: Integer}
@@ -197,6 +214,7 @@ end
 export ex_get_block!
 export ex_get_block_id_map!
 export ex_get_conn!
+export ex_get_elem_type!
 
 export Block
 # export ExodusBlock
@@ -207,4 +225,5 @@ export read_block_ids
 export read_block_names
 export read_block_connectivity
 export read_element_block_parameters
+export read_element_type
 

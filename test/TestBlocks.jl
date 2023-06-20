@@ -102,6 +102,17 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Test read block element type" begin
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  elem_type = read_element_type(exo, 1)
+  @test elem_type == "QUAD4"
+  close(exo)
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  elem_type = read_element_type(exo, 1)
+  @test elem_type == "HEX8"
+  close(exo)
+end
+
 # @exodus_unit_test_set "Test ExodusBlock" begin
 #   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
 #   block_1 = ExodusBlock(exo, 1)
