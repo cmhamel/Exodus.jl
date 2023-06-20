@@ -28,11 +28,27 @@ function test_read_blocks_on_square_meshes()
   close(exo)
 end
 
+# add more tests to actually test the map
+function test_read_block_id_map_on_square_meshes()
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  block_id_map = read_block_id_map(exo, 1)
+  @test block_id_map == 1:Block(exo, 1).num_elem |> collect
+  close(exo)
+end
+
 function test_read_block_ids_on_cube_meshes()
   exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
   block_ids = read_block_ids(exo)
   @test length(block_ids) == 1
   @test block_ids == [1]
+  close(exo)
+end
+
+# add more tests to actually test the map
+function test_read_block_id_map_on_cube_meshes()
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  block_id_map = read_block_id_map(exo, 1)
+  @test block_id_map == 1:Block(exo, 1).num_elem |> collect
   close(exo)
 end
 
@@ -51,8 +67,10 @@ end
 
 @exodus_unit_test_set "Blocks.jl - Read" begin
   test_read_block_ids_on_square_meshes()
+  test_read_block_id_map_on_square_meshes()
   test_read_blocks_on_square_meshes()
   test_read_block_ids_on_cube_meshes()
+  test_read_block_id_map_on_cube_meshes()
   test_read_blocks_on_cube_meshes()
 end
 

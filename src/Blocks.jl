@@ -23,6 +23,18 @@ function ex_get_block!(
   exodus_error_check(error_code, "ex_get_block!")
 end
 
+function ex_get_block_id_map!(
+  exoid::Cint, obj_type::ex_entity_type, blk_id,
+  blk_map
+)
+  error_code = ccall(
+    (:ex_get_block_id_map, libexodus), Cint,
+    (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}),
+    exoid, obj_type, blk_id, blk_map
+  )
+  exodus_error_check(error_code, "ex_get_block_id_map!")
+end
+
 function ex_get_conn!(
   exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id, nned to figure this out
   nodeconn, faceconn, edgeconn
@@ -76,6 +88,15 @@ function read_block_ids(exo::ExodusDatabase)
   block_ids = Vector{exo.I}(undef, exo.init.num_elem_blks)
   ex_get_ids!(exo.exo, EX_ELEM_BLOCK, block_ids)
   return block_ids
+end
+
+"""
+"""
+function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
+  block = Block(exo, block_id)
+  block_id_map = Vector{exo.M}(undef, block.num_elem)
+  ex_get_block_id_map!(exo.exo, EX_ELEM_BLOCK, convert(exo.I, block_id), block_id_map)
+  return block_id_map
 end
 
 """
@@ -147,11 +168,13 @@ end
 
 # local exports
 export ex_get_block!
+export ex_get_block_id_map!
 export ex_get_conn!
 
 export Block
 
 export read_blocks
+export read_block_id_map
 export read_block_ids
 export read_block_names
 export read_block_connectivity
