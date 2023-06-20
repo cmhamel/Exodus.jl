@@ -20,20 +20,34 @@ end
 
 function ex_get_partial_coord!(
   exoid::Cint,
-  start_node_num::Cint,
-  num_nodes::Cint,
+  start_node_num::Clonglong,
+  num_nodes::Clonglong,
   x_coords::Union{Vector{<:Real}, Ptr},
   y_coords::Union{Vector{<:Real}, Ptr},
   z_coords::Union{Vector{<:Real}, Ptr}
 )
   error_code = ccall(
     (:ex_get_partial_coord, libexodus), Cint,
-    (Cint, Cint, Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+    (Cint, Clonglong, Clonglong, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
     exoid, start_node_num, num_nodes, x_coords, y_coords, z_coords
   )
   exodus_error_check(error_code, "ex_get_partial_coord!")
 end
 
+function ex_get_partial_coord_component!(
+  exoid::Cint,
+  start_node_num::Clonglong,
+  num_nodes::Clonglong,
+  component::Cint,
+  coords::Vector{<:Real}
+)
+  error_code = ccall(
+    (:ex_get_partial_coord_component, libexodus), Cint,
+    (Cint, Clonglong, Clonglong, Cint, Ptr{Cvoid}),
+    exoid, start_node_num, num_nodes, component, coords
+  )
+  exodus_error_check(error_code, "ex_get_partial_coord_component!")
+end
 
 """
 Method to read coordinates. Returns a matrix that is n_dim x n_nodes.
@@ -84,7 +98,7 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
     z_coords = Array{exo.F}(undef, num_nodes)
   end
   ex_get_partial_coord!(exo.exo, 
-                        convert(exo.I, start_node_num), convert(exo.I, num_nodes),
+                        start_node_num, num_nodes,
                         x_coords, y_coords, z_coords)
   if exo.init.num_dim == 1
     error("One dimension isn't really supported and exodusII is likely overkill")
@@ -96,6 +110,25 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
     error("Should never get here")
   end
   return coords
+end
+
+function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, num_nodes::I, component::I) where I <: Integer
+  coords = Array{exo.F}(undef, num_nodes)
+  ex_get_partial_coord_component!(exo.exo, start_node_num, num_nodes, convert(Cint, component), coords)
+  return coords
+end
+
+function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, num_nodes::I, component::String) where I <: Integer
+  if lowercase(component) == "x"
+    coord_id = 1
+  elseif lowercase(component) == "y"
+    coord_id = 2
+  elseif lowercase(component) == "z"
+    coord_id = 3
+  else
+    throw(ErrorException("undefined coordinate component $component"))
+  end
+  return read_partial_coordinates_component(exo, start_node_num, num_nodes, coord_id)
 end
 
 """
@@ -183,11 +216,13 @@ end
 export ex_get_coord!
 export ex_get_coord_names!
 export ex_get_partial_coord!
+export ex_get_partial_coord_component!
 export ex_put_coord!
 export ex_put_coord_names!
 
 export read_coordinates
 export read_coordinate_names
 export read_partial_coordinates
+export read_partial_coordinates_component
 export write_coordinates
 export write_coordinate_names
