@@ -260,4 +260,11 @@ end
 #       "\tNumber of processors in file = ", init.number_of_procesors_in_file, "\n")
 
 # local exports
+export ex_get_cmap_params!
+export ex_get_init!
+export ex_get_init_global!
+export ex_get_init_info!
+export ex_get_loadbal_param!
+export ex_put_init!
+
 export write_initialization!
