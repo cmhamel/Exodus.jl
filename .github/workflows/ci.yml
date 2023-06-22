@@ -16,6 +16,7 @@ jobs:
         julia-arch: 
           - x64
         os:
+          - macos-latest
           - ubuntu-latest 
           - windows-latest
         exclude:
@@ -52,52 +53,52 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-  test-ignore-hashes:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        julia-version: 
-          - '1.9'
-          - '1.8'
-          - 'nightly'
-        julia-arch: 
-          - x64
-        os:
-          - macos-latest
-          # - windows-latest
+  # test-ignore-hashes:
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       julia-version: 
+  #         - '1.9'
+  #         - '1.8'
+  #         - 'nightly'
+  #       julia-arch: 
+  #         - x64
+  #       os:
+  #         - macos-latest
+  #         # - windows-latest
         
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: ${{ matrix.julia-version }}
-          arch: ${{ matrix.julia-arch }}
-        # new stuff
-        #
-      - uses: actions/cache@v1
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
-      - run: |
-          julia --color=yes -e '
-            ENV["JULIA_PKG_IGNORE_HASHES"] = 1
-            using Pkg
-            Pkg.add("Exodus")
-          '
-      - uses: julia-actions/julia-runtest@v1
-        with:
-          annotate: true
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: lcov.info
-          fail_ci_if_error: false
-          verbose: true
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: julia-actions/setup-julia@v1
+  #       with:
+  #         version: ${{ matrix.julia-version }}
+  #         arch: ${{ matrix.julia-arch }}
+  #       # new stuff
+  #       #
+  #     - uses: actions/cache@v1
+  #       env:
+  #         cache-name: cache-artifacts
+  #       with:
+  #         path: ~/.julia/artifacts
+  #         key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-test-${{ env.cache-name }}-
+  #           ${{ runner.os }}-test-
+  #           ${{ runner.os }}-
+  #     - run: |
+  #         julia --color=yes -e '
+  #           ENV["JULIA_PKG_IGNORE_HASHES"] = 1
+  #           using Pkg
+  #           Pkg.add("Exodus")
+  #         '
+  #     - uses: julia-actions/julia-runtest@v1
+  #       with:
+  #         annotate: true
+  #     - uses: julia-actions/julia-processcoverage@v1
+  #     - uses: codecov/codecov-action@v3
+  #       with:
+  #         token: ${{ secrets.CODECOV_TOKEN }}
+  #         file: lcov.info
+  #         fail_ci_if_error: false
+  #         verbose: true
