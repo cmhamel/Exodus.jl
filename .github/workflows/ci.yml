@@ -93,6 +93,26 @@ jobs:
 #             Pkg.add("Exodus")
 #           '
       - run: |
+          echo "trying just fmt_jll"
+          julia --color=yes -e '
+            using Pkg
+            Pkg.add("Fmt_jll")
+          '
+          echo "trying just hdf5_jll"
+          julia --color=yes -e '
+            using Pkg
+            Pkg.add("HDF5_jll")
+          '
+          echo "trying just netcdf_jll"
+          julia --color=yes -e '
+            using Pkg
+            Pkg.add("NetCDF_jll")
+          '
+          echo "trying just zlib_jll"
+          julia --color=yes -e '
+            using Pkg
+            Pkg.add("Zlib_jll")
+          '
           julia --color=yes -e '
             using Pkg
             Pkg.add("Exodus_jll")
