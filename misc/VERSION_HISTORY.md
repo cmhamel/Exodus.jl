@@ -40,7 +40,7 @@ Also added an exodiff macro
 Moved to better auto-docing started add element variables read commands
 
 ## v0.2.0
-First major update to try to wrangle the library
+First major update to try to wrangle the package
 
 ## v0.2.1
 added capabilities to grab sets by name as well as read/write variables by name for global/nodal/element variables
@@ -52,6 +52,11 @@ add more exports and a few quality of life methods
 Lots of cleanup and extensions to help port over Norma.jl from exodus.py to Exodus.jl
 
 ## v0.2.4
+Added in Aqua.jl testing to find bad exports and other such nonsense
+
+Some methods for partial fields
+
+
 
 
 
