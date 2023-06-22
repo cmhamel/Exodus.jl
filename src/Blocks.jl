@@ -23,6 +23,27 @@ function ex_get_block!(
   exodus_error_check(error_code, "ex_get_block!")
 end
 
+function ex_get_block_id_map!(
+  exoid::Cint, obj_type::ex_entity_type, blk_id,
+  blk_map
+)
+  error_code = ccall(
+    (:ex_get_block_id_map, libexodus), Cint,
+    (Cint, ex_entity_type, ex_entity_id, Ptr{void_int}),
+    exoid, obj_type, blk_id, blk_map
+  )
+  exodus_error_check(error_code, "ex_get_block_id_map!")
+end
+
+# function ex_get_block_param!(exoid::Cint, block::ExodusBlock)
+#   error_code = ccall(
+#     (:ex_get_block_param, libexodus), Cint,
+#     (Cint, ExodusBlock),
+#     exoid, block
+#   )
+#   exodus_error_check(error_code, "ex_get_block_param!")
+# end
+
 function ex_get_conn!(
   exoid::Cint, blk_type::ex_entity_type, blk_id, #::ex_entity_id, nned to figure this out
   nodeconn, faceconn, edgeconn
@@ -33,6 +54,34 @@ function ex_get_conn!(
     exoid, blk_type, blk_id, nodeconn, faceconn, edgeconn
   )
   exodus_error_check(error_code, "ex_get_conn") 
+end
+
+function ex_get_partial_conn!(
+  exoid::Cint, blk_type::ex_entity_type, blk_id, 
+  start_num::Clonglong, num_ent::Clonglong,
+  nodeconn, faceconn, edgeconn
+)
+  error_code = ccall(
+    (:ex_get_partial_conn, libexodus), Cint,
+    (
+      Cint, ex_entity_type, ex_entity_id,
+      Clonglong, Clonglong,
+      Ptr{void_int}, Ptr{void_int}, Ptr{void_int}
+    ),
+    exoid, blk_type, blk_id,
+    start_num, num_ent,
+    nodeconn, faceconn, edgeconn
+  )
+  exodus_error_check(error_code, "ex_get_partial_conn!")
+end
+
+function ex_get_elem_type!(exoid::Cint, elem_blk_id::I, elem_type::Vector{UInt8}) where I <: Integer
+  error_code = ccall(
+    (:ex_get_elem_type, libexodus), Cint,
+    (Cint, ex_entity_id, Ptr{UInt8}),
+    exoid, elem_blk_id, elem_type
+  )
+  exodus_error_check(error_code, "ex_get_elem_type!")
 end
 
 """
@@ -67,6 +116,24 @@ function Block(exo::ExodusDatabase, block_name::String)
   return Block(exo, block_ids[name_index])
 end
 
+
+
+# """
+# default dummy constructor
+# """
+# function ExodusBlock()
+#   return ExodusBlock(0, EX_ELEM_BLOCK, Vector{UInt8}(undef, MAX_STR_LENGTH), 0, 0, 0, 0, 0)
+# end
+
+# """
+# """
+# function ExodusBlock(exo::ExodusDatabase, block_id::I) where I <: Integer
+#   block_id = convert(exo.I, block_id)
+#   block = ExodusBlock()
+#   ex_get_block_param!(exo.exo, block)
+#   return block
+# end
+
 """
 Retrieves numerical block ids.
 
@@ -76,6 +143,15 @@ function read_block_ids(exo::ExodusDatabase)
   block_ids = Vector{exo.I}(undef, exo.init.num_elem_blks)
   ex_get_ids!(exo.exo, EX_ELEM_BLOCK, block_ids)
   return block_ids
+end
+
+"""
+"""
+function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
+  block = Block(exo, block_id)
+  block_id_map = Vector{exo.M}(undef, block.num_elem)
+  ex_get_block_id_map!(exo.exo, EX_ELEM_BLOCK, convert(exo.I, block_id), block_id_map)
+  return block_id_map
 end
 
 """
@@ -121,6 +197,28 @@ end
 
 """
 """
+function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start_num::I, num_ent::I) where I <: Integer
+  block_id = convert(exo.I, block_id)
+  element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
+  read_element_block_parameters(exo, block_id)
+  conn = Vector{exo.B}(undef, num_nodes * num_ent)
+  conn_face = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
+  conn_edge = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
+  ex_get_partial_conn!(exo.exo, EX_ELEM_BLOCK, block_id, start_num, num_ent,
+                       conn, conn_face, conn_edge)
+  return conn
+end
+
+"""
+"""
+function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
+  element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  ex_get_elem_type!(exo.exo, convert(exo.I, block_id), element_type)
+  return unsafe_string(pointer(element_type))
+end
+
+"""
+"""
 function read_blocks!(blocks::Vector{B}, 
                       exo::ExodusDatabase, 
                       block_ids::Vector{I}) where {B <: Block, I <: Integer}
@@ -146,11 +244,21 @@ function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integ
 end
 
 # local exports
+export ex_get_block!
+export ex_get_block_id_map!
+export ex_get_conn!
+export ex_get_elem_type!
+export ex_get_partial_conn!
+
 export Block
+# export ExodusBlock
 
 export read_blocks
+export read_block_id_map
 export read_block_ids
 export read_block_names
 export read_block_connectivity
 export read_element_block_parameters
+export read_element_type
+export read_partial_block_connectivity
 

@@ -105,4 +105,4 @@ export read_node_sets
 export read_node_set_ids
 export read_node_set_names
 export read_node_set_parameters
-export write_node_set_names
+# export write_node_set_names

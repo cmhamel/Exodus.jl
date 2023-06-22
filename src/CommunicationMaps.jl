@@ -60,3 +60,6 @@ end
 #     return new(ids, elem_ids, side_ids, proc_ids)
 #   end
 # end
+
+export ex_get_elem_cmap!
+export ex_get_node_cmap!

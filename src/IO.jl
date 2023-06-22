@@ -285,8 +285,15 @@ function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
 end
 
 # local exports
+export ex_close!
+export ex_copy!
+export ex_create_int
+export ex_inquire_int
+export ex_int64_status
+
+
 export close
 export copy
 export exo_int_types
 export exo_float_type
-export ExodusDatabase!
+# export ExodusDatabase!

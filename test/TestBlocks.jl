@@ -28,11 +28,27 @@ function test_read_blocks_on_square_meshes()
   close(exo)
 end
 
+# add more tests to actually test the map
+function test_read_block_id_map_on_square_meshes()
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  block_id_map = read_block_id_map(exo, 1)
+  @test block_id_map == 1:Block(exo, 1).num_elem |> collect
+  close(exo)
+end
+
 function test_read_block_ids_on_cube_meshes()
   exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
   block_ids = read_block_ids(exo)
   @test length(block_ids) == 1
   @test block_ids == [1]
+  close(exo)
+end
+
+# add more tests to actually test the map
+function test_read_block_id_map_on_cube_meshes()
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  block_id_map = read_block_id_map(exo, 1)
+  @test block_id_map == 1:Block(exo, 1).num_elem |> collect
   close(exo)
 end
 
@@ -51,8 +67,10 @@ end
 
 @exodus_unit_test_set "Blocks.jl - Read" begin
   test_read_block_ids_on_square_meshes()
+  test_read_block_id_map_on_square_meshes()
   test_read_blocks_on_square_meshes()
   test_read_block_ids_on_cube_meshes()
+  test_read_block_id_map_on_cube_meshes()
   test_read_blocks_on_cube_meshes()
 end
 
@@ -83,3 +101,43 @@ end
 
   close(exo)
 end
+
+@exodus_unit_test_set "Test read block element type" begin
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  elem_type = read_element_type(exo, 1)
+  @test elem_type == "QUAD4"
+  close(exo)
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  elem_type = read_element_type(exo, 1)
+  @test elem_type == "HEX8"
+  close(exo)
+end
+
+@exodus_unit_test_set "Test read partial block connectivity" begin
+  exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  block = Block(exo, 1)
+  conn = read_block_connectivity(exo, 1)
+  conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
+  partial_conn = read_partial_block_connectivity(exo, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
+
+  @test conn[:, 10:110 - 1] ≈ partial_conn
+  close(exo)
+
+  exo = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  block = Block(exo, 1)
+  conn = read_block_connectivity(exo, 1)
+  conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
+  partial_conn = read_partial_block_connectivity(exo, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
+
+  @test conn[:, 10:110 - 1] ≈ partial_conn
+  close(exo)
+end
+
+# @exodus_unit_test_set "Test ExodusBlock" begin
+#   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+#   block_1 = ExodusBlock(exo, 1)
+#   @show block_1
+#   close(exo)
+# end
