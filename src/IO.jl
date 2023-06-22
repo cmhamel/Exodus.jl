@@ -119,9 +119,9 @@ function ExodusDatabase(file_name::String, mode::String)
     # ids_int_type = Clonglong # seems to be the case
     float_type = exo_float_type(exo)
     init = Initialization(exo)
-    return ExodusDatabase(
+    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
       exo, mode, 
-      maps_int_type, ids_int_type, bulk_int_type, float_type,
+      # maps_int_type, ids_int_type, bulk_int_type, float_type,
       init
     )
   # elseif lowercase(mode) == "w"
@@ -132,9 +132,9 @@ function ExodusDatabase(file_name::String, mode::String)
     # ids_int_type = Clonglong # seems to be the case
     float_type = exo_float_type(exo)
     init = Initialization(exo)
-    return ExodusDatabase(
+    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
       exo, mode, 
-      maps_int_type, ids_int_type, bulk_int_type, float_type,
+      # maps_int_type, ids_int_type, bulk_int_type, float_type,
       init
     )
   # elseif lowercase(mode) == "w"
@@ -159,9 +159,9 @@ function ExodusDatabase(
     num_elem_blks, num_node_sets, num_side_sets
   )
   write_initialization!(exo, init)
-  return ExodusDatabase(
+  return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
     exo, "w",
-    maps_int_type, ids_int_type, bulk_int_type, float_type,
+    # maps_int_type, ids_int_type, bulk_int_type, float_type,
     init
   )
 end

@@ -54,29 +54,30 @@ Method to read coordinates. Returns a matrix that is n_dim x n_nodes.
 """
 function read_coordinates(exo::ExodusDatabase)
   if exo.init.num_dim == 1
-    x_coords = Array{exo.F}(undef, exo.init.num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
   elseif exo.init.num_dim == 2
-    x_coords = Array{exo.F}(undef, exo.init.num_nodes)
-    y_coords = Array{exo.F}(undef, exo.init.num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
+    y_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
     z_coords = C_NULL
   elseif exo.init.num_dim == 3
-    x_coords = Array{exo.F}(undef, exo.init.num_nodes)
-    y_coords = Array{exo.F}(undef, exo.init.num_nodes)
-    z_coords = Array{exo.F}(undef, exo.init.num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
+    y_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
+    z_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
   end
   # calling exodus method
-  ex_get_coord!(exo.exo, x_coords, y_coords, z_coords)
+  ex_get_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
+  coords = Matrix{get_float_type(exo)}(undef, exo.init.num_dim, exo.init.num_nodes)
   if exo.init.num_dim == 1
     error("One dimension isn't really supported and exodusII is likely overkill")
   elseif exo.init.num_dim == 2
-    # coords = collect(hcat(x_coords, y_coords))
-    # coords = vcat(x_coords', y_coords')
-    coords = hcat(x_coords, y_coords)' |> collect
+    coords[1, :] = x_coords
+    coords[2, :] = y_coords
   elseif exo.init.num_dim == 3
-    # coords = collect(hcat(x_coords, y_coords, z_coords))
-    coords = hcat(x_coords, y_coords, z_coords)' |> collect
+    coords[1, :] = x_coords
+    coords[2, :] = y_coords
+    coords[3, :] = z_coords
   else
     error("Should never get here")
   end
@@ -85,19 +86,19 @@ end
 
 function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_nodes::I) where I <: Integer
   if exo.init.num_dim == 1
-    x_coords = Array{exo.F}(undef, num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
   elseif exo.init.num_dim == 2
-    x_coords = Array{exo.F}(undef, num_nodes)
-    y_coords = Array{exo.F}(undef, num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, num_nodes)
+    y_coords = Array{get_float_type(exo)}(undef, num_nodes)
     z_coords = C_NULL
   elseif exo.init.num_dim == 3
-    x_coords = Array{exo.F}(undef, num_nodes)
-    y_coords = Array{exo.F}(undef, num_nodes)
-    z_coords = Array{exo.F}(undef, num_nodes)
+    x_coords = Array{get_float_type(exo)}(undef, num_nodes)
+    y_coords = Array{get_float_type(exo)}(undef, num_nodes)
+    z_coords = Array{get_float_type(exo)}(undef, num_nodes)
   end
-  ex_get_partial_coord!(exo.exo, 
+  ex_get_partial_coord!(get_file_id(exo), 
                         start_node_num, num_nodes,
                         x_coords, y_coords, z_coords)
   if exo.init.num_dim == 1
@@ -113,8 +114,8 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
 end
 
 function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, num_nodes::I, component::I) where I <: Integer
-  coords = Array{exo.F}(undef, num_nodes)
-  ex_get_partial_coord_component!(exo.exo, start_node_num, num_nodes, convert(Cint, component), coords)
+  coords = Array{get_float_type(exo)}(undef, num_nodes)
+  ex_get_partial_coord_component!(get_file_id(exo), start_node_num, num_nodes, convert(Cint, component), coords)
   return coords
 end
 
@@ -138,7 +139,7 @@ function read_coordinate_names(exo::ExodusDatabase)
   for n in 1:exo.init.num_dim
     coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   end
-  ex_get_coord_names!(exo.exo, coord_names)
+  ex_get_coord_names!(get_file_id(exo), coord_names)
   new_coord_names = Vector{String}(undef, exo.init.num_dim)
   for n in 1:exo.init.num_dim
     new_coord_names[n] = unsafe_string(pointer(coord_names[n]))
@@ -196,7 +197,7 @@ function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: R
   else
     error("This should never happen!")
   end
-  ex_put_coord!(exo.exo, x_coords, y_coords, z_coords)
+  ex_put_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
 end
 
 # TODO we can likely remove some allocations
@@ -208,7 +209,7 @@ function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String}
   for (n, coord_name) in enumerate(coord_names)
     new_coord_names[n] = Vector{UInt8}(coord_name)
   end
-  ex_put_coord_names!(exo.exo, new_coord_names)
+  ex_put_coord_names!(get_file_id(exo), new_coord_names)
 end
 
 # local exports

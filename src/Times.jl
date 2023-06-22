@@ -20,7 +20,7 @@ end
 """
 """
 function read_number_of_time_steps(exo::ExodusDatabase)
-  num_steps = ex_inquire_int(exo.exo, EX_INQ_TIME)
+  num_steps = ex_inquire_int(get_file_id(exo), EX_INQ_TIME)
   return num_steps
 end
 
@@ -28,8 +28,8 @@ end
 TODO figure out how to make this not use a vector of length 1 - either a ref or a ptr
 """
 function read_time(exo::ExodusDatabase, time_step::I) where I <: Integer
-  time = Vector{exo.F}(undef, 1)
-  ex_get_time!(exo.exo, convert(Cint, time_step), time)
+  time = Vector{get_float_type(exo)}(undef, 1)
+  ex_get_time!(get_file_id(exo), convert(Cint, time_step), time)
   return time[1]
 end
 
@@ -37,8 +37,8 @@ end
 """
 function read_times(exo::ExodusDatabase)
   num_steps = read_number_of_time_steps(exo)
-  times = Vector{exo.F}(undef, num_steps)
-  ex_get_all_times!(exo.exo, times)
+  times = Vector{get_float_type(exo)}(undef, num_steps)
+  ex_get_all_times!(get_file_id(exo), times)
   return times
 end
 
@@ -55,8 +55,8 @@ end
 """
 function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <: Integer, F <: Real}
   time_step = convert(Cint, time_step)
-  time_value = convert(exo.F, time_value)
-  ex_put_time!(exo.exo, time_step, time_value)
+  time_value = convert(get_float_type(exo), time_value)
+  ex_put_time!(get_file_id(exo), time_step, time_value)
 end
 
 # local exports

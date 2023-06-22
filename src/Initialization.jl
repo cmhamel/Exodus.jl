@@ -77,7 +77,7 @@ function Initialization(exo_id::I) where {I <: Integer}
   num_node_sets = Ref{Clonglong}(0)
   num_side_sets = Ref{Clonglong}(0)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  ex_get_init!(exo_id, title, # maybe find a way to avoid exo.exo calls
+  ex_get_init!(exo_id, title, # maybe find a way to avoid get_file_id(exo) calls
                num_dim, num_nodes, num_elems, 
                num_elem_blks, num_node_sets, num_side_sets)
   title = unsafe_string(pointer(title))
@@ -85,7 +85,7 @@ function Initialization(exo_id::I) where {I <: Integer}
               num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
-Initialization(e::ExodusDatabase) = Initialization(e.exo)
+Initialization(exo::ExodusDatabase) = Initialization(get_file_id(exo))
 
 # """
 # """
@@ -97,7 +97,7 @@ Initialization(e::ExodusDatabase) = Initialization(e.exo)
 #   num_node_sets = Ref{Clonglong}(0)
 #   num_side_sets = Ref{Clonglong}(0)
 #   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-#   ex_get_init!(exo.exo, title, # maybe find a way to avoid exo.exo calls
+#   ex_get_init!(get_file_id(exo), title, # maybe find a way to avoid get_file_id(exo) calls
 #          num_dim, num_nodes, num_elems, 
 #          num_elem_blks, num_node_sets, num_side_sets)
 #   title = unsafe_string(pointer(title))
@@ -151,7 +151,7 @@ end
 #   # to set in the exo object
 #   ExodusDatabase!(exo, init)
 #   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-#   ex_put_init!(exo.exo, title,
+#   ex_put_init!(get_file_id(exo), title,
 #                init.num_dim, init.num_nodes, init.num_elems,
 #                init.num_elem_blks, init.num_node_sets, init.num_side_sets)
 # end

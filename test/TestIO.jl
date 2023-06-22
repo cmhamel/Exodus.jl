@@ -1,12 +1,12 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
-  @test typeof(exo) == ExodusDatabase
+  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   close(exo)
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Defaults" begin
   exo = ExodusDatabase("./test_write.e")
-  @test typeof(exo) == ExodusDatabase
+  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   close(exo)
   Base.Filesystem.rm("./test_write.e")
 end
@@ -17,7 +17,7 @@ end
     num_dim = 2, num_nodes = 16641, num_elems = 16384,
     num_elem_blks = 1, num_node_sets = 4, num_side_sets = 4
   )
-  @test typeof(exo) == ExodusDatabase
+  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   close(exo)
   Base.rm("./test_write_meaningful.e")
 end
@@ -28,7 +28,7 @@ end
     num_dim = 3, num_nodes = 729, num_elems = 512,
     num_elem_blks = 1, num_node_sets = 6, num_side_sets = 6
   )
-  @test typeof(exo) == ExodusDatabase
+  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   close(exo)
   Base.rm("./test_write_meaningful.e")
 end

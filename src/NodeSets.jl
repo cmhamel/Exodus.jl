@@ -2,9 +2,9 @@
 Init method for a NodeSet with ID node_set_id.
 """
 function NodeSet(exo::ExodusDatabase, node_set_id::Integer)
-  node_set_id = convert(exo.I, node_set_id)
+  node_set_id = convert(get_id_int_type(exo), node_set_id)
   node_set_nodes = read_node_set_nodes(exo, node_set_id)
-  return NodeSet{exo.I, exo.B}(node_set_id, length(node_set_nodes), node_set_nodes)
+  return NodeSet{get_id_int_type(exo), get_bulk_int_type(exo)}(node_set_id, length(node_set_nodes), node_set_nodes)
 end
 
 """
@@ -33,8 +33,8 @@ print(io, "NodeSet:\n",
 """
 """
 function read_node_set_ids(exo::ExodusDatabase)
-  node_set_ids = Array{exo.I}(undef, exo.init.num_node_sets)
-  ex_get_ids!(exo.exo, EX_NODE_SET, node_set_ids)
+  node_set_ids = Array{get_id_int_type(exo)}(undef, exo.init.num_node_sets)
+  ex_get_ids!(get_file_id(exo), EX_NODE_SET, node_set_ids)
   return node_set_ids
 end
 
@@ -42,7 +42,7 @@ end
 """
 function read_node_set_names(exo::ExodusDatabase)
   var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_node_set_ids(exo))]
-  ex_get_names!(exo.exo, EX_NODE_SET, var_names)
+  ex_get_names!(get_file_id(exo), EX_NODE_SET, var_names)
   var_names = map(x -> unsafe_string(pointer(x)), var_names)
   return var_names
 end
@@ -50,10 +50,10 @@ end
 """
 """
 function read_node_set_parameters(exo::ExodusDatabase, node_set_id::Integer)
-  node_set_id = convert(exo.I, node_set_id)
-  num_nodes = Ref{exo.I}(0)
-  num_df = Ref{exo.I}(0)
-  ex_get_set_param!(exo.exo, EX_NODE_SET, node_set_id, num_nodes, num_df)
+  node_set_id = convert(get_id_int_type(exo), node_set_id)
+  num_nodes = Ref{get_id_int_type(exo)}(0)
+  num_df = Ref{get_id_int_type(exo)}(0)
+  ex_get_set_param!(get_file_id(exo), EX_NODE_SET, node_set_id, num_nodes, num_df)
   return num_nodes[], num_df[]
 end
 
@@ -61,10 +61,10 @@ end
 """
 function read_node_set_nodes(exo::ExodusDatabase, node_set_id::Integer)
   num_nodes, _ = read_node_set_parameters(exo, node_set_id)
-  node_set_nodes = Array{exo.B}(undef, num_nodes)
+  node_set_nodes = Array{get_bulk_int_type(exo)}(undef, num_nodes)
   # extras = Array{F}(undef, num_df)
   extras = C_NULL # segfaulting without extras, meaning we probably don't have extras
-  ex_get_set!(exo.exo, EX_NODE_SET, node_set_id, node_set_nodes, extras)
+  ex_get_set!(get_file_id(exo), EX_NODE_SET, node_set_id, node_set_nodes, extras)
   return node_set_nodes
 end
 
@@ -82,7 +82,7 @@ end
 """
 """
 function read_node_sets(exo::ExodusDatabase, node_set_ids::Array{<:Integer})
-  node_set_ids = convert(Vector{exo.I}, node_set_ids)
+  node_set_ids = convert(Vector{get_id_int_type(exo)}, node_set_ids)
   node_sets = Vector{NodeSet}(undef, size(node_set_ids, 1))
   read_node_sets!(node_sets, exo, node_set_ids)
   return node_sets
@@ -92,7 +92,7 @@ end
 #   # nodeset_names = Vector{UInt8}.(nodeset_names)
 #   # @show nodeset_names
 #   # @show typeof(nodeset_names)
-#   ex_put_names!(exo.exo, EX_NODE_SET, nodeset_names)
+#   ex_put_names!(get_file_id(exo), EX_NODE_SET, nodeset_names)
 # end
 
 """
