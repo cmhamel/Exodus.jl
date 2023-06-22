@@ -10,8 +10,8 @@ end
 """
 """
 function read_element_map(exo::ExodusDatabase)
-  elem_map = Vector{exo.M}(undef, exo.init.num_elems)
-  ex_get_map!(exo.exo, elem_map)
+  elem_map = Vector{get_map_int_type(exo)}(undef, exo.init.num_elems)
+  ex_get_map!(get_file_id(exo), elem_map)
   return elem_map
 end
 

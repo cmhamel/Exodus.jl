@@ -51,7 +51,7 @@ end
 #   """
 #   init::Initialization
 # end
-struct ExodusDatabase
+struct ExodusDatabase{MType <: Integer, IType <: Integer, BType <: Integer, FType <: Real}
   """
   ID of exodus file
   """
@@ -61,26 +61,17 @@ struct ExodusDatabase
   """
   mode::String
   """
-  Type of integer stuff # make this a better comment 
-  """
-  M::Type
-  """
-  Integer type of IDs
-  """
-  I::Type
-  """
-  Integer type of set IDs
-  """
-  B::Type
-  """
-  Floating type
-  """
-  F::Type
-  """
   Initialization type
   """
   init::Initialization
 end
+get_map_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = MType
+get_id_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = IType
+get_bulk_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = BType
+get_float_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = RType
+get_init(exo::ExodusDatabase) = getfield(exo, :init)
+get_mode(exo::ExodusDatabase)::String = exo.mode
+get_file_id(exo::ExodusDatabase) = exo.exo
 
 """
 """

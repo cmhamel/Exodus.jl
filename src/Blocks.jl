@@ -90,12 +90,12 @@ Init method for block container.
 Wraps `ex_get_block!` and `ex_get_conn!`
 """
 function Block(exo::ExodusDatabase, block_id::Integer)
-  block_id = convert(exo.I, block_id) # for convenience interfacing
+  block_id = convert(get_id_int_type(exo), block_id) # for convenience interfacing
   element_type, num_elem, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
   conn = read_block_connectivity(exo, block_id)
   conn = reshape(conn, (num_nodes, num_elem))#'
-  return Block{exo.I, exo.B}(block_id, num_elem, num_nodes, element_type, conn)
+  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn)
 end
 Base.show(io::IO, block::B) where {B <: Block} =
 print(io, "Block:\n",
@@ -128,9 +128,9 @@ end
 # """
 # """
 # function ExodusBlock(exo::ExodusDatabase, block_id::I) where I <: Integer
-#   block_id = convert(exo.I, block_id)
+#   block_id = convert(get_id_int_type(exo), block_id)
 #   block = ExodusBlock()
-#   ex_get_block_param!(exo.exo, block)
+#   ex_get_block_param!(get_file_id(exo), block)
 #   return block
 # end
 
@@ -140,8 +140,8 @@ Retrieves numerical block ids.
 Wraps ex_get_ids!
 """
 function read_block_ids(exo::ExodusDatabase)
-  block_ids = Vector{exo.I}(undef, exo.init.num_elem_blks)
-  ex_get_ids!(exo.exo, EX_ELEM_BLOCK, block_ids)
+  block_ids = Vector{get_id_int_type(exo)}(undef, exo.init.num_elem_blks)
+  ex_get_ids!(get_file_id(exo), EX_ELEM_BLOCK, block_ids)
   return block_ids
 end
 
@@ -149,8 +149,8 @@ end
 """
 function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
   block = Block(exo, block_id)
-  block_id_map = Vector{exo.M}(undef, block.num_elem)
-  ex_get_block_id_map!(exo.exo, EX_ELEM_BLOCK, convert(exo.I, block_id), block_id_map)
+  block_id_map = Vector{get_map_int_type(exo)}(undef, block.num_elem)
+  ex_get_block_id_map!(get_file_id(exo), EX_ELEM_BLOCK, convert(get_id_int_type(exo), block_id), block_id_map)
   return block_id_map
 end
 
@@ -158,7 +158,7 @@ end
 """
 function read_block_names(exo::ExodusDatabase)
   var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_block_ids(exo))]
-  ex_get_names!(exo.exo, EX_ELEM_BLOCK, var_names)
+  ex_get_names!(get_file_id(exo), EX_ELEM_BLOCK, var_names)
   var_names = map(x -> unsafe_string(pointer(x)), var_names)
   return var_names
 end
@@ -166,14 +166,14 @@ end
 """
 """
 function read_element_block_parameters(exo::ExodusDatabase, block_id::Integer)
-  block_id = convert(exo.I, block_id)
+  block_id = convert(get_id_int_type(exo), block_id)
   element_type   = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  num_elem       = Ref{exo.I}(0)
-  num_nodes      = Ref{exo.I}(0)
-  num_edges      = Ref{exo.I}(0)
-  num_faces      = Ref{exo.I}(0)
-  num_attributes = Ref{exo.I}(0)
-  ex_get_block!(exo.exo, EX_ELEM_BLOCK, block_id,
+  num_elem       = Ref{get_id_int_type(exo)}(0)
+  num_nodes      = Ref{get_id_int_type(exo)}(0)
+  num_edges      = Ref{get_id_int_type(exo)}(0)
+  num_faces      = Ref{get_id_int_type(exo)}(0)
+  num_attributes = Ref{get_id_int_type(exo)}(0)
+  ex_get_block!(get_file_id(exo), EX_ELEM_BLOCK, block_id,
                 element_type,
                 num_elem, num_nodes,
                 num_edges, num_faces,
@@ -185,26 +185,26 @@ end
 """
 """
 function read_block_connectivity(exo::ExodusDatabase, block_id::Integer)
-  block_id = convert(exo.I, block_id)
+  block_id = convert(get_id_int_type(exo), block_id)
   element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
   read_element_block_parameters(exo, block_id)
-  conn = Vector{exo.B}(undef, num_nodes * num_elem)
-  conn_face = Vector{exo.B}(undef, num_nodes * num_elem)  # Not using these currently
-  conn_edge = Vector{exo.B}(undef, num_nodes * num_elem)  # Not using these currently
-  ex_get_conn!(exo.exo, EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
+  conn = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)
+  conn_face = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)  # Not using these currently
+  conn_edge = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)  # Not using these currently
+  ex_get_conn!(get_file_id(exo), EX_ELEM_BLOCK, block_id, conn, conn_face, conn_edge)
   return conn
 end
 
 """
 """
 function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start_num::I, num_ent::I) where I <: Integer
-  block_id = convert(exo.I, block_id)
+  block_id = convert(get_id_int_type(exo), block_id)
   element_type, num_elem, num_nodes, num_edges, num_faces, num_attributes =
   read_element_block_parameters(exo, block_id)
-  conn = Vector{exo.B}(undef, num_nodes * num_ent)
-  conn_face = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
-  conn_edge = Vector{exo.B}(undef, num_nodes * num_ent)  # Not using these currently
-  ex_get_partial_conn!(exo.exo, EX_ELEM_BLOCK, block_id, start_num, num_ent,
+  conn = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)
+  conn_face = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)  # Not using these currently
+  conn_edge = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)  # Not using these currently
+  ex_get_partial_conn!(get_file_id(exo), EX_ELEM_BLOCK, block_id, start_num, num_ent,
                        conn, conn_face, conn_edge)
   return conn
 end
@@ -213,7 +213,7 @@ end
 """
 function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
   element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  ex_get_elem_type!(exo.exo, convert(exo.I, block_id), element_type)
+  ex_get_elem_type!(get_file_id(exo), convert(get_id_int_type(exo), block_id), element_type)
   return unsafe_string(pointer(element_type))
 end
 
@@ -232,12 +232,12 @@ Helper method for initializing blocks.
 """
 function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integer, Vector{<:Integer}}
   if typeof(block_ids) <: Integer
-    block_id = convert(exo.I, block_id)
+    block_id = convert(get_id_int_type(exo), block_id)
     block = Block(exo, block_id)
     return block
   else
-    block_ids = map(x -> convert(exo.I, x), block_ids)
-    blocks = Vector{Block{exo.I}}(undef, size(block_ids, 1))
+    block_ids = map(x -> convert(get_id_int_type(exo), x), block_ids)
+    blocks = Vector{Block{get_id_int_type(exo)}}(undef, size(block_ids, 1))
     read_blocks!(blocks, exo, block_ids)
     return blocks
   end
