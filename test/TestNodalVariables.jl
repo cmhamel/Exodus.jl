@@ -34,7 +34,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write number of ndoal variables 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -48,7 +48,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write number of ndoal variables 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -62,7 +62,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -78,7 +78,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable names 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -94,7 +94,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -112,7 +112,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -130,7 +130,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")
@@ -155,7 +155,7 @@ end
 end
 
 @exodus_unit_test_set "Test NodalVariables.jl - write nodal variable values with names 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_nodal_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_nodal_variables.e", "rw")

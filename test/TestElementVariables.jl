@@ -1,5 +1,5 @@
 @testset "ElementVariables.jl - write_element_variable_names 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables.e", "rw")
@@ -13,7 +13,7 @@
 end
 
 @testset "ElementVariables.jl - write_element_variable_names 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables.e", "rw")
@@ -27,7 +27,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable names 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables.e", "rw")
@@ -42,7 +42,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable names 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables.e", "rw")
@@ -57,7 +57,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable names by index 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
@@ -78,7 +78,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable names by index 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
@@ -99,7 +99,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable values 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
@@ -128,7 +128,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable values 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
@@ -157,7 +157,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable values with names 2D" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")
@@ -189,7 +189,7 @@ end
 end
 
 @testset "ElementVariables.jl - write element variable values with names 3D" begin
-  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test_0.125.g", "r")
+  exo_old = ExodusDatabase("./mesh/cube_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_element_variables_index.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_element_variables_index.e", "rw")

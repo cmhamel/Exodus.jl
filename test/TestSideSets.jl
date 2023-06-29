@@ -1,4 +1,4 @@
-mesh_file_name = "./mesh/square_meshes/mesh_test_0.0078125.g"
+mesh_file_name = "./mesh/square_meshes/mesh_test.g"
 number_of_nodes = 16641
 number_of_elements = 128^2
 number_of_side_set_elements = 128

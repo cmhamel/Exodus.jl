@@ -50,7 +50,7 @@ end
 end
 
 @exodus_unit_test_set "Test ExodusDatabase with Init" begin
-  exo_temp = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_temp = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   init = exo_temp.init
   close(exo_temp)
   exo = ExodusDatabase("./test_with_init.e", init)
@@ -59,7 +59,7 @@ end
 end
 
 @exodus_unit_test_set "Test ExodusDatabase Copy Mode" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./test_output.e")
   exo_new = ExodusDatabase("./test_output.e", "r")
   # @exodiff "./mesh/square_meshes/mesh_test_0.0078125.g" "./test_output.e"

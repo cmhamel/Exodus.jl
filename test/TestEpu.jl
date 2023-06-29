@@ -11,3 +11,10 @@
 #   # @epu "./mesh/epu_test/mesh_temp.g.16.00"
 #   # @exodiff "./mesh/epu_test/mesh_gold.g" "./mesh/epu_test/mesh_temp.g"
 # end
+
+# @exodus_unit_test_set "EPU" begin
+#   if !Sys.iswindows()
+#     # run(`cp ./mesh/epu_test/mesh_gold.g ./mesh/epu_test/mesh_temp.g`)
+#     run(`cp ./mesh/square_meshes/mesh_test_0.`)
+#   end
+# end
