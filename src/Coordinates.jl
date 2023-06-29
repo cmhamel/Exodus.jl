@@ -1,20 +1,18 @@
 function ex_get_coord!(
   exoid::Cint,
-  x_coords::Union{Vector{<:Real}, Ptr}, 
-  y_coords::Union{Vector{<:Real}, Ptr}, 
-  z_coords::Union{Vector{<:Real}, Ptr}
-)
+  x_coords::T1, y_coords::T2, z_coords::T3
+) where {T1, T2, T3}
   error_code = ccall((:ex_get_coord, libexodus), Cint,
-             (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
-            exoid, x_coords, y_coords, z_coords)
+                     (Cint, Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+                     exoid, x_coords, y_coords, z_coords)
   exodus_error_check(error_code, "ex_get_coord!")
 end
 
 function ex_get_coord_names!(exo_id::Cint, coord_names::Vector{Vector{UInt8}})
 
   error_code = ccall((:ex_get_coord_names, libexodus), Cint,
-             (Cint, Ptr{Ptr{UInt8}}),
-            exo_id, coord_names)
+                     (Cint, Ptr{Ptr{UInt8}}),
+                     exo_id, coord_names)
   exodus_error_check(error_code, "ex_get_coord_names!")
 end
 
@@ -53,47 +51,46 @@ end
 Method to read coordinates. Returns a matrix that is n_dim x n_nodes.
 """
 function read_coordinates(exo::ExodusDatabase)
-  if exo.init.num_dim == 1
-    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
+  num_nodes = get_num_nodes(exo)
+  float_type = get_float_type(exo)
+
+  coords = Matrix{float_type}(undef, get_init(exo).num_dim, get_init(exo).num_nodes)
+  
+  if get_num_dim(exo) == 1
+    x_coords = Array{float_type}(undef, num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
-  elseif exo.init.num_dim == 2
-    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
-    y_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
+    ex_get_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
+    coords[1, :] = x_coords
+  elseif get_num_dim(exo) == 2
+    x_coords = Array{float_type}(undef, num_nodes)
+    y_coords = Array{float_type}(undef, num_nodes)
     z_coords = C_NULL
-  elseif exo.init.num_dim == 3
-    x_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
-    y_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
-    z_coords = Array{get_float_type(exo)}(undef, exo.init.num_nodes)
-  end
-  # calling exodus method
-  ex_get_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
-  coords = Matrix{get_float_type(exo)}(undef, exo.init.num_dim, exo.init.num_nodes)
-  if exo.init.num_dim == 1
-    error("One dimension isn't really supported and exodusII is likely overkill")
-  elseif exo.init.num_dim == 2
+    ex_get_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
     coords[1, :] = x_coords
     coords[2, :] = y_coords
-  elseif exo.init.num_dim == 3
+  elseif get_num_dim(exo) == 3
+    x_coords = Array{float_type}(undef, num_nodes)
+    y_coords = Array{float_type}(undef, num_nodes)
+    z_coords = Array{float_type}(undef, num_nodes)
+    ex_get_coord!(get_file_id(exo), x_coords, y_coords, z_coords)
     coords[1, :] = x_coords
     coords[2, :] = y_coords
     coords[3, :] = z_coords
-  else
-    error("Should never get here")
   end
   return coords
 end
 
 function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_nodes::I) where I <: Integer
-  if exo.init.num_dim == 1
+  if get_init(exo).num_dim == 1
     x_coords = Array{get_float_type(exo)}(undef, num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
-  elseif exo.init.num_dim == 2
+  elseif get_init(exo).num_dim == 2
     x_coords = Array{get_float_type(exo)}(undef, num_nodes)
     y_coords = Array{get_float_type(exo)}(undef, num_nodes)
     z_coords = C_NULL
-  elseif exo.init.num_dim == 3
+  elseif get_init(exo).num_dim == 3
     x_coords = Array{get_float_type(exo)}(undef, num_nodes)
     y_coords = Array{get_float_type(exo)}(undef, num_nodes)
     z_coords = Array{get_float_type(exo)}(undef, num_nodes)
@@ -101,11 +98,11 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
   ex_get_partial_coord!(get_file_id(exo), 
                         start_node_num, num_nodes,
                         x_coords, y_coords, z_coords)
-  if exo.init.num_dim == 1
+  if get_init(exo).num_dim == 1
     error("One dimension isn't really supported and exodusII is likely overkill")
-  elseif exo.init.num_dim == 2
+  elseif get_init(exo).num_dim == 2
     coords = hcat(x_coords, y_coords)' |> collect
-  elseif exo.init.num_dim == 3
+  elseif get_init(exo).num_dim == 3
     coords = hcat(x_coords, y_coords, z_coords)' |> collect
   else
     error("Should never get here")
@@ -135,13 +132,13 @@ end
 """
 """
 function read_coordinate_names(exo::ExodusDatabase)
-  coord_names = Vector{Vector{UInt8}}(undef, exo.init.num_dim)
-  for n in 1:exo.init.num_dim
+  coord_names = Vector{Vector{UInt8}}(undef, get_init(exo).num_dim)
+  for n in 1:get_init(exo).num_dim
     coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   end
   ex_get_coord_names!(get_file_id(exo), coord_names)
-  new_coord_names = Vector{String}(undef, exo.init.num_dim)
-  for n in 1:exo.init.num_dim
+  new_coord_names = Vector{String}(undef, get_init(exo).num_dim)
+  for n in 1:get_init(exo).num_dim
     new_coord_names[n] = unsafe_string(pointer(coord_names[n]))
   end
   return new_coord_names
