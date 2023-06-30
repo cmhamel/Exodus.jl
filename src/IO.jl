@@ -1,21 +1,3 @@
-function ex_close!(exoid::Cint)
-  error_code = ccall(
-    (:ex_close, libexodus), Cint, 
-    (Cint,), 
-    exoid
-  )
-  exodus_error_check(error_code, "ex_close!")
-end
-
-function ex_copy!(in_exoid::Cint, out_exoid::Cint)
-  error_code = ccall(
-    (:ex_copy, libexodus), Cint, 
-    (Cint, Cint), 
-    in_exoid, out_exoid
-  )
-  exodus_error_check(error_code, "ex_copy!")
-end
-
 # TODO figure out right type for cmode in the ex_create_int julia call
 function ex_create_int(path, cmode, comp_ws::Cint, io_ws::Cint, run_version::Cint)
   exo_id = ccall(
@@ -29,24 +11,15 @@ end
 ex_create(path, cmode, comp_ws, io_ws) = 
 ex_create_int(path, cmode, comp_ws, io_ws, EX_API_VERS_NODOT)
 
-function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
-  info = ccall(
-    (:ex_inquire_int, libexodus), Cint,
-    (Cint, ex_inquiry), 
-    exoid, req_info
-  )
-  exodus_error_check(info, "ex_inquire_int")
-  return info
-end
-
-function ex_int64_status(exoid::Cint)
-  status = ccall(
-    (:ex_int64_status, libexodus), UInt32, 
-    (Cint,), 
-    exoid
-  )
-  return status
-end
+# function ex_inquire_int(exoid::Cint, req_info::ex_inquiry)
+#   info = ccall(
+#     (:ex_inquire_int, libexodus), Cint,
+#     (Cint, ex_inquiry), 
+#     exoid, req_info
+#   )
+#   exodus_error_check(info, "ex_inquire_int")
+#   return info
+# end
 
 function ex_opts(options)
   error_code = ccall(
@@ -82,7 +55,7 @@ ex_open(path, mode, comp_ws, io_ws, version) =
 ex_open_int(path, mode, comp_ws, io_ws, version, EX_API_VERS_NODOT)
 
 function exo_int_types(exoid::Cint)
-  int64_status = ex_int64_status(exoid)
+  int64_status = @ccall libexodus.ex_int64_status(exoid::Cint)::UInt32
   # TODO need better checks for non 32 bit case
   if int64_status == 0x0000
     maps_int_type = Cint
@@ -97,7 +70,9 @@ function exo_int_types(exoid::Cint)
 end
 
 function exo_float_type(exoid::Cint)
-  float_size = ex_inquire_int(exoid, EX_INQ_DB_FLOAT_SIZE)
+  # float_size = ex_inquire_int(exoid, EX_INQ_DB_FLOAT_SIZE)
+  float_size = @ccall libexodus.ex_inquire_int(exoid::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  exodus_error_check(float_size, "Exodus.exo_float_type -> libexodus.ex_inquire_int")
   # this is more straightforward
   if float_size == 4
     float_type = Cfloat
@@ -267,8 +242,9 @@ end
 """
 Used to close and ExodusDatabase.
 """
-function Base.close(exo::E) where {E <: ExodusDatabase}
-  ex_close!(exo.exo)
+function Base.close(exo::ExodusDatabase)
+  error_code = @ccall libexodus.ex_close(get_file_id(exo)::Cint)::Cint
+  exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
 end
 
 """
@@ -276,18 +252,18 @@ Used to copy an ExodusDatabase. As of right now this is the best way to create a
 for output. Not all of the put methods have been wrapped and properly tested. This one has though.
 """
 function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
-  new_exo_id = ex_create_int(new_file_name, EX_CLOBBER | ex_int64_status(exo.exo), cpu_word_size, IO_word_size, version_number_int)
-  ex_copy!(exo.exo, new_exo_id)
-  ex_close!(new_exo_id)
+  int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
+  new_exo_id = ex_create_int(new_file_name, EX_CLOBBER | int64_status, cpu_word_size, IO_word_size, version_number_int)
+  # first make a copy
+  error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint)::Cint
+  exodus_error_check(error_code, "Exodus.copy -> libexodus.ex_copy")
+  # now close the exodus file
+  error_code = @ccall libexodus.ex_close(new_exo_id::Cint)::Cint
+  exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
 end
 
-# local exports
-export ex_close!
-export ex_copy!
 export ex_create_int
-export ex_inquire_int
-export ex_int64_status
-
+# export ex_inquire_int
 
 export close
 export copy
