@@ -41,7 +41,6 @@ include("NodeMaps.jl")
 include("Maps.jl")
 
 # blocks, nodesets, sidesets
-include("SetsCommon.jl")
 include("Blocks.jl")
 include("NodeSets.jl")
 include("SideSets.jl")

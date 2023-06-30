@@ -73,7 +73,11 @@ end
 """
 function read_block_names(exo::ExodusDatabase)
   var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_block_ids(exo))]
-  ex_get_names!(get_file_id(exo), EX_ELEM_BLOCK, var_names)
+  # ex_get_names!(get_file_id(exo), EX_ELEM_BLOCK, var_names)
+  error_code = @ccall libexodus.ex_get_names(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, var_names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_block_names -> libexodus.ex_get_names")
   var_names = map(x -> unsafe_string(pointer(x)), var_names)
   return var_names
 end
