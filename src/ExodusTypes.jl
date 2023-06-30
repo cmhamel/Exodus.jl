@@ -51,27 +51,22 @@ end
 #   """
 #   init::Initialization
 # end
-struct ExodusDatabase{MType <: Integer, IType <: Integer, BType <: Integer, FType <: Real}
-  """
-  ID of exodus file
-  """
+
+struct ExodusDatabase{M, I, B, F}
   exo::Cint
-  """
-  Mode
-  """
   mode::String
-  """
-  Initialization type
-  """
   init::Initialization
 end
-get_map_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = MType
-get_id_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = IType
-get_bulk_int_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = BType
-get_float_type(::ExodusDatabase{MType, IType, BType, RType}) where {MType, IType, BType, RType} = RType
-get_init(exo::ExodusDatabase) = getfield(exo, :init)
-get_mode(exo::ExodusDatabase)::String = exo.mode
-get_file_id(exo::ExodusDatabase) = exo.exo
+get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M
+get_id_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = I
+get_bulk_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = B
+get_float_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = F
+get_init(exo::ExodusDatabase)      = getfield(exo, :init)
+get_mode(exo::ExodusDatabase)      = getfield(exo, :mode)
+get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
+get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
+get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
+
 
 """
 """

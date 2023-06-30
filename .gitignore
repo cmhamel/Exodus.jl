@@ -5,4 +5,6 @@ history*.jou
 *.e
 *.e.*
 decomp.log
+epu.log
 exodiff.log
+**/temp_mesh.g

@@ -1,4 +1,4 @@
-mesh_file_name_2D = "./mesh/square_meshes/mesh_test_0.0078125.g"
+mesh_file_name_2D = "./mesh/square_meshes/mesh_test.g"
 
 number_of_nodes_2D = 16641
 number_of_elements_2D = 128^2

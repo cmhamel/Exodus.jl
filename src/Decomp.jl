@@ -7,10 +7,15 @@ macro decomp(ex, n_procs)
   nem_file = ex * ".nem"
   pex_file = ex * ".pex"
   log_file = dir_name * "decomp.log"
-  run(`rm -rf $pex_file`) 
+  # for n in 0:n_procs - 1
+  #   rm(ex * "$n_procs." * lpa)
+  # end
+  rm(log_file, force=true)
+  rm(nem_file, force=true)
+  rm(pex_file, force=true)
 
   nem_slice_out = @capture_out @capture_err nem_slice_exe() do exe
-    run(`$exe -e -S -l inertial -c -o $nem_file -m mesh=$n_procs $ex`)
+    run(`$exe -e -S -l inertial -c -o $nem_file -m mesh=$n_procs $ex`, wait=true)
   end
 
   # now need to write pex file for nem_spread
@@ -29,7 +34,7 @@ macro decomp(ex, n_procs)
 
   # now run nem_spread
   nem_spread_out = @capture_out @capture_err nem_spread_exe() do exe
-    run(`$exe $pex_file`)
+    run(`$exe $pex_file`, wait=true)
   end
 
   # now write log file

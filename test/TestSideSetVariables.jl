@@ -1,5 +1,5 @@
 @exodus_unit_test_set "Test SideSetVariables - write/read number of variables" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_side_set_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_side_set_variables.e", "rw")
@@ -14,7 +14,7 @@
 end
 
 @exodus_unit_test_set "Test SideSetVariables - write/read sideset names" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_side_set_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_side_set_variables.e", "rw")
@@ -31,7 +31,7 @@ end
 end
 
 @exodus_unit_test_set "Test SideSetVariables - write/read sideset values" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_side_set_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_side_set_variables.e", "rw")
@@ -52,7 +52,7 @@ end
 end
 
 @exodus_unit_test_set "Test SideSetVariables - write/read sideset values by name" begin
-  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
+  exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   copy(exo_old, "./temp_side_set_variables.e")
   close(exo_old)
   exo = ExodusDatabase("./temp_side_set_variables.e", "rw")
