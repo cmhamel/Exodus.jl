@@ -74,7 +74,7 @@ end
   @test var_2 == "stress_yy"
   @test var_3 == "stress_xy"
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable names by index 3D" begin
@@ -95,7 +95,7 @@ end
   @test var_2 == "stress_yy"
   @test var_3 == "stress_xy"
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values 2D" begin
@@ -124,7 +124,7 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values 3D" begin
@@ -153,7 +153,7 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values with names 2D" begin
@@ -185,7 +185,7 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end
 
 @testset "ElementVariables.jl - write element variable values with names 3D" begin
@@ -217,5 +217,5 @@ end
   @test stress_xy ≈ stress_xy_read
 
   close(exo)
-  rm("./temp_element_variables.e", force=true)
+  rm("./temp_element_variables_index.e", force=true)
 end

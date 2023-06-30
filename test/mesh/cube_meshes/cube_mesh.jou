@@ -38,7 +38,7 @@ nodeset 4 name "nset_4"
 nodeset 5 name "nset_5"
 nodeset 6 name "nset_6"
 
-export genesis 'mesh_test_{element_length}.g' overwrite
+export genesis 'mesh_test.g' overwrite
 
 
 

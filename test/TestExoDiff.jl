@@ -4,6 +4,7 @@
     @show "skipping exodiff tests for windows"
   else
     @exodiff "./example_output/output.gold" "./example_output/output.gold"
+    rm("./exodiff.log", force=true)
   end
   # @test begin
   #   @exodiff "./example_output/output.gold" "./example_output/output.gold"
