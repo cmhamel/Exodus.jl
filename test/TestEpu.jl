@@ -1,12 +1,12 @@
 @exodus_unit_test_set "EPU - 2D" begin
   if !Sys.iswindows()
-    cp("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/temp_mesh.g", force=true)
+    # cp("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/temp_mesh.g", force=true)
     @decomp "./mesh/square_meshes/temp_mesh.g" 16
     @epu "./mesh/square_meshes/temp_mesh.g.16.00"
     @exodiff "./mesh/square_meshes/mesh_test.g" "./temp_mesh.g"
-    for n in 0:15
-      rm("./mesh/square_meshes/temp_mesh.g.16." * lpad(n, 2, "0"), force=true)
-    end
+    # for n in 0:15
+    #   rm("./mesh/square_meshes/temp_mesh.g.16." * lpad(n, 2, "0"), force=true)
+    # end
     # rm("./mesh/square_meshes/temp_mesh.g.nem", force=true)
     # rm("./mesh/square_meshes/temp_mesh.g.pex", force=true)
     # rm("./mesh/square_meshes/decomp.log", force=true)
