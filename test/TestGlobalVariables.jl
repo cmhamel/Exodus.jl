@@ -51,7 +51,6 @@
     
     write_global_variable_names(
       exo, 
-      [1, 2, 3, 4, 5],
       ["global_var_1", "global_var_2", "global_var_3", "global_var_4", "global_var_5"]
     )
     global_vars = read_global_variable_names(exo)
