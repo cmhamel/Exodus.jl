@@ -34,7 +34,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_element_variables(exo, 3)
-  write_element_variable_names(exo, [1, 2, 3], ["stress_xx", "stress_yy", "stress_xy"])
+  write_element_variable_names(exo, ["stress_xx", "stress_yy", "stress_xy"])
   var_names = read_element_variable_names(exo)
   @test var_names == ["stress_xx", "stress_yy", "stress_xy"]
   close(exo)
@@ -49,7 +49,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_element_variables(exo, 3)
-  write_element_variable_names(exo, [1, 2, 3], ["stress_xx", "stress_yy", "stress_xy"])
+  write_element_variable_names(exo, ["stress_xx", "stress_yy", "stress_xy"])
   var_names = read_element_variable_names(exo)
   @test var_names == ["stress_xx", "stress_yy", "stress_xy"]
   close(exo)
