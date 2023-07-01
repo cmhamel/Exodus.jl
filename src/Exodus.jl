@@ -29,7 +29,7 @@ include("ExodusTypes.jl")
 
 # setup
 include("IO.jl")
-include("Initialization.jl")
+include("Initializations.jl")
 
 # # the basic stuff
 include("Coordinates.jl")
