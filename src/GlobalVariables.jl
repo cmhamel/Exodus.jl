@@ -2,7 +2,10 @@
 """
 function read_number_of_global_variables(exo::ExodusDatabase)
   num_vars = Ref{Cint}(0) # TODO check to make sure this is right
-  ex_get_variable_param!(get_file_id(exo), EX_GLOBAL, num_vars)
+  error_code = @ccall libexodus.ex_get_variable_param(
+    get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, num_vars::Ptr{Cint} 
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_number_of_global_variables -> Exodus.ex_get_variable_param")
   return num_vars[]
 end
 
@@ -13,7 +16,10 @@ function read_global_variable_names!(
   var_name::Vector{UInt8}, var_names::Vector{String}
 )
   for n = 1:num_vars
-    ex_get_variable_name!(get_file_id(exo), EX_GLOBAL, convert(Cint, n), var_name)
+    error_code = @ccall libexodus.ex_get_variable_name(
+      get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, n::Cint, var_name::Ptr{UInt8}
+    )::Cint
+    exodus_error_check(error_code, "Exodus.read_global_variable_names! -> libexodus.ex_get_variable_name")
     var_names[n] = unsafe_string(pointer(var_name))
   end
 end
@@ -23,7 +29,10 @@ end
 function read_global_variable_name(exo::ExodusDatabase, var_index::Integer)
   var_index = convert(Cint, var_index)
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  ex_get_variable_name!(get_file_id(exo), EX_GLOBAL, var_index, var_name)
+  error_code = @ccall libexodus.ex_get_variable_name(
+    get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_global_variable_name -> libexodus.ex_get_variable_name")
   return unsafe_string(pointer(var_name))
 end
 
@@ -43,16 +52,21 @@ function read_global_variable_values(
   exo::ExodusDatabase, timestep::Integer, num_vars::Integer
 )
   values = Vector{get_float_type(exo)}(undef, num_vars)
-  ex_get_var!(get_file_id(exo), convert(Cint, timestep), EX_GLOBAL, 
-              Int32(1), 1, 
-              num_vars, values)
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, timestep::Cint, EX_GLOBAL::ex_entity_type,
+    1::Cint, 1::ex_entity_id, num_vars::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_global_variable_values -> libexodus.ex_get_var")
   return values
 end
 
 """
 """
 function write_number_of_global_variables(exo::ExodusDatabase, num_vars)
-  ex_put_variable_param!(get_file_id(exo), EX_GLOBAL, num_vars)
+  error_code = @ccall libexodus.ex_put_variable_param(
+    get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, num_vars::Cint
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_number_of_global_variables -> libexodus.ex_put_variable_param")
 end
 
 """
@@ -60,7 +74,10 @@ end
 function write_global_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String)
   var_index = convert(get_id_int_type(exo), var_index)
   temp = Vector{UInt8}(var_name)
-  ex_put_variable_name!(get_file_id(exo), EX_GLOBAL, convert(Cint, var_index), temp)
+  error_code = @ccall libexodus.ex_put_variable_name(
+    get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_global_variable_name -> libexodus.ex_put_variable_name")
 end
 
 """
@@ -72,7 +89,10 @@ function write_global_variable_names(exo::ExodusDatabase, var_indices::Vector{<:
 
   for n in axes(var_indices, 1)
     temp = Vector{UInt8}(var_names[n])
-    ex_put_variable_name!(get_file_id(exo), EX_GLOBAL, convert(Cint, var_indices[n]), temp)
+    error_code = @ccall libexodus.ex_put_variable_name(
+      get_file_id(exo)::Cint, EX_GLOBAL::ex_entity_type, n::Cint, temp::Ptr{UInt8}
+    )::Cint
+    exodus_error_check(error_code, "Exodus.write_global_variable_name -> libexodus.ex_put_variable_name")
   end
 end
 
@@ -81,9 +101,11 @@ end
 function write_global_variable_values(
   exo::ExodusDatabase, timestep::Integer, num_vars::Integer, var_values::Vector{<:Real}
 )
-  ex_put_var!(get_file_id(exo), convert(Cint, timestep), 
-              EX_GLOBAL, Int32(1), 1, 
-              num_vars, var_values)
+  error_code = @ccall libexodus.ex_put_var(
+    get_file_id(exo)::Cint, timestep::Cint, EX_GLOBAL::ex_entity_type,
+    1::Cint, 1::ex_entity_id, num_vars::Clonglong, var_values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_global_variable_values -> libexodus.ex_put_var")
 end
 
 # local exports
