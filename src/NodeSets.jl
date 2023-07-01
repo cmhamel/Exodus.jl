@@ -139,6 +139,25 @@ function write_node_sets(exo::ExodusDatabase, nsets::Vector{NodeSet})
   end
 end
 
+"""
+"""
+function write_node_set_name(exo::ExodusDatabase, nset::NodeSet, name::String)
+  error_code = @ccall libexodus.ex_put_name(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, nset.node_set_id::ex_entity_id,
+    name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_node_set_name -> libexodus.ex_put_name")
+end
+
+"""
+"""
+function write_node_set_names(exo::ExodusDatabase, names::Vector{String})
+  error_code = @ccall libexodus.ex_put_names(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_node_set_names -> libexodus.ex_put_names")
+end
+
 # local exports
 export NodeSet
 export read_node_sets
@@ -147,4 +166,6 @@ export read_node_set_names
 export read_node_set_parameters
 
 export write_node_set
+export write_node_set_name
+export write_node_set_names
 export write_node_sets

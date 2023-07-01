@@ -80,7 +80,12 @@ end
   for nset in nsets_old
     write_node_set(exo_new, nset)
   end
+  nsets_names_old = read_node_set_names(exo_old)
+  for (n, nset) in enumerate(nsets_old)
+    write_node_set_name(exo_new, nset, nsets_names_old[n])
+  end
   nsets_new = read_node_sets(exo_new, read_node_set_ids(exo_new))
+  nsets_names_new = read_node_set_names(exo_new)
   close(exo_new)
 
   @test init_old == exo_new.init
@@ -89,6 +94,7 @@ end
     @test nsets_old[n].node_set_id == nsets_new[n].node_set_id
     @test nsets_old[n].num_nodes == nsets_new[n].num_nodes
     @test nsets_old[n].nodes == nsets_new[n].nodes
+    @test nsets_names_old[n] == nsets_names_new[n]
   end
   Base.Filesystem.rm("./test_output_nodesets.e")
 end
@@ -104,7 +110,10 @@ end
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
   write_node_sets(exo_new, nsets_old)
+  nsets_names_old = read_node_set_names(exo_old)
+  write_node_set_names(exo_new, nsets_names_old)
   nsets_new = read_node_sets(exo_new, read_node_set_ids(exo_new))
+  nsets_names_new = read_node_set_names(exo_new)  
   close(exo_new)
 
   @test init_old == exo_new.init
@@ -113,6 +122,7 @@ end
     @test nsets_old[n].node_set_id == nsets_new[n].node_set_id
     @test nsets_old[n].num_nodes == nsets_new[n].num_nodes
     @test nsets_old[n].nodes == nsets_new[n].nodes
+    @test nsets_names_old[n] == nsets_names_new[n]
   end
   Base.Filesystem.rm("./test_output_nodesets.e")
 end
