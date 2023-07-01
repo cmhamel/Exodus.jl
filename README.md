@@ -33,8 +33,8 @@ This returns an ExodusDatabase container which has a single field "exo" that is 
 
 For more useful methods, one can fetch the blocks of elements as follows which contains connectivity information for different blocks of elements useful for grouping materials
 ```julia
-block_ids = read_block_ids(exo)
-blocks = read_blocks(exo, block_ids)
+block_ids = read_element_block_ids(exo)
+blocks = read_element_blocks(exo, block_ids)
 ```
 For boundary conditions one can grab the nodes with the following commands
 ```julia
@@ -47,8 +47,8 @@ Full code example:
 using Exodus
 exo = ExodusDatabase("../path-to-file/file.e", "r") # read only format
 coords          = read_coordinates(exo) # matrix of n_nodes x n_dim
-block_ids       = read_block_ids(exo)
-blocks          = read_blocks(exo, block_ids) # contains connectivity information
+block_ids       = read_element_block_ids(exo)
+blocks          = read_element_blocks(exo, block_ids) # contains connectivity information
 nset_ids        = read_node_set_ids(exo)
 nsets           = read_node_sets(exo, nset_ids) # contains nodes on boundaries
 nodal_var_names = read_nodal_variable_names(exo)
