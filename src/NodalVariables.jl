@@ -106,7 +106,6 @@ end
 """
 function write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, 
                                      var_index::Integer, var_values::Vector{<:Real}) # TODO add types
-  var_index = convert(get_id_int_type(exo), var_index)
   num_nodes = size(var_values, 1)
   error_code = @ccall libexodus.ex_put_var(
     get_file_id(exo)::Cint, timestep::Cint, EX_NODAL::ex_entity_type,

@@ -26,7 +26,6 @@ end
 """
 """
 function read_element_variable_name(exo::ExodusDatabase, var_index::Integer)
-  var_index = convert(Cint, var_index)
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
@@ -91,7 +90,6 @@ end
 """
 """
 function write_element_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String)
-  var_index = convert(get_id_int_type(exo), var_index)
   temp = Vector{UInt8}(var_name)
   error_code = @ccall libexodus.ex_put_variable_name(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
@@ -102,7 +100,6 @@ end
 """
 """
 function write_element_variable_names(exo::ExodusDatabase, var_indices::Vector{<:Integer}, var_names::Vector{String})
-  var_indices = convert.((get_id_int_type(exo),), var_indices)
   if size(var_indices, 1) != size(var_names, 1)
     AssertionError("Indices and Names need to be the same length")
   end
