@@ -21,7 +21,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_side_set_variables(exo, 2)
-  write_side_set_variable_names(exo, [1, 2], ["sset_displ_x", "sset_displ_y"])
+  write_side_set_variable_names(exo, ["sset_displ_x", "sset_displ_y"])
 
   var_names = read_side_set_variable_names(exo)
   @test var_names == ["sset_displ_x", "sset_displ_y"]
@@ -59,7 +59,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_side_set_variables(exo, 1)
-  write_side_set_variable_names(exo, [1], ["sset_displ_x"])
+  write_side_set_variable_names(exo, ["sset_displ_x"])
 
   sset_names = read_side_set_names(exo)
   for sset_id in [1, 2, 3, 4]
