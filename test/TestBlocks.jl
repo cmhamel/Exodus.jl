@@ -182,7 +182,7 @@ end
   coords_new = read_coordinates(exo_new)
   write_element_blocks(exo_new, blocks_old)
   block_names_old = ["block_1"]
-  write_element_block_names(exo_new, blocks_old, block_names_old)
+  write_element_block_names(exo_new, block_names_old)
   blocks_new = read_element_blocks(exo_new, read_element_block_ids(exo_new))
   block_names_new = read_element_block_names(exo_new)
   close(exo_new)

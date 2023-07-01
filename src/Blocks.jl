@@ -228,13 +228,11 @@ end
 
 """
 """
-function write_element_block_names(exo::ExodusDatabase, blocks::Vector{<:Block}, names::Vector{String})
-  if length(blocks) != length(names)
-    throw(ErrorException("unequal length vectors"))
-  end
-  for n in eachindex(blocks)
-    write_element_block_name(exo, blocks[n], names[n])
-  end
+function write_element_block_names(exo::ExodusDatabase, names::Vector{String})
+  error_code = @ccall libexodus.ex_put_names(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_element_block_names -> libexodus.ex_put_names")
 end
 
 
