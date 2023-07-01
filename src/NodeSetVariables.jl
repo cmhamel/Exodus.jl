@@ -2,7 +2,10 @@
 """
 function read_number_of_node_set_variables(exo::ExodusDatabase)
   num_vars = Ref{Cint}(0)
-  ex_get_variable_param!(get_file_id(exo), EX_NODE_SET, num_vars)
+  error_code = @ccall libexodus.ex_get_variable_param(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, num_vars::Ptr{Cint} 
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_number_of_node_set_variables -> Exodus.ex_get_variable_param")
   return num_vars[]
 end
 
@@ -11,7 +14,10 @@ function read_node_set_variable_names!(
   var_name::Vector{UInt8}, var_names::Vector{String}
 )
   for n = 1:num_vars
-    ex_get_variable_name!(get_file_id(exo), EX_NODE_SET, convert(Cint, n), var_name)
+    error_code = @ccall libexodus.ex_get_variable_name(
+      get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, n::Cint, var_name::Ptr{UInt8}
+    )::Cint
+    exodus_error_check(error_code, "Exodus.read_node_set_variable_names! -> libexodus.ex_get_variable_name")
     var_names[n] = unsafe_string(pointer(var_name))
   end
 end
@@ -20,7 +26,10 @@ end
 """
 function read_node_set_variable_name(exo::ExodusDatabase, var_index::Integer)
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  ex_get_variable_name!(get_file_id(exo), EX_NODE_SET, convert(Cint, var_index), var_name)
+  error_code = @ccall libexodus.ex_get_variable_name(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_variable_names! -> libexodus.ex_get_variable_name")
   return unsafe_string(pointer(var_name))
 end
 
@@ -39,9 +48,11 @@ end
 function read_node_set_variable_values(exo::ExodusDatabase, time_step, variable_index::I_1, nset_id) where I_1 <: Integer
   n_nodes, _ = read_node_set_parameters(exo, nset_id)
   values = Vector{get_float_type(exo)}(undef, n_nodes)
-  ex_get_var!(get_file_id(exo), convert(Cint, time_step), EX_NODE_SET, 
-              convert(Cint, variable_index), nset_id, 
-              convert(Clonglong, n_nodes), values)
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, time_step::Cint, EX_NODE_SET::ex_entity_type,
+    variable_index::Cint, nset_id::ex_entity_id, n_nodes::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_variable_values -> libexodus.ex_get_var")
   return values
 end
 
@@ -64,14 +75,22 @@ end
 """
 """
 function write_number_of_node_set_variables(exo::ExodusDatabase, num_vars)
-  ex_put_variable_param!(get_file_id(exo), EX_NODE_SET, num_vars)
+  # ex_put_variable_param!(get_file_id(exo), EX_NODE_SET, num_vars)
+  error_code = @ccall libexodus.ex_put_variable_param(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, num_vars::Cint
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_number_of_node_set_variables -> libexodus.ex_put_variable_param")
 end
 
 """
 """
 function write_node_set_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String)
   temp = Vector{UInt8}(var_name)
-  ex_put_variable_name!(get_file_id(exo), EX_NODE_SET, var_index, temp)
+  # ex_put_variable_name!(get_file_id(exo), EX_NODE_SET, var_index, temp)
+  error_code = @ccall libexodus.ex_put_variable_name(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_node_set_variable_name -> libexodus.ex_put_variable_name")
 end
 
 """
@@ -83,7 +102,11 @@ function write_node_set_variable_names(exo::ExodusDatabase, var_indices::Vector{
 
   for n in axes(var_indices, 1)
     temp = Vector{UInt8}(var_names[n])
-    ex_put_variable_name!(get_file_id(exo), EX_NODE_SET, convert(Cint, var_indices[n]), temp)
+    # ex_put_variable_name!(get_file_id(exo), EX_NODE_SET, convert(Cint, var_indices[n]), temp)
+    error_code = @ccall libexodus.ex_put_variable_name(
+      get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, var_indices[n]::Cint, temp::Ptr{UInt8}
+    )::Cint
+    exodus_error_check(error_code, "Exodus.write_node_set_variable_name -> libexodus.ex_put_variable_name")
   end
 end
 
