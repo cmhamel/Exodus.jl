@@ -146,10 +146,13 @@ end
   exo_new = ExodusDatabase("./test_output_block.e", init_old)
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
-  for block in blocks_old
+  block_names_old = ["block_1"]
+  for (n, block) in enumerate(blocks_old)
     write_element_block(exo_new, block)
+    write_element_block_name(exo_new, block, block_names_old[n])
   end
   blocks_new = read_element_blocks(exo_new, read_element_block_ids(exo_new))
+  block_names_new = read_element_block_names(exo_new)
   close(exo_new)
 
   @test init_old == exo_new.init
@@ -160,12 +163,13 @@ end
     @test blocks_old[n].num_nodes_per_elem == blocks_new[n].num_nodes_per_elem
     @test blocks_old[n].elem_type == blocks_new[n].elem_type
     @test blocks_old[n].conn == blocks_new[n].conn
+    @test block_names_old[n] == block_names_new[n]
   end
 
   Base.Filesystem.rm("./test_output_block.e")
 end
 
-@exodus_unit_test_set "Test write block" begin
+@exodus_unit_test_set "Test write blocks" begin
   # initialization gathering
   exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
   init_old = Initialization(exo_old)
@@ -176,11 +180,11 @@ end
   exo_new = ExodusDatabase("./test_output_block.e", init_old)
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
-  # for block in blocks_old
-  #   write_element_block(exo_new, block)
-  # end
   write_element_blocks(exo_new, blocks_old)
+  block_names_old = ["block_1"]
+  write_element_block_names(exo_new, blocks_old, block_names_old)
   blocks_new = read_element_blocks(exo_new, read_element_block_ids(exo_new))
+  block_names_new = read_element_block_names(exo_new)
   close(exo_new)
 
   @test init_old == exo_new.init
@@ -191,6 +195,7 @@ end
     @test blocks_old[n].num_nodes_per_elem == blocks_new[n].num_nodes_per_elem
     @test blocks_old[n].elem_type == blocks_new[n].elem_type
     @test blocks_old[n].conn == blocks_new[n].conn
+    @test block_names_old[n] == block_names_new[n]
   end
 
   Base.Filesystem.rm("./test_output_block.e")

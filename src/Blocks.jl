@@ -210,10 +210,30 @@ end
 
 """
 """
-
 function write_element_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
   for block in blocks
     write_element_block(exo, block)
+  end
+end
+
+"""
+"""
+function write_element_block_name(exo::ExodusDatabase, block::Block, name::String)
+  error_code = @ccall libexodus.ex_put_name(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block.block_id::ex_entity_id,
+    name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_element_block_name -> libexodus.ex_put_name")
+end
+
+"""
+"""
+function write_element_block_names(exo::ExodusDatabase, blocks::Vector{<:Block}, names::Vector{String})
+  if length(blocks) != length(names)
+    throw(ErrorException("unequal length vectors"))
+  end
+  for n in eachindex(blocks)
+    write_element_block_name(exo, blocks[n], names[n])
   end
 end
 
@@ -233,4 +253,6 @@ export read_partial_element_block_connectivity
 
 export write_element_block
 export write_element_block_connectivity
+export write_element_block_name
+export write_element_block_names
 export write_element_blocks
