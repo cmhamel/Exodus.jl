@@ -196,6 +196,13 @@ end
   Base.Filesystem.rm("./test_output_block.e")
 end
 
+@exodus_unit_test_set "Show Block" begin
+  exo = ExodusDatabase(mesh_file_name_2D, "r")
+  block = Block(exo, 1)
+  @show block
+  close(exo)
+end
+
 # @exodus_unit_test_set "Test ExodusBlock" begin
 #   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
 #   block_1 = ExodusBlock(exo, 1)

@@ -102,16 +102,40 @@ function read_node_sets(exo::ExodusDatabase, node_set_ids::Array{<:Integer})
   return node_sets
 end
 
-# function write_node_set_names(exo::ExodusDatabase, nodeset_names)
-#   # nodeset_names = Vector{UInt8}.(nodeset_names)
-#   # @show nodeset_names
-#   # @show typeof(nodeset_names)
-#   ex_put_names!(get_file_id(exo), EX_NODE_SET, nodeset_names)
-# end
+"""
+WARNING:
+currently doesn't support distance factors
+"""
+function write_node_set_parameters(exo::ExodusDatabase, nset::NodeSet)
+  num_dist_fact_in_set = 0 # TODO not using distance 
+  error_code = @ccall libexodus.ex_put_set_param(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, nset.node_set_id::ex_entity_id,
+    nset.num_nodes::Clonglong, num_dist_fact_in_set::Clonglong
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_node_set_parameters -> libexodus.ex_put_set_param")
+end
+
+"""
+WARNING:
+currently doesn't support distance factors
+"""
+function write_node_set(exo::ExodusDatabase, nset::NodeSet)
+  nodes = convert(Vector{get_bulk_int_type(exo)}, nset.nodes)
+  write_node_set_parameters(exo, nset)
+  error_code = @ccall libexodus.ex_put_set(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, nset.node_set_id::ex_entity_id,
+    nodes::Ptr{void_int}, C_NULL::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_node_set -> libexodus.ex_put_set")
+end
 
 """
 """
-# function write_node_set_variable_values()
+function write_node_sets(exo::ExodusDatabase, nsets::Vector{NodeSet})
+  for nset in nsets
+    write_node_set(exo, nset)
+  end
+end
 
 # local exports
 export NodeSet
@@ -119,4 +143,6 @@ export read_node_sets
 export read_node_set_ids
 export read_node_set_names
 export read_node_set_parameters
-# export write_node_set_names
+
+export write_node_set
+export write_node_sets

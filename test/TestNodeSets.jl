@@ -67,15 +67,52 @@ end
   close(exo)
 end
 
-# @exodus_unit_test_set "Test write nodeset names" begin
-#   exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
-#   copy(exo_old, "./temp_nodesets.e")
-#   close(exo_old)
-#   exo = ExodusDatabase("./temp_nodesets.e", "rw")
+@exodus_unit_test_set "Write nodeset" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  coords_old = read_coordinates(exo_old)
+  nsets_old = read_node_sets(exo_old, read_node_set_ids(exo_old))
+  close(exo_old)
 
-#   write_node_set_names(exo, ["nset_1", "nset_2"])
+  exo_new = ExodusDatabase("./test_output_nodesets.e", init_old)
+  write_coordinates(exo_new, coords_old)
+  coords_new = read_coordinates(exo_new)
+  for nset in nsets_old
+    write_node_set(exo_new, nset)
+  end
+  nsets_new = read_node_sets(exo_new, read_node_set_ids(exo_new))
+  close(exo_new)
 
-#   close(exo)
-#   rm("./temp_nodesets.e", force=true)
-# end
+  @test init_old == exo_new.init
+  @test coords_old == coords_new
+  for n in eachindex(nsets_old)
+    @test nsets_old[n].node_set_id == nsets_new[n].node_set_id
+    @test nsets_old[n].num_nodes == nsets_new[n].num_nodes
+    @test nsets_old[n].nodes == nsets_new[n].nodes
+  end
+  Base.Filesystem.rm("./test_output_nodesets.e")
+end
 
+@exodus_unit_test_set "Write nodesets" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  coords_old = read_coordinates(exo_old)
+  nsets_old = read_node_sets(exo_old, read_node_set_ids(exo_old))
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_nodesets.e", init_old)
+  write_coordinates(exo_new, coords_old)
+  coords_new = read_coordinates(exo_new)
+  write_node_sets(exo_new, nsets_old)
+  nsets_new = read_node_sets(exo_new, read_node_set_ids(exo_new))
+  close(exo_new)
+
+  @test init_old == exo_new.init
+  @test coords_old == coords_new
+  for n in eachindex(nsets_old)
+    @test nsets_old[n].node_set_id == nsets_new[n].node_set_id
+    @test nsets_old[n].num_nodes == nsets_new[n].num_nodes
+    @test nsets_old[n].nodes == nsets_new[n].nodes
+  end
+  Base.Filesystem.rm("./test_output_nodesets.e")
+end
