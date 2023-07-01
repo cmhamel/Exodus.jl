@@ -46,7 +46,6 @@ include("NodeSets.jl")
 include("SideSets.jl")
 
 # variables
-include("VariablesCommon.jl")
 include("ElementVariables.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
