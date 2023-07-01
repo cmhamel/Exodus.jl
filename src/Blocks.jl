@@ -121,6 +121,24 @@ end
 
 """
 """
+function write_element_block_connectivity(exo::ExodusDatabase, block_id::Integer, conn::Matrix{I}) where I <: Integer
+  if I != get_bulk_int_type(exo)
+    conn = convert(Matrix{get_bulk_int_type(exo)}, conn)
+  end
+  num_nodes, num_elem = size(conn)
+  conn = conn[:]
+  # TODO currently not using face or edges, should probably be there own methods maybe?
+  conn_face = C_NULL  # Not using these currently
+  conn_edge = C_NULL  # Not using these currently
+  error_code = @ccall libexodus.ex_put_conn(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
+    conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int} 
+  )::Cint
+  exodus_error_check(error_code, "Exodus_write_block_connectivity -> libexodus.ex_put_conn")
+end
+
+"""
+"""
 function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start_num::I, num_ent::I) where I <: Integer
   _, _, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
@@ -173,6 +191,21 @@ function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integ
   end
 end
 
+"""
+WARNING:
+currently does not support edges, faces and attributes
+"""
+function write_element_block(exo::ExodusDatabase, block::Block)
+  error_code = @ccall libexodus.ex_put_block(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block.block_id::ex_entity_id,
+    block.elem_type::Ptr{UInt8},
+    block.num_elem::Clonglong, block.num_nodes_per_elem::Clonglong,
+    0::Clonglong, 0::Clonglong, 0::Clonglong
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  write_element_block_connectivity(exo, block.block_id, block.conn)
+end
+
 # local exports
 export Block
 # export ExodusBlock
@@ -185,3 +218,6 @@ export read_block_connectivity
 export read_element_block_parameters
 export read_element_type
 export read_partial_block_connectivity
+
+export write_element_block_connectivity
+export write_element_block

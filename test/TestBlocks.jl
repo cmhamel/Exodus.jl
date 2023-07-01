@@ -135,6 +135,36 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Test write block" begin
+  # initialization gathering
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  coords_old = read_coordinates(exo_old)
+  blocks_old = read_blocks(exo_old, read_block_ids(exo_old))
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_block.e", init_old)
+  write_coordinates(exo_new, coords_old)
+  coords_new = read_coordinates(exo_new)
+  for block in blocks_old
+    write_element_block(exo_new, block)
+  end
+  blocks_new = read_blocks(exo_new, read_block_ids(exo_new))
+  close(exo_new)
+
+  @test init_old == exo_new.init
+  @test coords_old == coords_new
+  for n in eachindex(blocks_old)
+    @test blocks_old[n].block_id == blocks_new[n].block_id
+    @test blocks_old[n].num_elem == blocks_new[n].num_elem
+    @test blocks_old[n].num_nodes_per_elem == blocks_new[n].num_nodes_per_elem
+    @test blocks_old[n].elem_type == blocks_new[n].elem_type
+    @test blocks_old[n].conn == blocks_new[n].conn
+  end
+
+  Base.Filesystem.rm("./test_output_block.e")
+end
+
 # @exodus_unit_test_set "Test ExodusBlock" begin
 #   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
 #   block_1 = ExodusBlock(exo, 1)
