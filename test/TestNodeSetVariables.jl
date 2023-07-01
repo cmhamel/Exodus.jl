@@ -21,7 +21,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_node_set_variables(exo, 2)
-  write_node_set_variable_names(exo, [1, 2], ["nset_displ_x", "nset_displ_y"])
+  write_node_set_variable_names(exo, ["nset_displ_x", "nset_displ_y"])
 
   var_names = read_node_set_variable_names(exo)
   @test var_names == ["nset_displ_x", "nset_displ_y"]
@@ -59,7 +59,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_node_set_variables(exo, 1)
-  write_node_set_variable_names(exo, [1], ["nset_displ_x"])
+  write_node_set_variable_names(exo, ["nset_displ_x"])
 
   nset_names = read_node_set_names(exo)
   for nset_id in [1, 2, 3, 4]

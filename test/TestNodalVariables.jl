@@ -69,7 +69,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 2)
-  write_nodal_variable_names(exo, [1, 2], ["displ_x", "displ_y"])
+  write_nodal_variable_names(exo, ["displ_x", "displ_y"])
 
   var_names = read_nodal_variable_names(exo)
   @test var_names == ["displ_x", "displ_y"]
@@ -85,7 +85,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 3)
-  write_nodal_variable_names(exo, [1, 2, 3], ["displ_x", "displ_y", "displ_z"])
+  write_nodal_variable_names(exo, ["displ_x", "displ_y", "displ_z"])
 
   var_names = read_nodal_variable_names(exo)
   @test var_names == ["displ_x", "displ_y", "displ_z"]
@@ -138,7 +138,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 2)
-  write_nodal_variable_names(exo, [1, 2], ["displ_x", "displ_y"])
+  write_nodal_variable_names(exo, ["displ_x", "displ_y"])
 
   displ_x = randn(size(coords, 2))
   displ_y = randn(size(coords, 2))
@@ -163,7 +163,7 @@ end
 
   write_time(exo, 1, 0.0)
   write_number_of_nodal_variables(exo, 3)
-  write_nodal_variable_names(exo, [1, 2, 3], ["displ_x", "displ_y", "displ_z"])
+  write_nodal_variable_names(exo, ["displ_x", "displ_y", "displ_z"])
 
   displ_x = randn(size(coords, 2))
   displ_y = randn(size(coords, 2))

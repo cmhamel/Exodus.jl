@@ -9,19 +9,6 @@ function read_number_of_nodal_variables(exo::ExodusDatabase)
   return num_vars[]
 end
 
-function read_nodal_variable_names!(
-  exo::ExodusDatabase, num_vars::Cint, 
-  var_name::Vector{UInt8}, var_names::Vector{String}
-)
-  for n = 1:num_vars
-    error_code = @ccall libexodus.ex_get_variable_name(
-      get_file_id(exo)::Cint, EX_NODAL::ex_entity_type, n::Cint, var_name::Ptr{UInt8}
-    )::Cint
-    exodus_error_check(error_code, "Exodus.read_nodal_variable_names! -> libexodus.ex_get_variable_name")
-    var_names[n] = unsafe_string(pointer(var_name))
-  end
-end
-
 """
 """
 function read_nodal_variable_name(exo::ExodusDatabase, var_index::Integer)
@@ -37,10 +24,20 @@ end
 """
 function read_nodal_variable_names(exo::ExodusDatabase)
   num_vars = read_number_of_nodal_variables(exo)
-  var_names = Vector{String}(undef, num_vars)
-  var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  read_nodal_variable_names!(exo, num_vars, var_name, var_names)
-  return var_names
+  var_names = Vector{Vector{UInt8}}(undef, num_vars)
+  for n in 1:length(var_names)
+    var_names[n] = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  end
+  error_code = @ccall libexodus.ex_get_variable_names(
+    get_file_id(exo)::Cint, EX_NODAL::ex_entity_type, num_vars::Cint, var_names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_element_variable_names -> libexodus.ex_get_names")
+
+  new_var_names = Vector{String}(undef, num_vars)
+  for n in 1:length(var_names)
+    new_var_names[n] = unsafe_string(pointer(var_names[n]))
+  end
+  return new_var_names
 end
 
 """
@@ -88,18 +85,12 @@ end
 
 """
 """
-function write_nodal_variable_names(exo::ExodusDatabase, var_indices::Vector{<:Integer}, var_names::Vector{String})
-  if size(var_indices, 1) != size(var_names, 1)
-    AssertionError("Indices and Names need to be the same length")
-  end
-
-  for n in axes(var_indices, 1)
-    temp = Vector{UInt8}(var_names[n])
-    error_code = @ccall libexodus.ex_put_variable_name(
-      get_file_id(exo)::Cint, EX_NODAL::ex_entity_type, var_indices[n]::Cint, temp::Ptr{UInt8}
-    )::Cint
-    exodus_error_check(error_code, "Exodus.write_nodal_variable_names -> libexodus.ex_put_variable_name")
-  end
+function write_nodal_variable_names(exo::ExodusDatabase, var_names::Vector{String})
+  error_code = @ccall libexodus.ex_put_variable_names(
+    get_file_id(exo)::Cint, EX_NODAL::ex_entity_type, length(var_names)::Cint,
+    var_names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_nodal_variable_names -> libexodus.ex_put_variable_names")
 end
 
 """
