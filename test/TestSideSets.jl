@@ -80,7 +80,12 @@ end
   for sset in ssets_old
     write_side_set(exo_new, sset)
   end
+  ssets_names_old = read_side_set_names(exo_old)
+  for (n, sset) in enumerate(ssets_old)
+    write_side_set_name(exo_new, sset, ssets_names_old[n])
+  end
   ssets_new = read_side_sets(exo_new, read_side_set_ids(exo_new))
+  ssets_names_new = read_side_set_names(exo_new)
   close(exo_new)
 
   @test init_old == exo_new.init
@@ -90,6 +95,7 @@ end
     @test ssets_old[n].num_elements == ssets_new[n].num_elements
     @test ssets_old[n].elements == ssets_new[n].elements
     @test ssets_old[n].sides == ssets_new[n].sides
+    @test ssets_names_old[n] == ssets_names_new[n]
   end
   Base.Filesystem.rm("./test_output_sidesets.e")
 end
@@ -105,6 +111,10 @@ end
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
   write_side_sets(exo_new, ssets_old)
+  ssets_names_old = read_side_set_names(exo_old)
+  write_side_set_names(exo_new, ssets_names_old)
+  ssets_new = read_side_sets(exo_new, read_side_set_ids(exo_new))
+  ssets_names_new = read_side_set_names(exo_new)
   ssets_new = read_side_sets(exo_new, read_side_set_ids(exo_new))
   close(exo_new)
 
@@ -115,6 +125,7 @@ end
     @test ssets_old[n].num_elements == ssets_new[n].num_elements
     @test ssets_old[n].elements == ssets_new[n].elements
     @test ssets_old[n].sides == ssets_new[n].sides
+    @test ssets_names_old[n] == ssets_names_new[n]
   end
   Base.Filesystem.rm("./test_output_sidesets.e")
 end
