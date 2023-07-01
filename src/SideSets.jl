@@ -161,6 +161,25 @@ function write_side_sets(exo::ExodusDatabase, ssets::Vector{SideSet})
   end
 end
 
+"""
+"""
+function write_side_set_name(exo::ExodusDatabase, sset::SideSet, name::String)
+  error_code = @ccall libexodus.ex_put_name(
+    get_file_id(exo)::Cint, EX_SIDE_SET::ex_entity_type, sset.side_set_id::ex_entity_id,
+    name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_side_set_name -> libexodus.ex_put_name")
+end
+
+"""
+"""
+function write_side_set_names(exo::ExodusDatabase, names::Vector{String})
+  error_code = @ccall libexodus.ex_put_names(
+    get_file_id(exo)::Cint, EX_SIDE_SET::ex_entity_type, names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_side_set_names -> libexodus.ex_put_names")
+end
+
 # local exports
 export read_side_set_ids
 export read_side_set_names
@@ -170,4 +189,6 @@ export read_side_set_node_list
 export read_side_sets
 
 export write_side_set
+export write_side_set_name
+export write_side_set_names
 export write_side_sets
