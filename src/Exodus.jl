@@ -29,7 +29,7 @@ include("ExodusTypes.jl")
 
 # setup
 include("IO.jl")
-include("Initialization.jl")
+include("Initializations.jl")
 
 # # the basic stuff
 include("Coordinates.jl")
@@ -41,13 +41,11 @@ include("NodeMaps.jl")
 include("Maps.jl")
 
 # blocks, nodesets, sidesets
-include("SetsCommon.jl")
 include("Blocks.jl")
 include("NodeSets.jl")
 include("SideSets.jl")
 
 # variables
-include("VariablesCommon.jl")
 include("ElementVariables.jl")
 include("GlobalVariables.jl")
 include("NodalVariables.jl")
@@ -62,6 +60,7 @@ include("ExoDiff.jl")
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
-ex_opts(EX_VERBOSE | EX_ABORT)
+options = EX_VERBOSE | EX_ABORT
+set_exodus_options(options)
 
 end # module

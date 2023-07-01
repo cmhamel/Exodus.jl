@@ -1,75 +1,55 @@
 # TODO check these aren't outdated with older interface also add types to julia call
-function ex_get_cmap_params!(exoid::Cint, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor)
-  error_code = ccall(
-    (:ex_get_cmap_params, libexodus), Cint,
-    (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Cint),
-    exoid, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor
-  )
-  exodus_error_check(error_code, "ex_get_cmap_params!")
-end
+# function ex_get_cmap_params!(exoid::Cint, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor)
+#   error_code = ccall(
+#     (:ex_get_cmap_params, libexodus), Cint,
+#     (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Cint),
+#     exoid, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor
+#   )
+#   exodus_error_check(error_code, "ex_get_cmap_params!")
+# end
 
-# TODO add types
-function ex_get_init!(exoid::Cint, 
-            title::Vector{UInt8},
-            num_dim::Ref{Clonglong}, num_nodes::Ref{Clonglong}, num_elem::Ref{Clonglong}, 
-            num_elem_blk::Ref{Clonglong}, num_node_sets::Ref{Clonglong}, num_side_sets::Ref{Clonglong}) # TODO get the types right
-  error_code = ccall(
-    (:ex_get_init, libexodus), Cint,
-    (
-      Cint, Ptr{UInt8},
-      Ptr{void_int}, Ptr{void_int}, Ptr{void_int},
-      Ptr{void_int}, Ptr{void_int}, Ptr{void_int}
-    ),
-    exoid, title,
-    num_dim, num_nodes, num_elem,
-    num_elem_blk, num_node_sets, num_side_sets
-  )
-  title = unsafe_string(pointer(title))
-  exodus_error_check(error_code, "ex_get_init!")
-end
+# function ex_get_init_global!(exoid::Cint, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g) # TODO get the types right
+#   error_code = ccall(
+#     (:ex_get_init_global, libexodus), Cint,
+#     (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
+#     exoid, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g
+#   )
+#   exodus_error_check(error_code, "ex_get_init_global!")
+# end
 
-function ex_get_init_global!(exoid::Cint, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g) # TODO get the types right
-  error_code = ccall(
-    (:ex_get_init_global, libexodus), Cint,
-    (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
-    exoid, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g
-  )
-  exodus_error_check(error_code, "ex_get_init_global!")
-end
+# function ex_get_init_info!(exoid::Cint, num_proc, num_proc_in_f, ftype)
+#   error_code = ccall((:ex_get_init_info, libexodus), Cint,
+#              (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{UInt8}),
+#             exoid, num_proc, num_proc_in_f, ftype)
+#   exodus_error_check(error_code, "ex_get_init_info!")
+# end
 
-function ex_get_init_info!(exoid::Cint, num_proc, num_proc_in_f, ftype)
-  error_code = ccall((:ex_get_init_info, libexodus), Cint,
-             (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{UInt8}),
-            exoid, num_proc, num_proc_in_f, ftype)
-  exodus_error_check(error_code, "ex_get_init_info!")
-end
-
-function ex_get_loadbal_param!(exoid::Cint,
-                 num_int_nodes, num_bor_nodes, num_ext_nodes,
-                 num_int_elems, num_bor_elems,
-                 num_node_cmaps, num_elem_cmaps,
-                 processor) # TODO get types right and sorted out
-  error_code = ccall(
-    (:ex_get_loadbal_param, libexodus), Cint,
-    (
-      Cint, 
-      Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, 
-      Ptr{void_int}, Ptr{void_int}, 
-      Ptr{void_int}, Ptr{void_int}, 
-      Cint
-    ),
-    exoid, 
-    num_int_nodes, num_bor_nodes, num_ext_nodes, 
-    num_int_elems, num_bor_elems,
-    num_node_cmaps, num_elem_cmaps, 
-    processor
-  )
-  exodus_error_check(error_code, "ex_get_loadbal_param!")
-end
+# function ex_get_loadbal_param!(exoid::Cint,
+#                  num_int_nodes, num_bor_nodes, num_ext_nodes,
+#                  num_int_elems, num_bor_elems,
+#                  num_node_cmaps, num_elem_cmaps,
+#                  processor) # TODO get types right and sorted out
+#   error_code = ccall(
+#     (:ex_get_loadbal_param, libexodus), Cint,
+#     (
+#       Cint, 
+#       Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, 
+#       Ptr{void_int}, Ptr{void_int}, 
+#       Ptr{void_int}, Ptr{void_int}, 
+#       Cint
+#     ),
+#     exoid, 
+#     num_int_nodes, num_bor_nodes, num_ext_nodes, 
+#     num_int_elems, num_bor_elems,
+#     num_node_cmaps, num_elem_cmaps, 
+#     processor
+#   )
+#   exodus_error_check(error_code, "ex_get_loadbal_param!")
+# end
 
 """
 """
-function Initialization(exo_id::I) where {I <: Integer}
+function Initialization(exo_id::Cint)
   num_dim     = Ref{Clonglong}(0)
   num_nodes   = Ref{Clonglong}(0)
   num_elems   = Ref{Clonglong}(0)
@@ -77,33 +57,19 @@ function Initialization(exo_id::I) where {I <: Integer}
   num_node_sets = Ref{Clonglong}(0)
   num_side_sets = Ref{Clonglong}(0)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  ex_get_init!(exo_id, title, # maybe find a way to avoid get_file_id(exo) calls
-               num_dim, num_nodes, num_elems, 
-               num_elem_blks, num_node_sets, num_side_sets)
+  error_code = @ccall libexodus.ex_get_init(
+    exo_id::Cint, 
+    title::Ptr{UInt8},
+    num_dim::Ptr{void_int}, num_nodes::Ptr{void_int}, num_elems::Ptr{void_int},
+    num_elem_blks::Ptr{void_int}, num_node_sets::Ptr{void_int}, num_side_sets::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.Initialization -> libexodus.ex_get_init")
   title = unsafe_string(pointer(title))
   return Initialization(num_dim[], num_nodes[], num_elems[],
-              num_elem_blks[], num_node_sets[], num_side_sets[])
+                        num_elem_blks[], num_node_sets[], num_side_sets[])
 end
 
 Initialization(exo::ExodusDatabase) = Initialization(get_file_id(exo))
-
-# """
-# """
-# function Initialization(exo::E) where {E <: ExodusDatabase}
-#   num_dim     = Ref{Clonglong}(0)
-#   num_nodes   = Ref{Clonglong}(0)
-#   num_elems   = Ref{Clonglong}(0)
-#   num_elem_blks = Ref{Clonglong}(0)
-#   num_node_sets = Ref{Clonglong}(0)
-#   num_side_sets = Ref{Clonglong}(0)
-#   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-#   ex_get_init!(get_file_id(exo), title, # maybe find a way to avoid get_file_id(exo) calls
-#          num_dim, num_nodes, num_elems, 
-#          num_elem_blks, num_node_sets, num_side_sets)
-#   title = unsafe_string(pointer(title))
-#   return Initialization(num_dim[], num_nodes[], num_elems[],
-#               num_elem_blks[], num_node_sets[], num_side_sets[])
-# end
 
 """
 """
@@ -116,45 +82,18 @@ print(io, "Initialization:\n",
       "\tNumber of node sets = ", init.num_node_sets, "\n",
       "\tNumber of side sets = ", init.num_side_sets, "\n")
 
-function ex_put_init!(exoid::Cint, 
-                      title,
-                      num_dim, num_nodes, num_elem, 
-                      num_elem_blk, num_node_sets, num_side_sets) # TODO get the types right
-  error_code = ccall(
-    (:ex_put_init, libexodus), Cint,
-    (
-      Cint, Ptr{UInt8},
-      Clonglong, Clonglong, Clonglong,
-      Clonglong, Clonglong, Clonglong
-    ),
-    exoid, title,
-    num_dim, num_nodes, num_elem,
-    num_elem_blk, num_node_sets, num_side_sets
-  )
-  exodus_error_check(error_code, "ex_put_init!")
-end
-
 """
 Used to set up a exodus database in write mode
 """
 function write_initialization!(exoid::Cint, init::Initialization)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  ex_put_init!(exoid, title,
-               init.num_dim, init.num_nodes, init.num_elems,
-               init.num_elem_blks, init.num_node_sets, init.num_side_sets)
+  error_code = @ccall libexodus.ex_put_init(
+    exoid::Cint, title::Ptr{UInt8},
+    init.num_dim::Clonglong, init.num_nodes::Clonglong, init.num_elems::Clonglong,
+    init.num_elem_blks::Clonglong, init.num_node_sets::Clonglong, init.num_side_sets::Clonglong
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
-
-# """
-# """
-# function write_initialization!(exo::E, init::Initialization) where {E <: ExodusDatabase}
-
-#   # to set in the exo object
-#   ExodusDatabase!(exo, init)
-#   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-#   ex_put_init!(get_file_id(exo), title,
-#                init.num_dim, init.num_nodes, init.num_elems,
-#                init.num_elem_blks, init.num_node_sets, init.num_side_sets)
-# end
 
 # commenting out parallel stuff for now until I have time to better support and test it
 # # note that this needs to be used on mesh.g.xx.xx files not .g.nem files
@@ -260,11 +199,9 @@ end
 #       "\tNumber of processors in file = ", init.number_of_procesors_in_file, "\n")
 
 # local exports
-export ex_get_cmap_params!
-export ex_get_init!
-export ex_get_init_global!
-export ex_get_init_info!
-export ex_get_loadbal_param!
-export ex_put_init!
+# export ex_get_cmap_params!
+# export ex_get_init_global!
+# export ex_get_init_info!
+# export ex_get_loadbal_param!
 
 export write_initialization!

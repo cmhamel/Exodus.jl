@@ -34,7 +34,10 @@ print(io, "NodeSet:\n",
 """
 function read_node_set_ids(exo::ExodusDatabase)
   node_set_ids = Array{get_id_int_type(exo)}(undef, exo.init.num_node_sets)
-  ex_get_ids!(get_file_id(exo), EX_NODE_SET, node_set_ids)
+  error_code = @ccall libexodus.ex_get_ids(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, node_set_ids::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_ids -> libexodus.ex_get_ids")
   return node_set_ids
 end
 
@@ -42,7 +45,10 @@ end
 """
 function read_node_set_names(exo::ExodusDatabase)
   var_names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_node_set_ids(exo))]
-  ex_get_names!(get_file_id(exo), EX_NODE_SET, var_names)
+  error_code = @ccall libexodus.ex_get_names(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, var_names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_names -> libexodus.ex_get_names")
   var_names = map(x -> unsafe_string(pointer(x)), var_names)
   return var_names
 end
@@ -53,7 +59,11 @@ function read_node_set_parameters(exo::ExodusDatabase, node_set_id::Integer)
   node_set_id = convert(get_id_int_type(exo), node_set_id)
   num_nodes = Ref{get_id_int_type(exo)}(0)
   num_df = Ref{get_id_int_type(exo)}(0)
-  ex_get_set_param!(get_file_id(exo), EX_NODE_SET, node_set_id, num_nodes, num_df)
+  error_code = @ccall libexodus.ex_get_set_param(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, node_set_id::ex_entity_id,
+    num_nodes::Ptr{void_int}, num_df::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_parameters -> libexodus.ex_get_set_param")
   return num_nodes[], num_df[]
 end
 
@@ -64,7 +74,11 @@ function read_node_set_nodes(exo::ExodusDatabase, node_set_id::Integer)
   node_set_nodes = Array{get_bulk_int_type(exo)}(undef, num_nodes)
   # extras = Array{F}(undef, num_df)
   extras = C_NULL # segfaulting without extras, meaning we probably don't have extras
-  ex_get_set!(get_file_id(exo), EX_NODE_SET, node_set_id, node_set_nodes, extras)
+  error_code = @ccall libexodus.ex_get_set(
+    get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, node_set_id::ex_entity_id,
+    node_set_nodes::Ptr{void_int}, extras::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_set_nodes -> libexodus.ex_get_set")
   return node_set_nodes
 end
 

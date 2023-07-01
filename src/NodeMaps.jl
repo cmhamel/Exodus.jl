@@ -1,12 +1,12 @@
 
-function ex_get_processor_node_maps!(exoid::Cint, node_mapi, node_mapb, node_mape, processor)
-  error_code = ccall(
-    (:ex_get_processor_node_maps, libexodus), Cint,
-    (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint),
-    exoid, node_mapi, node_mapb, node_mape, processor
-  )
-  exodus_error_check(error_code, "ex_get_processor_node_maps")
-end
+# function ex_get_processor_node_maps!(exoid::Cint, node_mapi, node_mapb, node_mape, processor)
+#   error_code = ccall(
+#     (:ex_get_processor_node_maps, libexodus), Cint,
+#     (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cint),
+#     exoid, node_mapi, node_mapb, node_mape, processor
+#   )
+#   exodus_error_check(error_code, "ex_get_processor_node_maps")
+# end
 
 # struct NodeMap <: FEMContainer
 #   internal_nodes::Vector{IntKind}
@@ -31,4 +31,4 @@ end
 #       "\tNumber of external nodes = ", length(node_map.external_nodes), "\n",
 #       "\tProcessor        = ", node_map.processor)
 
-export ex_get_processor_node_maps!
+# export ex_get_processor_node_maps!
