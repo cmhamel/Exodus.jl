@@ -103,9 +103,71 @@ function read_side_set_node_list(exo::ExodusDatabase, side_set_id::Integer)
   return side_set_node_cnt_list, side_set_node_list
 end
 
+"""
+"""
+function read_side_sets!(
+  side_sets::Vector{SideSet}, 
+  exo::ExodusDatabase, side_set_ids::Vector{<:Integer}
+)
+  for (n, side_set_id) in enumerate(side_set_ids)
+    side_sets[n] = SideSet(exo, side_set_id)
+  end
+end
+
+"""
+"""
+function read_side_sets(exo::ExodusDatabase, side_set_ids::Array{<:Integer})
+  side_set_ids = convert(Vector{get_id_int_type(exo)}, side_set_ids)
+  side_sets = Vector{SideSet}(undef, size(side_set_ids, 1))
+  read_side_sets!(side_sets, exo, side_set_ids)
+  return side_sets
+end
+
+"""
+WARNING:
+currently doesn't support distance factors
+"""
+function write_side_set_parameters(exo::ExodusDatabase, sset::SideSet)
+  num_dist_fact_in_set = 0 # TODO not using distance 
+  error_code = @ccall libexodus.ex_put_set_param(
+    get_file_id(exo)::Cint, EX_SIDE_SET::ex_entity_type, sset.side_set_id::ex_entity_id,
+    sset.num_elements::Clonglong, num_dist_fact_in_set::Clonglong
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_side_set_parameters -> libexodus.ex_put_set_param")
+end
+
+"""
+WARNING:
+currently doesn't support distance factors
+"""
+function write_side_set(exo::ExodusDatabase, sset::SideSet)
+  elements = convert(Vector{get_bulk_int_type(exo)}, sset.elements)
+  sides    = convert(Vector{get_bulk_int_type(exo)}, sset.sides)
+  write_side_set_parameters(exo, sset)
+  error_code = @ccall libexodus.ex_put_set(
+    get_file_id(exo)::Cint, EX_SIDE_SET::ex_entity_type, sset.side_set_id::ex_entity_id,
+    elements::Ptr{void_int}, sides::Ptr{void_int}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_side_set -> libexodus.ex_put_set")
+end
+
+"""
+WARNING:
+currently doesn't support distance factors
+"""
+function write_side_sets(exo::ExodusDatabase, ssets::Vector{SideSet})
+  for sset in ssets
+    write_side_set(exo, sset)
+  end
+end
+
 # local exports
 export read_side_set_ids
 export read_side_set_names
 export read_side_set_parameters
 export read_side_set_elements_and_sides
 export read_side_set_node_list
+export read_side_sets
+
+export write_side_set
+export write_side_sets

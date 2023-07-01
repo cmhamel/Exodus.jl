@@ -130,6 +130,8 @@ function write_node_set(exo::ExodusDatabase, nset::NodeSet)
 end
 
 """
+WARNING:
+currently doesn't support distance factors
 """
 function write_node_sets(exo::ExodusDatabase, nsets::Vector{NodeSet})
   for nset in nsets
