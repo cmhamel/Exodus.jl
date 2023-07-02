@@ -103,6 +103,24 @@ function read_node_sets(exo::ExodusDatabase, node_set_ids::Array{<:Integer})
 end
 
 """
+"""
+function read_node_sets_new(exo::ExodusDatabase)
+  node_set_ids = read_node_set_ids(exo)
+  nsets = Vector{ex_set}(undef, length(node_set_ids))
+  for n in 1:length(node_set_ids)
+    # num_nodes, num_df = read_node_set_parameters(exo, node_set_ids[n])
+    # num_nodes, num_df = Int32(0), Int32(0)
+    nsets[n] = ex_set(node_set_ids[n], EX_NODE_SET)
+  end
+  error_code = @ccall libexodus.ex_get_sets(
+    get_file_id(exo)::Cint, length(node_set_ids)::Csize_t, nsets::Ref{ex_set}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_node_sets -> ex_get_sets")
+  @show nsets
+  # @show nsets[1].entry_list |> unsafe_pointer_to_objref
+  @show nsets[1].entry_list |> pointer_from_objref
+end
+"""
 WARNING:
 currently doesn't support distance factors
 """

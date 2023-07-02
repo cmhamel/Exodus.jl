@@ -145,9 +145,41 @@ struct SideSet{I <: Integer, B <: Integer}
   sides::Vector{B}
 end
 
+# struct ex_set
+mutable struct ex_set
+  id::Clonglong
+  type::ex_entity_type
+  num_entry::Clonglong
+  num_distribution_factor::Clonglong
+  entry_list::Ptr{void_int}
+  extra_list::Ptr{void_int}
+  distribution_factor_list::Ptr{Cvoid}
+  # entry_list::Vector{Int32}
+  # extra_list::Vector{Int32}
+  # distribution_factor_list::Vector{Cvoid}
+end
+
+function ex_set(id::I, type::ex_entity_type) where I <: Integer
+  # num_entry, num_distribution_factor = 129, 129
+  # return ex_set(
+  #   id, type, num_entry, 0, 
+  #   # Ref{void_int}(0), Ref{void_int}(0), Ref{Cvoid}(0)
+  #   # Ptr{void_int}(), Ptr{void_int}(), Ptr{Cvoid}()
+  #   # Vector{Int32}(undef, num_entry)[], Vector{Int32}(undef, num_entry)[], 
+  #   zeros(Int32, num_entry) |> pointer, zeros(Int32, num_entry) |> pointer,
+  #   zeros(Int32, num_distribution_factor) |> pointer
+  #   # Vector{Cvoid}(undef, num_distribution_factor) |> pointer
+  # )
+  return ex_set(
+    id, type, 129, 0,
+    Vector{Int32}(undef, 129) |> pointer, C_NULL, C_NULL
+  )
+end
+
 # local exports
 export Block
 export ExodusDatabase
 export Initialization
 export NodeSet
 export SideSet
+export ex_set
