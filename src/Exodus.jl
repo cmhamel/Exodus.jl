@@ -30,6 +30,9 @@ include("ExodusTypes.jl")
 # setup
 include("IO.jl")
 include("Initializations.jl")
+
+# record keeping
+include("Info.jl")
 include("QA.jl")
 
 # the basic stuff
