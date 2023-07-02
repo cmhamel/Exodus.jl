@@ -168,6 +168,57 @@ function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String}
   exodus_error_check(error_code, "Exodus.write_coordinate_names -> libexodus.ex_put_coord_names")
 end
 
+"""
+"""
+function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::Matrix{F}) where {I <: Integer, F <: Real}
+  coords = convert(Matrix{get_float_type(exo)}, coords)
+  if size(coords, 1) == 1
+    x_coords = coords[1, :]
+    y_coords = C_NULL
+    z_coords = C_NULL
+  elseif size(coords, 1) == 2
+    x_coords = coords[1, :]
+    y_coords = coords[2, :]
+    z_coords = C_NULL
+  elseif size(corods, 1) == 3
+    x_coords = coords[1, :]
+    y_coords = coords[2, :]
+    z_coords = coords[3, :]
+  end
+  error_code = @ccall libexodus.ex_put_partial_coord(
+    get_file_id(exo)::Cint, start_node_num::Clonglong, size(coords, 2)::Clonglong,
+    x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_partial_coordinates -> libexodus.ex_put_partial_coord")
+end
+
+"""
+"""
+function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::I, coords::Vector{F}) where {I <: Integer, F <: Real}
+  coords = convert(Vector{get_float_type(exo)}, coords)
+  error_code = @ccall libexodus.ex_put_partial_coord_component(
+    get_file_id(exo)::Cint, start_node_num::Clonglong, length(coords)::Clonglong, component::Cint,
+    coords::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_partial_coordinates_component -> libexodus.ex_put_partial_coord_component")
+end
+
+"""
+"""
+function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::String, coords::Vector{F}) where {I <: Integer, F <: Real}
+  if lowercase(component) == "x"
+    coord_id = 1
+  elseif lowercase(component) == "y"
+    coord_id = 2
+  elseif lowercase(component) == "z"
+    coord_id = 3
+  else
+    throw(ErrorException("undefined coordinate component $component"))
+  end
+  coords = convert(Vector{get_float_type(exo)}, coords)
+  write_partial_coordinates_component(exo, start_node_num, coord_id, coords)
+end
+
 # local exports
 export read_coordinates
 export read_coordinate_names
@@ -175,3 +226,5 @@ export read_partial_coordinates
 export read_partial_coordinates_component
 export write_coordinates
 export write_coordinate_names
+export write_partial_coordinates
+export write_partial_coordinates_component

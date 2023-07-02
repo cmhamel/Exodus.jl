@@ -172,3 +172,60 @@ end
   test_write_coordinates_on_cube_mesh()
   test_write_coordinate_names_on_cube_mesh()
 end
+
+@exodus_unit_test_set "Coordinates.jl - write partial coordinates" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_coords.e", init_old)
+  coords_old = rand(2, 100)
+  write_partial_coordinates(exo_new, 100, coords_old)
+  coords_new = read_partial_coordinates(exo_new, 100, 100)
+  close(exo_new)
+
+  @test init_old == exo_new.init
+  @test coords_old == coords_new
+
+  Base.Filesystem.rm("./test_output_coords.e")
+end
+
+@exodus_unit_test_set "Coordinates.jl - write partial coordinates" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_coords.e", init_old)
+  coords_old_x = rand(100)
+  coords_old_y = rand(100)
+  write_partial_coordinates_component(exo_new, 100, 1, coords_old_x)
+  write_partial_coordinates_component(exo_new, 100, 2, coords_old_y)
+  coords_new_x = read_partial_coordinates_component(exo_new, 100, 100, 1)
+  coords_new_y = read_partial_coordinates_component(exo_new, 100, 100, 2)
+  close(exo_new)
+
+  @test init_old == exo_new.init
+  @test coords_old_x == coords_new_x
+  @test coords_old_y == coords_new_y
+  Base.Filesystem.rm("./test_output_coords.e")
+end
+
+@exodus_unit_test_set "Coordinates.jl - write partial coordinates by string name" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_coords.e", init_old)
+  coords_old_x = rand(100)
+  coords_old_y = rand(100)
+  write_partial_coordinates_component(exo_new, 100, "x", coords_old_x)
+  write_partial_coordinates_component(exo_new, 100, "y", coords_old_y)
+  coords_new_x = read_partial_coordinates_component(exo_new, 100, 100, "x")
+  coords_new_y = read_partial_coordinates_component(exo_new, 100, 100, "y")
+  close(exo_new)
+
+  @test init_old == exo_new.init
+  @test coords_old_x == coords_new_x
+  @test coords_old_y == coords_new_y
+  Base.Filesystem.rm("./test_output_coords.e")
+end
