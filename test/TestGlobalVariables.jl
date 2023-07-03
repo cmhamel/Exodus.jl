@@ -77,8 +77,10 @@
     write_global_variable_name(exo, 1, "v1")
     write_global_variable_name(exo, 2, "v2")
 
-    write_global_variable_values(exo, 1, 2, [10.0, 20.0])
-    global_vars = read_global_variable_values(exo, 1, 2)
+    # write_global_variable_values(exo, 1, 2, [10.0, 20.0])
+    write_global_variable_values(exo, 1, [10.0, 20.0])
+    # global_vars = read_global_variable_values(exo, 1, 2)
+    global_vars = read_global_variable_values(exo, 1)
     @test global_vars[1] ≈ 10.0
     @test global_vars[2] ≈ 20.0
 

@@ -26,6 +26,16 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Test NodalVariables.jl - read partial nodal variable" begin
+  exo = ExodusDatabase("./example_output/output.gold", "r")
+  u = read_nodal_variable_values(exo, 1, 1)
+  u_part = read_partial_nodal_variable_values(exo, 1, 1, 100, 100)
+  @test u[100:200 - 1] ≈ u_part
+  u_part = read_partial_nodal_variable_values(exo, 1, "u", 100, 100)
+  @test u[100:200 - 1] ≈ u_part
+  close(exo)
+end
+
 @exodus_unit_test_set "Test NodalVariables.jl - read nodal variable with name" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
   u = read_nodal_variable_values(exo, 1, "u")

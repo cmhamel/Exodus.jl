@@ -46,17 +46,12 @@ include("Maps.jl")
 
 # blocks, nodesets, sidesets
 include("Blocks.jl")
-include("NodeSets.jl")
-include("SideSets.jl")
+include("Sets.jl")
 
-# variables
-include("ElementVariables.jl")
-include("GlobalVariables.jl")
-include("NodalVariables.jl")
-include("NodeSetVariables.jl")
-include("SideSetVariables.jl")
+# element, global, nodal, nodeset, and sideset variables
+include("Variables.jl")
 
-# # tooling
+# tooling
 include("Decomp.jl")
 include("Epu.jl")
 include("ExoDiff.jl")

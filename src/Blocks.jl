@@ -24,7 +24,7 @@ function Block(exo::ExodusDatabase, block_name::String)
   block_ids = read_element_block_ids(exo)
   name_index = findall(x -> x == block_name, read_element_block_names(exo))
   if length(name_index) > 1
-    throw(ErrorException("This shoudl never happen"))
+    throw(ErrorException("This should never happen"))
   end
   name_index = name_index[1]
   return Block(exo, block_ids[name_index])
@@ -48,11 +48,16 @@ end
 
 """
 Retrieves numerical block ids.
+
+TODO: this should probably be wrapped into sets
+
+or put the method re-definition here. It's the same method for betting nset ids
 """
-function read_element_block_ids(exo::ExodusDatabase)
-  block_ids = Vector{get_id_int_type(exo)}(undef, exo.init.num_elem_blks)
+function read_element_block_ids(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
+  block_ids = Vector{I}(undef, exo.init.num_elem_blks)
   # ex_get_ids!(get_file_id(exo), EX_ELEM_BLOCK, block_ids)
-  error_code = @ccall libexodus.ex_get_ids(get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_ids::Ptr{void_int})::Cint
+  # error_code = @ccall libexodus.ex_get_ids(get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_ids::Ptr{void_int})::Cint
+  error_code = @ccall libexodus.ex_get_ids(get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_ids::Ptr{I})::Cint
   exodus_error_check(error_code, "Exodus.read_element_block_ids -> libexodus.ex_get_ids")
   return block_ids
 end
@@ -84,19 +89,18 @@ end
 
 """
 """
-function read_element_block_parameters(exo::ExodusDatabase, block_id::Integer)
-  int_type       = get_id_int_type(exo)
+function read_element_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
   element_type   = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  num_elem       = Ref{int_type}(0)
-  num_nodes      = Ref{int_type}(0)
-  num_edges      = Ref{int_type}(0)
-  num_faces      = Ref{int_type}(0)
-  num_attributes = Ref{int_type}(0)
+  num_elem       = Ref{B}(0)
+  num_nodes      = Ref{B}(0)
+  num_edges      = Ref{B}(0)
+  num_faces      = Ref{B}(0)
+  num_attributes = Ref{B}(0)
   error_code = @ccall libexodus.ex_get_block(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
     element_type::Ptr{UInt8}, 
-    num_elem::Ptr{void_int}, num_nodes::Ptr{void_int}, num_edges::Ptr{void_int},
-    num_faces::Ptr{void_int}, num_attributes::Ptr{void_int}
+    num_elem::Ptr{B}, num_nodes::Ptr{B}, num_edges::Ptr{B},
+    num_faces::Ptr{B}, num_attributes::Ptr{B}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_element_block_parameters -> libexodus.ex_get_block")
   element_type = unsafe_string(pointer(element_type))
@@ -105,15 +109,13 @@ end
 
 """
 """
-function read_element_block_connectivity(exo::ExodusDatabase, block_id::Integer)
+function read_element_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
   _, num_elem, num_nodes, _, _, _ =
   read_element_block_parameters(exo, block_id)
-  conn = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)
-  conn_face = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)  # Not using these currently
-  conn_edge = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_elem)  # Not using these currently
+  conn = Vector{B}(undef, num_nodes * num_elem)
   error_code = @ccall libexodus.ex_get_conn(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int}
+    conn::Ptr{B}, C_NULL::Ptr{Cvoid}, C_NULL::Ptr{Cvoid}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_element_block_connectivity -> libexodus.ex_get_conn")
   return conn

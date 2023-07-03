@@ -3,11 +3,10 @@
 """
   void_int = Cvoid
 """
-void_int = Cvoid
+const void_int = Cvoid
 """
-  ex_entity_id = Clonglong
 """
-ex_entity_id = Clonglong
+const ex_entity_id = Clonglong
 
 # derived types
 """
@@ -107,47 +106,7 @@ end
 #   num_attributes::Int64
 # end
 
-"""
-"""
-struct NodeSet{I <: Integer, B <: Integer}
-  """
-  ID of node set
-  """
-  node_set_id::I
-  """
-  Number of nodes in the node set
-  """
-  num_nodes::Clonglong
-  """
-  Node IDs for each node in the node set
-  """
-  nodes::Vector{B}
-end
-
-"""
-"""
-struct SideSet{I <: Integer, B <: Integer}
-  """
-  ID of side set
-  """
-  side_set_id::I
-  """
-  Number of elements in the side set
-  """
-  num_elements::Clonglong
-  """
-  Element IDs
-  """
-  elements::Vector{B}
-  """
-  Sides
-  """
-  sides::Vector{B}
-end
-
 # local exports
 export Block
 export ExodusDatabase
 export Initialization
-export NodeSet
-export SideSet
