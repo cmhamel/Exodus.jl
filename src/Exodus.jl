@@ -49,13 +49,12 @@ include("Blocks.jl")
 include("Sets.jl")
 
 # variables
-include("ElementVariables.jl")
 include("GlobalVariables.jl")
-include("NodalVariables.jl")
-include("NodeSetVariables.jl")
-include("SideSetVariables.jl")
+# include("NodeSetVariables.jl")
+# include("SideSetVariables.jl")
+include("Variables.jl")
 
-# # tooling
+# tooling
 include("Decomp.jl")
 include("Epu.jl")
 include("ExoDiff.jl")
