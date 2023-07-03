@@ -11,31 +11,40 @@ const ex_entity_id = Clonglong
 # derived types
 """
 """
-struct Initialization
-  """
-  Dimension of exodus database
-  """
-  num_dim::Clonglong
-  """
-  Number of nodes in exodus database
-  """
-  num_nodes::Clonglong
-  """
-  Number of elements in exodus database
-  """
-  num_elems::Clonglong
-  """
-  Number of element blocks in exodus database
-  """
-  num_elem_blks::Clonglong
-  """
-  Number of node sets in exodus database
-  """
-  num_node_sets::Clonglong
-  """
-  Number of side sets in exodus database
-  """
-  num_side_sets::Clonglong
+# struct Initialization
+#   """
+#   Dimension of exodus database
+#   """
+#   num_dim::Clonglong
+#   """
+#   Number of nodes in exodus database
+#   """
+#   num_nodes::Clonglong
+#   """
+#   Number of elements in exodus database
+#   """
+#   num_elems::Clonglong
+#   """
+#   Number of element blocks in exodus database
+#   """
+#   num_elem_blks::Clonglong
+#   """
+#   Number of node sets in exodus database
+#   """
+#   num_node_sets::Clonglong
+#   """
+#   Number of side sets in exodus database
+#   """
+#   num_side_sets::Clonglong
+# end
+
+struct Initialization{B}
+  num_dim::B
+  num_nodes::B
+  num_elems::B
+  num_elem_blks::B
+  num_node_sets::B
+  num_side_sets::B
 end
 
 # """
@@ -54,7 +63,7 @@ end
 struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
-  init::Initialization
+  init::Initialization{B}
 end
 get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M
 get_id_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = I

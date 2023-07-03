@@ -59,14 +59,14 @@ function ExodusDatabase(file_name::String, mode::String)
     )::Cint
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
 
-    maps_int_type, ids_int_type, bulk_int_type = exo_int_types(exo)
-    # ids_int_type = Clonglong # seems to be the case
-    float_type = exo_float_type(exo)
-    init = Initialization(exo)
-    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
-      exo, mode, init
-      # maps_int_type, ids_int_type, bulk_int_type, float_type
-    )
+    M, I, B = exo_int_types(exo)
+    F       = exo_float_type(exo)
+    
+    exo_temp = ExodusDatabase{M, I, B, F}(exo, "r", Initialization(B))
+
+    # init = Initialization(exo)
+    init = Initialization(exo_temp)
+    return ExodusDatabase{M, I, B, F}(exo, mode, init)
   # elseif lowercase(mode) == "w"
     # exo = 
   elseif lowercase(mode) == "rw"
@@ -77,14 +77,11 @@ function ExodusDatabase(file_name::String, mode::String)
     )::Cint
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
 
-    maps_int_type, ids_int_type, bulk_int_type = exo_int_types(exo)
-    # ids_int_type = Clonglong # seems to be the case
-    float_type = exo_float_type(exo)
-    init = Initialization(exo)
-    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
-      exo, mode, init
-      # maps_int_type, ids_int_type, bulk_int_type, float_type
-    )
+    M, I, B = exo_int_types(exo)
+    F       = exo_float_type(exo)
+    exo_temp = ExodusDatabase{M, I, B, F}(exo, "r", Initialization(B))
+    init = Initialization(exo_temp)
+    return ExodusDatabase{M, I, B, F}(exo, mode, init)
   # elseif lowercase(mode) == "w"
   #   exo = ex_create(file_name, EX_WRITE, cpu_word_size, IO_word_size)
   #   maps_int_type, ids_int_type, bulk_int_type = Int32, Int32, Int32
@@ -107,7 +104,7 @@ function ExodusDatabase(
   )::Cint
   exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
 
-  init = Initialization(
+  init = Initialization{bulk_int_type}(
     num_dim, num_nodes, num_elems,
     num_elem_blks, num_node_sets, num_side_sets
   )
