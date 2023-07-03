@@ -48,10 +48,7 @@ include("Maps.jl")
 include("Blocks.jl")
 include("Sets.jl")
 
-# variables
-include("GlobalVariables.jl")
-# include("NodeSetVariables.jl")
-# include("SideSetVariables.jl")
+# element, global, nodal, nodeset, and sideset variables
 include("Variables.jl")
 
 # tooling

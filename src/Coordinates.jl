@@ -180,7 +180,7 @@ function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coord
     x_coords = coords[1, :]
     y_coords = coords[2, :]
     z_coords = C_NULL
-  elseif size(corods, 1) == 3
+  elseif size(coords, 1) == 3
     x_coords = coords[1, :]
     y_coords = coords[2, :]
     z_coords = coords[3, :]

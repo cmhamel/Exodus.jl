@@ -15,6 +15,10 @@ read_number_of_element_variables(exo::ExodusDatabase) = read_number_of_variables
 
 """
 """
+read_number_of_global_variables(exo::ExodusDatabase) = read_number_of_variables(exo, EX_GLOBAL)
+
+"""
+"""
 read_number_of_nodal_variables(exo::ExodusDatabase) = read_number_of_variables(exo, EX_NODAL)
 
 """
@@ -39,6 +43,10 @@ end
 """
 """
 read_element_variable_name(exo::ExodusDatabase, var_index::Integer) = read_variable_name(exo, var_index, EX_ELEM_BLOCK)
+
+"""
+"""
+read_global_variable_name(exo::ExodusDatabase, var_index::Integer) = read_variable_name(exo, var_index, EX_GLOBAL)
 
 """
 """
@@ -78,6 +86,10 @@ read_element_variable_names(exo::ExodusDatabase) = read_variable_names(exo, EX_E
 
 """
 """
+read_global_variable_names(exo::ExodusDatabase) = read_variable_names(exo, EX_GLOBAL)
+
+"""
+"""
 read_nodal_variable_names(exo::ExodusDatabase) = read_variable_names(exo, EX_NODAL)
 
 """
@@ -100,6 +112,8 @@ function read_variable_values(
   elseif type == EX_ELEM_BLOCK
     _, num_entries, _, _, _, _ =
     read_element_block_parameters(exo, id)
+  elseif type == EX_GLOBAL
+    num_entries = read_number_of_variables(exo, type)
   elseif type == EX_NODE_SET || type == EX_SIDE_SET
     num_entries, _ = read_set_parameters(exo, id, type)
   else
@@ -151,6 +165,11 @@ read_variable_values(exo, timestep, id, var_index, EX_ELEM_BLOCK)
 """
 read_element_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String) = 
 read_variable_values(exo, timestep, id, var_name, EX_ELEM_BLOCK)
+
+"""
+"""
+read_global_variable_values(exo::ExodusDatabase, timestep::Integer) = 
+read_variable_values(exo, timestep, 1, 1, EX_GLOBAL)
 
 """
 """
@@ -255,6 +274,11 @@ write_number_of_variables(exo, num_vars, EX_ELEM_BLOCK)
 
 """
 """
+write_number_of_global_variables(exo::ExodusDatabase, num_vars::Integer) = 
+write_number_of_variables(exo, num_vars, EX_GLOBAL)
+
+"""
+"""
 write_number_of_nodal_variables(exo::ExodusDatabase, num_vars::Integer) = 
 write_number_of_variables(exo, num_vars, EX_NODAL)
 
@@ -285,6 +309,11 @@ write_variable_name(exo, var_index, var_name, EX_ELEM_BLOCK)
 
 """
 """
+write_global_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String) = 
+write_variable_name(exo, var_index, var_name, EX_GLOBAL)
+
+"""
+"""
 write_nodal_variable_name(exo::ExodusDatabase, var_index::Integer, var_name::String) = 
 write_variable_name(exo, var_index, var_name, EX_NODAL)
 
@@ -312,6 +341,11 @@ end
 """
 write_element_variable_names(exo::ExodusDatabase, var_names::Vector{String}) = 
 write_variable_names(exo, var_names, EX_ELEM_BLOCK)
+
+"""
+"""
+write_global_variable_names(exo::ExodusDatabase, var_names::Vector{String}) = 
+write_variable_names(exo, var_names, EX_GLOBAL)
 
 """
 """
@@ -394,6 +428,11 @@ write_variable_values(exo, timestep, id, var_name, var_values, EX_ELEM_BLOCK)
 
 """
 """
+write_global_variable_values(exo::ExodusDatabase, timestep::Integer, var_values::Vector{<:Real}) = 
+write_variable_values(exo, timestep, 1, 1, var_values, EX_GLOBAL)
+
+"""
+"""
 write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, var_index::Integer, var_values::Vector{<:Real}) = 
 write_variable_values(exo, timestep, 1, var_index, var_values, EX_NODAL)
 
@@ -437,6 +476,9 @@ write_variable_values(exo, timestep, set_name, var_name, var_values, EX_SIDE_SET
 export read_element_variable_name
 export read_element_variable_names
 export read_element_variable_values
+export read_global_variable_name
+export read_global_variable_names
+export read_global_variable_values
 export read_nodal_variable_name
 export read_nodal_variable_names
 export read_nodal_variable_values
@@ -444,6 +486,7 @@ export read_node_set_variable_name
 export read_node_set_variable_names
 export read_node_set_variable_values
 export read_number_of_element_variables
+export read_number_of_global_variables
 export read_number_of_nodal_variables
 export read_number_of_node_set_variables
 export read_number_of_side_set_variables
@@ -454,6 +497,9 @@ export read_side_set_variable_values
 export write_element_variable_name
 export write_element_variable_names
 export write_element_variable_values
+export write_global_variable_name
+export write_global_variable_names
+export write_global_variable_values
 export write_nodal_variable_name
 export write_nodal_variable_names
 export write_nodal_variable_values
@@ -461,6 +507,7 @@ export write_node_set_variable_name
 export write_node_set_variable_names
 export write_node_set_variable_values
 export write_number_of_element_variables
+export write_number_of_global_variables
 export write_number_of_nodal_variables
 export write_number_of_node_set_variables
 export write_number_of_side_set_variables

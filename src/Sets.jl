@@ -98,9 +98,9 @@ function read_set_ids(exo::ExodusDatabase{M, I, B, F}, type::ex_entity_type) whe
   elseif type == EX_SIDE_SET
     num_entries = exo.init.num_side_sets
   end
-  ids = Vector{I}(undef, num_entries)
+  ids = Vector{B}(undef, num_entries)
   error_code = @ccall libexodus.ex_get_ids(
-    get_file_id(exo)::Cint, type::ex_entity_type, ids::Ptr{I}
+    get_file_id(exo)::Cint, type::ex_entity_type, ids::Ptr{B}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
   return ids
@@ -328,12 +328,7 @@ write_side_set_name(exo::ExodusDatabase, set::SideSet, name::String) = write_set
 
 """
 """
-function write_set_names(exo::ExodusDatabase{M, I, B, F}, names::Vector{String}, type::Type{T}) where {M, I, B, F, T <: AbstractSet}
-  if T == NodeSet
-    type = EX_NODE_SET
-  elseif T == SideSet
-    type = EX_SIDE_SET
-  end
+function write_set_names(exo::ExodusDatabase, names::Vector{String}, type::ex_entity_type)
   error_code = @ccall libexodus.ex_put_names(
     get_file_id(exo)::Cint, type::ex_entity_type, names::Ptr{Ptr{UInt8}}
   )::Cint
@@ -342,11 +337,11 @@ end
 
 """
 """
-write_node_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_names(exo, names, NodeSet)
+write_node_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_names(exo, names, EX_NODE_SET)
 
 """
 """
-write_side_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_names(exo, names, SideSet)
+write_side_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_names(exo, names, EX_SIDE_SET)
 
 # local exports
 export NodeSet

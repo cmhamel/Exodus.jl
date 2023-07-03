@@ -3,11 +3,10 @@
 """
   void_int = Cvoid
 """
-void_int = Cvoid
+const void_int = Cvoid
 """
-  ex_entity_id = Clonglong
 """
-ex_entity_id = Clonglong
+const ex_entity_id = Clonglong
 
 # derived types
 """
