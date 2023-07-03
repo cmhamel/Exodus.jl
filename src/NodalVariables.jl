@@ -54,13 +54,38 @@ end
 
 """
 """
-function read_nodal_variable_values(exo::ExodusDatabase, time_step, var_name::String)
+function read_nodal_variable_values(exo::ExodusDatabase, time_step::I, var_name::String) where I <: Integer
   var_name_index = findall(x -> x == var_name, read_nodal_variable_names(exo))
   if length(var_name_index) > 1
     throw(ErrorException("This shoudl never happen"))
   end
   var_name_index = var_name_index[1]
   read_nodal_variable_values(exo, time_step, var_name_index)
+end
+
+"""
+"""
+function read_partial_nodal_variable_values(exo::ExodusDatabase, time_step::I, var_index::I, start_node::I, num_nodes::I) where I <: Integer
+  values = Vector{get_float_type(exo)}(undef, num_nodes)
+  error_code = @ccall libexodus.ex_get_partial_var(
+    get_file_id(exo)::Cint, time_step::Cint, EX_NODAL::ex_entity_type, 
+    var_index::Cint, 1::Cint, 
+    start_node::Clonglong, num_nodes::Clonglong,
+    values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_partial_nodal_variable_values -> libexodus.ex_get_partial_var")
+  return values
+end
+
+"""
+"""
+function read_partial_nodal_variable_values(exo::ExodusDatabase, time_step::I, var_name::String, start_node::I, num_nodes::I) where I <: Integer
+  var_name_index = findall(x -> x == var_name, read_nodal_variable_names(exo))
+  if length(var_name_index) > 1
+    throw(ErrorException("This shoudl never happen"))
+  end
+  var_name_index = var_name_index[1]
+  read_partial_nodal_variable_values(exo, time_step, var_name_index, start_node, num_nodes)
 end
 
 """
@@ -122,6 +147,7 @@ export read_number_of_nodal_variables
 export read_nodal_variable_name
 export read_nodal_variable_names
 export read_nodal_variable_values
+export read_partial_nodal_variable_values
 export write_number_of_nodal_variables
 export write_nodal_variable_name
 export write_nodal_variable_names
