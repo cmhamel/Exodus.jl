@@ -98,27 +98,27 @@ print(
       "\tNumber of side sets = ", init.num_side_sets, "\n"
 )
 
+# """
+# Used to set up a exodus database in write mode
+
+# The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
+# """
+# function write_initialization!(exoid::Cint, init::Initialization{Int32})
+#   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+#   error_code = @ccall libexodus.ex_put_init(
+#     exoid::Cint, title::Ptr{UInt8},
+#     init.num_dim::Cint, init.num_nodes::Cint, init.num_elems::Cint,
+#     init.num_elem_blks::Cint, init.num_node_sets::Cint, init.num_side_sets::Cint
+#   )::Cint
+#   exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
+# end
+
 """
 Used to set up a exodus database in write mode
 
 The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
 """
-function write_initialization!(exoid::Cint, init::Initialization{Int32})
-  title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  error_code = @ccall libexodus.ex_put_init(
-    exoid::Cint, title::Ptr{UInt8},
-    init.num_dim::Cint, init.num_nodes::Cint, init.num_elems::Cint,
-    init.num_elem_blks::Cint, init.num_node_sets::Cint, init.num_side_sets::Cint
-  )::Cint
-  exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
-end
-
-"""
-Used to set up a exodus database in write mode
-
-The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
-"""
-function write_initialization!(exoid::Cint, init::Initialization{Int64})
+function write_initialization!(exoid::Cint, init::Initialization)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   error_code = @ccall libexodus.ex_put_init(
     exoid::Cint, title::Ptr{UInt8},
