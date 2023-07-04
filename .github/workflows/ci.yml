@@ -45,8 +45,7 @@ jobs:
       - run: |
           julia --color=yes -e '
             using Pkg
-            Pkg.add("Exodus_jll")
-            Pkg.add("Exodus")
+            Pkg.add(url="https://github.com/cmhamel/Exodus_jll.git")
           '
       - uses: julia-actions/julia-runtest@v1
       
