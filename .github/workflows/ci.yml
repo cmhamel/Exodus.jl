@@ -41,8 +41,15 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
+      # - uses: julia-actions/julia-buildpkg@v1
+      # - uses: julia-actions/julia-runtest@v1
+      - run: |
+          julia -e '
+            using Pkg
+            pkg"activate ."
+            pkg"dev https://github.com/cmhamel/Exodus_jll.git"
+            pkg"test"
+          '
         with:
           annotate: true
       - uses: julia-actions/julia-processcoverage@v1
