@@ -42,7 +42,9 @@ version = "1.6.0"
 
 [[deps.Exodus_jll]]
 deps = ["Artifacts", "Fmt_jll", "HDF5_jll", "JLLWrappers", "Libdl", "NetCDF_jll", "Pkg", "Zlib_jll"]
-path = "/home/fractalmagic/.julia/dev/Exodus_jll"
+git-tree-sha1 = "e61778f62a106d5360c30d3ae8b8e823f5ab5c13"
+repo-rev = "main"
+repo-url = "https://github.com/cmhamel/Exodus_jll.git"
 uuid = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
 version = "8.19.0+1"
 
