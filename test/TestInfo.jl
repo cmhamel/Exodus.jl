@@ -14,4 +14,6 @@
   for n in eachindex(info)
     @test info[n] == new_info[n]
   end
+
+  Base.rm("./info_temp.e")
 end
