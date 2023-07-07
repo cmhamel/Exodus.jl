@@ -5,8 +5,10 @@ version = "0.5.0"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
+NetCDF_jll = "7243133f-43d8-5620-bbf4-c2c921802cf3"
+ParallelExodus_jll = "6b8956b8-7fb9-5872-aa5e-3830408ae101"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PnetCDF_jll = "42036edf-1cf4-552f-a99e-b7155f12a1cd"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
