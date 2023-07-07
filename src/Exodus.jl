@@ -4,8 +4,7 @@ $(EXPORTS)
 module Exodus
 
 using DocStringExtensions
-#using Exodus_jll
-using ParallelExodus_jll
+using Exodus_jll
 using Suppressor
 
 # for docs
