@@ -87,9 +87,10 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <
   decomp(file_name, n_procs)
   # grab .g, .e, .exo, etc. files, but not the initial one
   exo_files = Vector{String}(undef, n_procs)
-  for n in 0:n_procs - 1
-    exo_files[n + 1] = file_name * ".$n_procs.$n"
-  end
+  ext = splitext(file_name)[2]
+  exo_files = filter(x -> occursin("$ext.", x) && occursin(".$n_procs.", x), readdir(dirname(file_name)))
+  sort!(exo_files)
+  exo_files = map(x -> joinpath(dirname(file_name), x), exo_files)
   # grab the nem file
   nem_file = file_name * ".nem"
 
@@ -123,7 +124,41 @@ function Base.close(p::ParallelExodusDatabase)
   close(p.nem)
 end
 
-# function NodecommunicationMap()
+struct CommunicationMapParameters{B}
+  node_cmap_ids::Vector{B}
+  node_cmap_node_cnts::Vector{B}
+  elem_cmap_ids::Vector{B}
+  elem_cmap_elem_cnts::Vector{B}
+end
+
+function CommunicationMapParameters(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
+  node_cmap_ids       = Vector{B}(undef, exo.lb_params[processor].num_node_cmaps)
+  node_cmap_node_cnts = Vector{B}(undef, exo.lb_params[processor].num_node_cmaps)
+  elem_cmap_ids       = Vector{B}(undef, exo.lb_params[processor].num_elem_cmaps)
+  elem_cmap_elem_cnts = Vector{B}(undef, exo.lb_params[processor].num_elem_cmaps)
+  error_code = @ccall libexodus.ex_get_cmap_params(
+    get_file_id(exo.exos[processor])::Cint,
+    node_cmap_ids::Ptr{B}, node_cmap_node_cnts::Ptr{B},
+    elem_cmap_ids::Ptr{B}, elem_cmap_elem_cnts::Ptr{B},
+    processor::Cint
+  )::Cint
+  exodus_error_check(error_code, "Exodus.CommunicationMapParameters -> libexodus.ex_get_cmap_params")
+  return CommunicationMapParameters{B}(
+    node_cmap_ids, node_cmap_node_cnts,
+    elem_cmap_ids, elem_cmap_elem_cnts
+  )
+end
+
+function CommunicationMapParameters(exo::ParallelExodusDatabase{M, I, B, F, N}) where {M, I, B, F, N}
+  cmap_params = Vector{CommunicationMapParameters{B}}(undef, length(exo.exos))
+  for n in 1:length(exo.exos)
+    cmap_params[n] = CommunicationMapParameters(exo, n)
+  end
+  return cmap_params
+end
+
+# function NodecommunicationMap(exo::ExodusDatabase{M, I, B, F}, node_map_id::Itype, processor::Itype) where {M, I, B, F, Itype <: Integer}
+#   ids::Vector{B}(undef)
 
 # end
 
