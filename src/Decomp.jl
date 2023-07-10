@@ -58,7 +58,6 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
   pex_file = file_name * ".pex"
   dir_name = dirname(file_name) * "/" # TODO this will be an issue for windows
   # dir_name = file_name |> dirname |> abspath # doesn't do what I want it to
-  @show dir_name
   base_name, mesh_ext = splitext(file_name)
   # now need to write pex file for nem_spread
   open(pex_file, "w") do file
