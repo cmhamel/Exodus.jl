@@ -16,4 +16,5 @@ end
 
 @includetests ARGS
 
-#Aqua.test_all(Exodus)
+Aqua.test_all(Exodus)
+
