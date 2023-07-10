@@ -74,13 +74,13 @@ function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F}, processor::Itype
 end
 
 struct ParallelExodusDatabase{M, I, B, F, N}
-  exos::Vector{Cint}
-  nem::Cint
+  exos::Vector{ExodusDatabase{M, I, B, F}}
+  nem::ExodusDatabase{M, I, B, Float32} # seems to be the case at least with Float32
   mode::String
   init_global::Initialization{B}
-  inits::Vector{Initialization{B}}
   lb_params::Vector{LoadBalanceParameters{B}}
 end
+
 
 function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <: Integer
   # first decomp, this will be the lazy constructor
@@ -93,38 +93,39 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <
   # grab the nem file
   nem_file = file_name * ".nem"
 
-  exos = Vector{Cint}(undef, n_procs)
-  nem = ExodusDatabase(nem_file, "r")
-  mode = "r" # TODO hardcoded for now
-  M, I, B = exo_int_types(get_file_id(nem))
-  F       = exo_float_type(get_file_id(nem))
-  init_global = InitializationGlobal(nem)
-  inits = Vector{Initialization{B}}(undef, n_procs)
-  lb_params = Vector{LoadBalanceParameters{B}}(undef, n_procs)
+  # more efficient ways to do below
+  exos        = Vector{ExodusDatabase}(undef, n_procs)
+  nem         = ExodusDatabase(nem_file, "r")
+  mode        = "r" # TODO hardcoded for now
+  M, I, B     = exo_int_types(get_file_id(nem))
+  F           = exo_float_type(get_file_id(nem))
+  init_global = InitializationGlobal(nem) # just to make it in this scope
+  lb_params   = Vector{LoadBalanceParameters{B}}(undef, n_procs)
   # TODO could be an error here assuming all are the same
   # maybe do a more rigourous error check later
   for (n, exo_file) in enumerate(exo_files)
-    proc_id = parse(Int64, split(exo_file, ".")[end])
-    exo = ExodusDatabase(exo_file, "r")
-    exos[n] = get_file_id(exo)
-    init_global = InitializationGlobal(exo)
-    inits[n] = get_init(exo)
+    proc_id      = parse(Int64, split(exo_file, ".")[end])
+    exo          = ExodusDatabase(exo_file, "r")
+    exos[n]      = exo
+    init_global  = InitializationGlobal(exo)
     lb_params[n] = LoadBalanceParameters(exo, proc_id) 
-    F = exo_float_type(get_file_id(exo))
+    F            = exo_float_type(get_file_id(exo))
   end
   return ParallelExodusDatabase{M, I, B, F, n_procs}(
-    exos, get_file_id(nem), mode, init_global, inits, lb_params
+    exos, nem, mode, init_global, lb_params
   )
 end
 
 function Base.close(p::ParallelExodusDatabase)
   for exo in p.exos
-    error_code = @ccall libexodus.ex_close(exo::Cint)::Cint
-    exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
+    close(exo)
   end
-  error_code = @ccall libexodus.ex_close(p.nem::Cint)::Cint
-  exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
+  close(p.nem)
 end
+
+# function NodecommunicationMap()
+
+# end
 
 export LoadBalanceParameters
 export ParallelExodusDatabase
