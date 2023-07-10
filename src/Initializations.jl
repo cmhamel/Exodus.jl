@@ -8,22 +8,6 @@
 #   exodus_error_check(error_code, "ex_get_cmap_params!")
 # end
 
-# function ex_get_init_global!(exoid::Cint, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g) # TODO get the types right
-#   error_code = ccall(
-#     (:ex_get_init_global, libexodus), Cint,
-#     (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}),
-#     exoid, num_nodes_g, num_elems_g, num_elem_blks_g, num_node_sets_g, num_side_sets_g
-#   )
-#   exodus_error_check(error_code, "ex_get_init_global!")
-# end
-
-# function ex_get_init_info!(exoid::Cint, num_proc, num_proc_in_f, ftype)
-#   error_code = ccall((:ex_get_init_info, libexodus), Cint,
-#              (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{UInt8}),
-#             exoid, num_proc, num_proc_in_f, ftype)
-#   exodus_error_check(error_code, "ex_get_init_info!")
-# end
-
 # function ex_get_loadbal_param!(exoid::Cint,
 #                  num_int_nodes, num_bor_nodes, num_ext_nodes,
 #                  num_int_elems, num_bor_elems,

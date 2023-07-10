@@ -54,6 +54,9 @@ include("Decomp.jl")
 include("Epu.jl")
 include("ExoDiff.jl")
 
+# dev stuff
+include("parallel-dev/ParallelExodus.jl")
+
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
