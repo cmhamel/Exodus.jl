@@ -40,8 +40,6 @@ include("Coordinates.jl")
 include("Times.jl")
 
 # maps
-include("CommunicationMaps.jl")
-include("NodeMaps.jl")
 include("Maps.jl")
 
 # blocks, nodesets, sidesets
