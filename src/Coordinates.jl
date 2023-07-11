@@ -135,6 +135,9 @@ end
 Method to write coordinates
 """
 function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: Real}
+  if size(coords, 1) != exo.init.num_dim || size(coords, 2) != exo.init.num_nodes
+    throw(ErrorException("Invalid set of coordinates (of size $(size(coords))) to write to exo = $exo"))
+  end
   if size(coords, 1) == 1
     x_coords = coords[1, :]
     y_coords = C_NULL

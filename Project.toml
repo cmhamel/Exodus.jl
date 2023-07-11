@@ -12,6 +12,7 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 [compat]
 Aqua = "0.6"
 DocStringExtensions = "0.9"
+Exodus_jll = "8.19.1"
 Suppressor = "0.2"
 TestSetExtensions = "2.0"
 julia = "1"

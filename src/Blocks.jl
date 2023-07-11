@@ -210,6 +210,21 @@ function write_element_block(exo::ExodusDatabase, block::Block)
   write_element_block_connectivity(exo, block.block_id, block.conn)
 end
 
+function write_element_block(exo::ExodusDatabase, block_id::Integer, elem_type::String, conn::Matrix{I}) where I <: Integer
+  num_nodes_per_elem, num_elem = size(conn)
+  elem_type = uppercase(elem_type)
+  error_code = @ccall libexodus.ex_put_block(
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
+    elem_type::Ptr{UInt8},
+    num_elem::Clonglong, num_nodes_per_elem::Clonglong,
+    0::Clonglong, 0::Clonglong, 0::Clonglong
+  )::Cint
+  exodus_error_check(error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  write_element_block_connectivity(exo, block_id, conn)
+end
+
+
+
 """
 """
 function write_element_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
