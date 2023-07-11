@@ -99,19 +99,38 @@ function ExodusDatabase(
   num_dim::I = 0, num_nodes::I = 0, num_elems::I = 0,
   num_elem_blks::I = 0, num_node_sets::I = 0, num_side_sets::I = 0
 ) where {I <: Integer}
-  exo = @ccall libexodus.ex_create_int(
-    file_name::Cstring, EX_WRITE::Cint, cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, EX_API_VERS_NODOT::Cint
-  )::Cint
-  exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
 
-  init = Initialization{bulk_int_type}(
-    num_dim, num_nodes, num_elems,
-    num_elem_blks, num_node_sets, num_side_sets
-  )
-  write_initialization!(exo, init)
-  return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
-    exo, "w", init
-  )
+  if isfile(file_name)
+    exo = @ccall libexodus.ex_open_int(
+      file_name::Cstring, EX_CLOBBER::Cint, 
+      cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
+      version_number::Ref{Cfloat}, EX_API_VERS_NODOT::Cint
+    )::Cint
+    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
+    exo_temp = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(exo, "rw", Initialization(bulk_int_type))
+    init = Initialization(exo_temp)
+    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(exo, "rw", init)
+  else
+    exo = @ccall libexodus.ex_create_int(
+      file_name::Cstring, EX_WRITE::Cint, cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, EX_API_VERS_NODOT::Cint
+    )::Cint
+    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+
+    # below is what they do in the example but this is weirdly throwing an error
+    # exo = @ccall libexodus.ex_create_int(
+    #   file_name::Cstring, EX_CLOBBER::Cint, Ref{Cint}(0)::Ref{Cint}, Ref{Cint}(4)::Ref{Cint}, EX_API_VERS_NODOT::Cint
+    # )::Cint
+    # exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+
+    init = Initialization{bulk_int_type}(
+      num_dim, num_nodes, num_elems,
+      num_elem_blks, num_node_sets, num_side_sets
+    )
+    write_initialization!(exo, init)
+    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
+      exo, "w", init
+    )
+  end
 end
 
 """
