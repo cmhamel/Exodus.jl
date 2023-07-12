@@ -249,3 +249,14 @@ function write_element_block_names(exo::ExodusDatabase, names::Vector{String})
   )::Cint
   exodus_error_check(error_code, "Exodus.write_element_block_names -> libexodus.ex_put_names")
 end
+
+# some tools below
+"""
+TODO reduce allocations and check for type instabilities
+"""
+function collection_element_block_connectivities(exo::ExodusDatabase)
+  block_ids = read_element_block_ids(exo)
+  blocks = Block.((exo,), block_ids)
+  conns = [block.conn for block in blocks]
+  return mapreduce(permutedims, vcat, conns)' |> collect
+end
