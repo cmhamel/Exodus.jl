@@ -222,10 +222,10 @@ end
   close(exo)
 end
 
-
-# @exodus_unit_test_set "Test ExodusBlock" begin
-#   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")
-#   block_1 = ExodusBlock(exo, 1)
-#   @show block_1
-#   close(exo)
-# end
+@exodus_unit_test_set "Collect block connectivity" begin
+  exo = ExodusDatabase("./mesh/multi_block/multi_block_mesh.g", "r")
+  conns = collection_element_block_connectivities(exo)
+  @test conns[:, 1:82]   == Block(exo, 1).conn
+  @test conns[:, 83:end] == Block(exo, 2).conn
+  close(exo)
+end

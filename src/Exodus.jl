@@ -20,6 +20,7 @@ export set_exodus_max_name_length
 export set_exodus_options
 
 # exported read methods
+export collection_element_block_connectivities
 export read_coordinates
 export read_coordinate_names
 export read_element_blocks
