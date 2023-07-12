@@ -29,6 +29,3 @@ function write_qa(exo::ExodusDatabase, qa_record::Matrix{String})
   )::Cint
   exodus_error_check(error_code, "Exodus.write_qa -> libexodus.ex_put_qa")
 end
-
-export read_qa
-export write_qa

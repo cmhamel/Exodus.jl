@@ -63,5 +63,3 @@ function write_initialization!(exoid::Cint, init::Initialization)
   )::Cint
   exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
-
-export write_initialization!

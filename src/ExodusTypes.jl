@@ -100,22 +100,3 @@ struct Block{I <: Integer, B <: Integer}
   """
   conn::Matrix{B}
 end
-
-# """
-# New attempt at block to match ex_block in exodusII.h
-# """
-# mutable struct ExodusBlock
-#   id::Int64
-#   type::ex_entity_type
-#   topology::Vector{UInt8}
-#   num_entry::Int64
-#   num_nodes_per_entry::Int64
-#   num_edges_per_entry::Int64
-#   num_faces_per_entry::Int64
-#   num_attributes::Int64
-# end
-
-# local exports
-export Block
-export ExodusDatabase
-export Initialization

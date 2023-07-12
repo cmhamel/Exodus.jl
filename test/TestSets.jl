@@ -251,3 +251,25 @@ end
   end
   Base.Filesystem.rm("./test_output_sidesets.e")
 end
+
+@exodus_unit_test_set "Test nonsense nodeset and sideset names" begin
+  exo = ExodusDatabase(mesh_file_name_2D, "r")
+  @test_throws BoundsError NodeSet(exo, "nonsense_nset_name")
+  @test_throws BoundsError SideSet(exo, "nonsense_sset_name")
+  close(exo)
+end
+
+@exodus_unit_test_set "throw Incompatable type error" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
+  init_old = Initialization(exo_old)
+  coords_old = read_coordinates(exo_old)
+  close(exo_old)
+
+  exo_new = ExodusDatabase("./test_output_sidesets.e", init_old)
+  write_coordinates(exo_new, coords_old)
+  dummy_nset = NodeSet{Float32, Float32}(1, [])
+  dummy_sset = SideSet{Float32, Float32}(1, [], [])
+  @test_throws ErrorException write_node_set(exo_new, dummy_nset)
+  @test_throws ErrorException write_side_set(exo_new, dummy_sset)
+  close(exo_new)
+end

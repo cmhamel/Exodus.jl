@@ -12,6 +12,3 @@ macro exodiff(ex_1, ex_2)
     write(file, exodiff_output)
   end
 end
-
-# local exports
-export @exodiff

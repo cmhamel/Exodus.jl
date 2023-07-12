@@ -38,8 +38,8 @@ end
 function NodeSet(exo::ExodusDatabase, name::String)
   ids = read_node_set_ids(exo)
   name_index = findall(x -> x == name, read_node_set_names(exo))
-  if length(name_index) > 1
-    throw(ErrorException("This should never happen"))
+  if length(name_index) < 1
+    throw(BoundsError(read_node_set_names(exo), name_index))
   end
   name_index = name_index[1]
   return NodeSet(exo, ids[name_index])
@@ -83,8 +83,8 @@ end
 function SideSet(exo::ExodusDatabase, name::String)
   ids = read_side_set_ids(exo)
   name_index = findall(x -> x == name, read_side_set_names(exo))
-  if length(name_index) > 1
-    throw(ErrorException("This should never happen"))
+  if length(name_index) < 1
+    throw(BoundsError(read_side_set_names(exo), name_index))
   end
   name_index = name_index[1]
   return SideSet(exo, ids[name_index])
@@ -342,27 +342,3 @@ write_node_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_nam
 """
 """
 write_side_set_names(exo::ExodusDatabase, names::Vector{String}) = write_set_names(exo, names, EX_SIDE_SET)
-
-# local exports
-export NodeSet
-export SideSet
-
-export length
-export read_node_set_ids
-export read_node_set_names
-export read_node_set_parameters
-export read_node_sets
-export read_side_set_ids
-export read_side_set_names
-export read_side_set_parameters
-export read_side_set_elements_and_sides
-export read_side_set_node_list
-export read_side_sets
-export write_node_set
-export write_node_set_name
-export write_node_set_names
-export write_node_sets
-export write_side_set
-export write_side_set_name
-export write_side_set_names
-export write_side_sets

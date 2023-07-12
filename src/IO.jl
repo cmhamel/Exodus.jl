@@ -176,11 +176,3 @@ function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
   error_code = @ccall libexodus.ex_close(new_exo_id::Cint)::Cint
   exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
 end
-
-# local exports
-export close
-export copy
-export exo_int_types
-export exo_float_type
-export set_exodus_max_name_length
-export set_exodus_options

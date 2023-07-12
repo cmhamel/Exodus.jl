@@ -23,6 +23,3 @@ function write_info(exo::ExodusDatabase, info::Vector{String})
   )::Cint
   exodus_error_check(error_code, "Exodus.write_info -> libexodus.ex_put_info")
 end
-
-export read_info
-export write_info

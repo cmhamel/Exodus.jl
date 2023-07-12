@@ -25,6 +25,8 @@ end
 
   var_names = read_node_set_variable_names(exo)
   @test var_names == ["nset_displ_x", "nset_displ_y"]
+  @test read_node_set_variable_name(exo, 1) == "nset_displ_x"
+  @test read_node_set_variable_name(exo, 2) == "nset_displ_y"
 
   close(exo)
   rm("./temp_node_set_variables.e", force=true)

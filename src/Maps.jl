@@ -6,6 +6,3 @@ function read_element_map(exo::ExodusDatabase)
   exodus_error_check(error_code, "Exodus.read_element_map -> libexodus.ex_get_map")
   return elem_map
 end
-
-# local exports
-export read_element_map

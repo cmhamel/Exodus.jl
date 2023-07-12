@@ -23,8 +23,8 @@ print(io, "Block:\n",
 function Block(exo::ExodusDatabase, block_name::String)
   block_ids = read_element_block_ids(exo)
   name_index = findall(x -> x == block_name, read_element_block_names(exo))
-  if length(name_index) > 1
-    throw(ErrorException("This should never happen"))
+  if length(name_index) < 1
+    throw(BoundsError(read_element_block_names(exo), name_index))
   end
   name_index = name_index[1]
   return Block(exo, block_ids[name_index])
@@ -184,8 +184,8 @@ TODO: change name to read_element_blocks
 """
 function read_element_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integer, Vector{<:Integer}}
   if typeof(block_ids) <: Integer
-    block_id = convert(get_id_int_type(exo), block_id)
-    block = Block(exo, block_id)
+    block_ids = convert(get_id_int_type(exo), block_ids)
+    block = Block(exo, block_ids)
     return block
   else
     block_ids = map(x -> convert(get_id_int_type(exo), x), block_ids)
@@ -223,8 +223,6 @@ function write_element_block(exo::ExodusDatabase, block_id::Integer, elem_type::
   write_element_block_connectivity(exo, block_id, conn)
 end
 
-
-
 """
 """
 function write_element_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
@@ -251,23 +249,3 @@ function write_element_block_names(exo::ExodusDatabase, names::Vector{String})
   )::Cint
   exodus_error_check(error_code, "Exodus.write_element_block_names -> libexodus.ex_put_names")
 end
-
-
-# local exports
-export Block
-# export ExodusBlock
-
-export read_element_blocks
-export read_element_block_id_map
-export read_element_block_ids
-export read_element_block_names
-export read_element_block_connectivity
-export read_element_block_parameters
-export read_element_type
-export read_partial_element_block_connectivity
-
-export write_element_block
-export write_element_block_connectivity
-export write_element_block_name
-export write_element_block_names
-export write_element_blocks
