@@ -1,4 +1,4 @@
-if sys.iswindows()
+if Sys.iswindows()
   # weirdly not working here
 else
   @testset ExtendedTestSet "ParallelExodusDatabase" begin
