@@ -134,7 +134,7 @@ end
 """
 Method to write coordinates
 """
-function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: Real}
+function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: AbstractFloat}
   if size(coords, 1) != exo.init.num_dim || size(coords, 2) != exo.init.num_nodes
     throw(ErrorException("Invalid set of coordinates (of size $(size(coords))) to write to exo = $exo"))
   end
@@ -173,7 +173,7 @@ end
 
 """
 """
-function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::Matrix{F}) where {I <: Integer, F <: Real}
+function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::Matrix{F}) where {I <: Integer, F <: AbstractFloat}
   coords = convert(Matrix{get_float_type(exo)}, coords)
   if size(coords, 1) == 1
     x_coords = coords[1, :]
@@ -197,7 +197,7 @@ end
 
 """
 """
-function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::I, coords::Vector{F}) where {I <: Integer, F <: Real}
+function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::I, coords::Vector{F}) where {I <: Integer, F <: AbstractFloat}
   coords = convert(Vector{get_float_type(exo)}, coords)
   error_code = @ccall libexodus.ex_put_partial_coord_component(
     get_file_id(exo)::Cint, start_node_num::Clonglong, length(coords)::Clonglong, component::Cint,
@@ -208,7 +208,7 @@ end
 
 """
 """
-function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::String, coords::Vector{F}) where {I <: Integer, F <: Real}
+function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::String, coords::Vector{F}) where {I <: Integer, F <: AbstractFloat}
   if lowercase(component) == "x"
     coord_id = 1
   elseif lowercase(component) == "y"
