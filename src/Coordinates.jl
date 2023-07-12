@@ -221,13 +221,3 @@ function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num
   coords = convert(Vector{get_float_type(exo)}, coords)
   write_partial_coordinates_component(exo, start_node_num, coord_id, coords)
 end
-
-# local exports
-export read_coordinates
-export read_coordinate_names
-export read_partial_coordinates
-export read_partial_coordinates_component
-export write_coordinates
-export write_coordinate_names
-export write_partial_coordinates
-export write_partial_coordinates_component

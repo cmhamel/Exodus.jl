@@ -34,9 +34,3 @@ function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <
   error_code = @ccall libexodus.ex_put_time(get_file_id(exo)::Cint, time_step::Cint, time_value::Ref{F})::Cint
   exodus_error_check(error_code, "Exodus.write_time -> libexodus.ex_put_time")
 end
-
-# local exports
-export read_number_of_time_steps
-export read_time
-export read_times
-export write_time

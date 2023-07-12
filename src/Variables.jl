@@ -134,7 +134,7 @@ end
 function read_variable_values(exo::ExodusDatabase, time_step::Integer, id::Integer, var_name::String, type::ex_entity_type)
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   if length(var_name_index) > 1
-    throw(ErrorException("This shoudl never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   read_variable_values(exo, time_step, id, var_name_index, type)
@@ -145,12 +145,12 @@ end
 function read_variable_values(exo::ExodusDatabase, time_step::Integer, var_name::String, nset_name::String, type::ex_entity_type)
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   if length(var_name_index) > 1
-    throw(ErrorException("This should never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   set_name_index = findall(x -> x == nset_name, read_set_names(exo, type))
   if length(set_name_index) > 1
-    throw(ErrorException("This should never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   set_name_index = set_name_index[1]
   read_variable_values(exo, time_step, var_name_index, set_name_index, type)
@@ -240,7 +240,7 @@ function read_partial_variable_values(
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   if length(var_name_index) > 1
-    throw(ErrorException("This shoudl never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   read_partial_variable_values(exo, time_step, id, var_name_index, start_node, num_nodes, type)
@@ -389,7 +389,7 @@ function write_variable_values(
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   if length(var_name_index) > 1
-    throw(ErrorException("This shoudl never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   write_variable_values(exo, time_step, id, var_name_index, var_value, type)
@@ -405,12 +405,12 @@ function write_variable_values(
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   if length(var_name_index) > 1
-    throw(ErrorException("This should never happen"))
+    throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   set_name_index = findall(x -> x == set_name, read_set_names(exo, type))
   if length(set_name_index) > 1
-    throw(ErrorException("This should never happen"))
+    throw(BoundsError(read_set_names(exo, type), set_name_index))
   end
   set_name_index = set_name_index[1]
   write_variable_values(exo, time_step, var_name_index, set_name_index, var_value, type)
@@ -470,47 +470,3 @@ write_variable_values(exo, timestep, id, var_name, var_values, EX_SIDE_SET)
 """
 write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, set_name::String, var_name::String, var_values::Vector{<:Real}) = 
 write_variable_values(exo, timestep, set_name, var_name, var_values, EX_SIDE_SET)
-
-
-# local exports
-export read_element_variable_name
-export read_element_variable_names
-export read_element_variable_values
-export read_global_variable_name
-export read_global_variable_names
-export read_global_variable_values
-export read_nodal_variable_name
-export read_nodal_variable_names
-export read_nodal_variable_values
-export read_node_set_variable_name
-export read_node_set_variable_names
-export read_node_set_variable_values
-export read_number_of_element_variables
-export read_number_of_global_variables
-export read_number_of_nodal_variables
-export read_number_of_node_set_variables
-export read_number_of_side_set_variables
-export read_partial_nodal_variable_values
-export read_side_set_variable_name
-export read_side_set_variable_names
-export read_side_set_variable_values
-export write_element_variable_name
-export write_element_variable_names
-export write_element_variable_values
-export write_global_variable_name
-export write_global_variable_names
-export write_global_variable_values
-export write_nodal_variable_name
-export write_nodal_variable_names
-export write_nodal_variable_values
-export write_node_set_variable_name
-export write_node_set_variable_names
-export write_node_set_variable_values
-export write_number_of_element_variables
-export write_number_of_global_variables
-export write_number_of_nodal_variables
-export write_number_of_node_set_variables
-export write_number_of_side_set_variables
-export write_side_set_variable_name
-export write_side_set_variable_names
-export write_side_set_variable_values

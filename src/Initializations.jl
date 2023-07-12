@@ -1,36 +1,3 @@
-# TODO check these aren't outdated with older interface also add types to julia call
-# function ex_get_cmap_params!(exoid::Cint, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor)
-#   error_code = ccall(
-#     (:ex_get_cmap_params, libexodus), Cint,
-#     (Cint, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, Cint),
-#     exoid, node_cmap_ids, node_cmap_node_cnts, elem_cmap_ids, elem_cmap_elem_cnts, processor
-#   )
-#   exodus_error_check(error_code, "ex_get_cmap_params!")
-# end
-
-# function ex_get_loadbal_param!(exoid::Cint,
-#                  num_int_nodes, num_bor_nodes, num_ext_nodes,
-#                  num_int_elems, num_bor_elems,
-#                  num_node_cmaps, num_elem_cmaps,
-#                  processor) # TODO get types right and sorted out
-#   error_code = ccall(
-#     (:ex_get_loadbal_param, libexodus), Cint,
-#     (
-#       Cint, 
-#       Ptr{void_int}, Ptr{void_int}, Ptr{void_int}, 
-#       Ptr{void_int}, Ptr{void_int}, 
-#       Ptr{void_int}, Ptr{void_int}, 
-#       Cint
-#     ),
-#     exoid, 
-#     num_int_nodes, num_bor_nodes, num_ext_nodes, 
-#     num_int_elems, num_bor_elems,
-#     num_node_cmaps, num_elem_cmaps, 
-#     processor
-#   )
-#   exodus_error_check(error_code, "ex_get_loadbal_param!")
-# end
-
 """
 Workaround method
 """
@@ -96,5 +63,3 @@ function write_initialization!(exoid::Cint, init::Initialization)
   )::Cint
   exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
-
-export write_initialization!

@@ -25,6 +25,14 @@ function test_read_element_blocks_on_square_meshes()
   @test blocks[1].num_nodes_per_elem == 4
   @test blocks[1].elem_type          == "QUAD4"
   @test size(blocks[1].conn)         == (4, number_of_elements_2D)
+
+  # repeat to cover more methods
+  block = read_element_blocks(exo, block_ids[1])
+  @test block.block_id           == 1
+  @test block.num_elem           == number_of_elements_2D
+  @test block.num_nodes_per_elem == 4
+  @test block.elem_type          == "QUAD4"
+  @test size(block.conn)         == (4, number_of_elements_2D)
   close(exo)
 end
 
@@ -207,6 +215,13 @@ end
   @show block
   close(exo)
 end
+
+@exodus_unit_test_set "Read bad block name" begin
+  exo = ExodusDatabase(mesh_file_name_2D, "r")
+  @test_throws BoundsError block = Block(exo, "nonsense_block_name")
+  close(exo)
+end
+
 
 # @exodus_unit_test_set "Test ExodusBlock" begin
 #   exo = ExodusDatabase(abspath(mesh_file_name_2D), "r")

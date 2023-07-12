@@ -101,6 +101,3 @@ function decomp(file_name::String, n_procs::I) where I <: Integer
     write(file, nem_spread_out)
   end
 end
-
-export decomp
-export @decomp

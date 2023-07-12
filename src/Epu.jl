@@ -12,5 +12,3 @@ macro epu(ex)
     write(file, epu_out)
   end
 end
-
-export @epu

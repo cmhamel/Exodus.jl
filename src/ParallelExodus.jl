@@ -263,10 +263,3 @@ function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, proces
   exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
   return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end
-
-export ElementCommunicationMap
-export LoadBalanceParameters
-export NodeCommunicationMap
-export ParallelExodusDatabase
-export ProcessorElementMaps
-export ProcessorNodeMaps
