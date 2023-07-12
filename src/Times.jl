@@ -30,7 +30,7 @@ end
 
 """
 """
-function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <: Integer, F <: Real}
+function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <: Integer, F <: AbstractFloat}
   error_code = @ccall libexodus.ex_put_time(get_file_id(exo)::Cint, time_step::Cint, time_value::Ref{F})::Cint
   exodus_error_check(error_code, "Exodus.write_time -> libexodus.ex_put_time")
 end
