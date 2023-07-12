@@ -23,7 +23,7 @@ print(io, "Block:\n",
 function Block(exo::ExodusDatabase, block_name::String)
   block_ids = read_element_block_ids(exo)
   name_index = findall(x -> x == block_name, read_element_block_names(exo))
-  if length(name_index) > 1
+  if length(name_index) < 1
     throw(BoundsError(read_element_block_names(exo), name_index))
   end
   name_index = name_index[1]

@@ -25,6 +25,8 @@ end
 
   var_names = read_side_set_variable_names(exo)
   @test var_names == ["sset_displ_x", "sset_displ_y"]
+  @test read_side_set_variable_name(exo, 1) == "sset_displ_x"
+  @test read_side_set_variable_name(exo, 2) == "sset_displ_y"
 
   close(exo)
   rm("./temp_side_set_variables.e", force=true)

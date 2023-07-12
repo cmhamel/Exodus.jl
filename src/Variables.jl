@@ -133,7 +133,7 @@ end
 """
 function read_variable_values(exo::ExodusDatabase, time_step::Integer, id::Integer, var_name::String, type::ex_entity_type)
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  if length(var_name_index) > 1
+  if length(var_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
@@ -144,12 +144,12 @@ end
 """
 function read_variable_values(exo::ExodusDatabase, time_step::Integer, var_name::String, nset_name::String, type::ex_entity_type)
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  if length(var_name_index) > 1
+  if length(var_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   set_name_index = findall(x -> x == nset_name, read_set_names(exo, type))
-  if length(set_name_index) > 1
+  if length(set_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   set_name_index = set_name_index[1]
@@ -239,7 +239,7 @@ function read_partial_variable_values(
   type::ex_entity_type
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  if length(var_name_index) > 1
+  if length(var_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
@@ -388,7 +388,7 @@ function write_variable_values(
   type::ex_entity_type
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  if length(var_name_index) > 1
+  if length(var_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
@@ -404,12 +404,12 @@ function write_variable_values(
   type::ex_entity_type
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  if length(var_name_index) > 1
+  if length(var_name_index) < 1
     throw(BoundsError(read_variable_names(exo, type), var_name_index))
   end
   var_name_index = var_name_index[1]
   set_name_index = findall(x -> x == set_name, read_set_names(exo, type))
-  if length(set_name_index) > 1
+  if length(set_name_index) < 1
     throw(BoundsError(read_set_names(exo, type), set_name_index))
   end
   set_name_index = set_name_index[1]

@@ -38,7 +38,7 @@ end
 function NodeSet(exo::ExodusDatabase, name::String)
   ids = read_node_set_ids(exo)
   name_index = findall(x -> x == name, read_node_set_names(exo))
-  if length(name_index) > 1
+  if length(name_index) < 1
     throw(BoundsError(read_node_set_names(exo), name_index))
   end
   name_index = name_index[1]
@@ -83,7 +83,7 @@ end
 function SideSet(exo::ExodusDatabase, name::String)
   ids = read_side_set_ids(exo)
   name_index = findall(x -> x == name, read_side_set_names(exo))
-  if length(name_index) > 1
+  if length(name_index) < 1
     throw(BoundsError(read_side_set_names(exo), name_index))
   end
   name_index = name_index[1]
