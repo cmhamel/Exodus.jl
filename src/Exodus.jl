@@ -49,13 +49,11 @@ include("Sets.jl")
 # element, global, nodal, nodeset, and sideset variables
 include("Variables.jl")
 
-# tooling
+# parallel capabilities without MPI build
 include("Decomp.jl")
 include("Epu.jl")
 include("ExoDiff.jl")
-
-# dev stuff
-include("parallel-dev/ParallelExodus.jl")
+include("ParallelExodus.jl")
 
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
