@@ -116,7 +116,6 @@ struct ParallelExodusDatabase{M, I, B, F, N}
   cmap_params::Vector{CommunicationMapParameters{B}}
 end
 
-
 function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <: Integer
   # first decomp, this will be the lazy constructor
   decomp(file_name, n_procs)
@@ -152,6 +151,22 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <
   return ParallelExodusDatabase{M, I, B, F, n_procs}(
     exos, nem, mode, init_global, lb_params, cmap_params
   )
+end
+
+function Base.show(io::IO, exo::ParallelExodusDatabase)
+  # first print nem file
+  print(io, "Mode: $(exo.mode)\n\n")
+  print(io, "Nemesis file:\n", exo.nem, "\n\n")
+  print(io, "Global initialization:\n", exo.init_global, "\n\n")
+  n_procs = length(exo.exos)
+  for proc in 1:n_procs
+    print(
+      io, "Processor $proc:\n",
+          exo.exos[proc], "\n\n",
+          exo.lb_params[proc], "\n",
+          exo.cmap_params[proc], "\n"
+    )
+  end
 end
 
 function Base.close(p::ParallelExodusDatabase)
@@ -211,7 +226,47 @@ function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, ele
   return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
+struct ProcessorNodeMaps{B}
+  node_map_internal::Vector{B}
+  node_map_border::Vector{B}
+  node_map_external::Vector{B}
+end
+
+function ProcessorNodeMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
+  node_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_nodes)
+  node_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_nodes)
+  node_map_external = Vector{B}(undef, exo.lb_params[processor].num_ext_nodes)
+  
+  error_code = @ccall libexodus.ex_get_processor_node_maps(
+    get_file_id(exo.exos[processor])::Cint, 
+    node_map_internal::Ptr{B}, node_map_border::Ptr{B}, node_map_external::Ptr{B},
+    processor::Cint
+  )::Cint
+  exodus_error_check(error_code, "Exodus.ProcessorNodeMap -> libexodus.ex_get_processor_node_maps")
+  return ProcessorNodeMaps{B}(node_map_internal, node_map_border, node_map_external)
+end
+
+struct ProcessorElementMaps{B}
+  elem_map_internal::Vector{B}
+  elem_map_border::Vector{B}
+end
+
+function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
+  elem_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_elems)
+  elem_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_elems)
+
+  error_code = @ccall libexodus.ex_get_processor_elem_maps(
+    get_file_id(exo.exos[processor])::Cint,
+    elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
+    processor::Cint
+  )::Cint
+  exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
+  return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
+end
+
 export ElementCommunicationMap
 export LoadBalanceParameters
 export NodeCommunicationMap
 export ParallelExodusDatabase
+export ProcessorElementMaps
+export ProcessorNodeMaps
