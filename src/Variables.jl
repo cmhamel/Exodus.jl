@@ -367,7 +367,7 @@ write_variable_names(exo, var_names, EX_SIDE_SET)
 function write_variable_values(
   exo::ExodusDatabase, 
   timestep::Integer, id::Integer, var_index::Integer, 
-  var_values::Vector{<:Real}, 
+  var_values::Vector{<:AbstractFloat}, 
   type::ex_entity_type
 )
   num_nodes = size(var_values, 1)
@@ -384,7 +384,7 @@ end
 function write_variable_values(
   exo::ExodusDatabase, 
   time_step::Integer, id::Integer, var_name::String, 
-  var_value::Vector{<:Real},
+  var_value::Vector{<:AbstractFloat},
   type::ex_entity_type
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
@@ -400,7 +400,7 @@ end
 function write_variable_values(
   exo::ExodusDatabase, 
   time_step::Integer, var_name::String, set_name::String, 
-  var_value::Vector{<:Real},
+  var_value::Vector{<:AbstractFloat},
   type::ex_entity_type
 )
   var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
@@ -418,55 +418,55 @@ end
 
 """
 """
-write_element_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:Real}) = 
+write_element_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_index, var_values, EX_ELEM_BLOCK)
 
 """
 """
-write_element_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:Real}) = 
+write_element_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_name, var_values, EX_ELEM_BLOCK)
 
 """
 """
-write_global_variable_values(exo::ExodusDatabase, timestep::Integer, var_values::Vector{<:Real}) = 
+write_global_variable_values(exo::ExodusDatabase, timestep::Integer, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, 1, 1, var_values, EX_GLOBAL)
 
 """
 """
-write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, var_index::Integer, var_values::Vector{<:Real}) = 
+write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, var_index::Integer, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, 1, var_index, var_values, EX_NODAL)
 
 """
 """
-write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, var_name::String, var_values::Vector{<:Real}) = 
+write_nodal_variable_values(exo::ExodusDatabase, timestep::Integer, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, 1, var_name, var_values, EX_NODAL)
 
 """
 """
-write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:Real}) = 
+write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_index, var_values, EX_NODE_SET)
 
 """
 """
-write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:Real}) = 
+write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_name, var_values, EX_NODE_SET)
 
 """
 """
-write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, set_name::String, var_name::String, var_values::Vector{<:Real}) = 
+write_node_set_variable_values(exo::ExodusDatabase, timestep::Integer, set_name::String, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, set_name, var_name, var_values, EX_NODE_SET)
 
 """
 """
-write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:Real}) = 
+write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_index::Integer, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_index, var_values, EX_SIDE_SET)
 
 """
 """
-write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:Real}) = 
+write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, id::Integer, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, id, var_name, var_values, EX_SIDE_SET)
 
 """
 """
-write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, set_name::String, var_name::String, var_values::Vector{<:Real}) = 
+write_side_set_variable_values(exo::ExodusDatabase, timestep::Integer, set_name::String, var_name::String, var_values::Vector{<:AbstractFloat}) = 
 write_variable_values(exo, timestep, set_name, var_name, var_values, EX_SIDE_SET)

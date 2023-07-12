@@ -49,7 +49,7 @@ end
 
 # """
 # """
-# mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: Real}
+# mutable struct ExodusDatabase{M <: Integer, I <: Integer, B <: Integer, F <: AbstractFloat}
 #   """
 #   ID of exodus file
 #   """
