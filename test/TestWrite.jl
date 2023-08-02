@@ -56,6 +56,8 @@
   partial_coords = read_partial_coordinates_component(exo, 2, 2, "x")
   @test partial_coords == temp
 
+  close(exo)
+
   Base.Filesystem.rm("test_write_1D_mesh.e")
 end
 
