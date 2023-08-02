@@ -56,6 +56,8 @@ number_of_elements_3D = 512
     @test nset_name == nset_names_gold[n]
   end
 
+  nsets = read_sets(exo, NodeSet)
+
   # qa
   qa = read_qa(exo)
   @test qa[1, 1] == "CUBIT"
@@ -73,6 +75,14 @@ number_of_elements_3D = 512
     @test length(sset.elements) == number_of_node_set_nodes_2D - 1
     @test length(sset.sides)    == number_of_node_set_nodes_2D - 1
   end
+
+  sset_names = read_names(exo, SideSet)
+  sset_names_gold = ["sset_1", "sset_2", "sset_3", "sset_4"]
+  for (n, sset_name) in enumerate(sset_names)
+    @test sset_name == sset_names_gold[n]
+  end
+
+  ssets = read_sets(exo, SideSet)
 
   close(exo)
 end

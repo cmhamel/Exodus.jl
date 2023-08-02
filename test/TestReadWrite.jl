@@ -4,6 +4,10 @@
   init_old = Initialization(exo_old)
   coords_old = read_coordinates(exo_old)
   coord_names_old = read_coordinate_names(exo_old)
+  nsets = read_sets(exo_old, NodeSet)
+  nset_names = read_names(exo_old, NodeSet)
+  ssets = read_sets(exo_old, SideSet)
+  sset_names = read_names(exo_old, SideSet)
   qa_old = read_qa(exo_old)
   close(exo_old)
 
@@ -32,12 +36,39 @@
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"
 
+  # nodesets
+  for nset in nsets
+    write_set(exo_new, nset)
+    temp_nset = read_set(exo_new, NodeSet, nset.id)
+    @test temp_nset.id == nset.id
+    @test temp_nset.nodes == nset.nodes
+  end
+
+  nset_names_gold = ["nset_1", "nset_2", "nset_3", "nset_4"]
+  write_names(exo_new, NodeSet, nset_names_gold)
+  nset_names = read_names(exo_new, NodeSet)
+  @test nset_names == nset_names_gold
+
   # qa
   write_qa(exo_new, qa_old)
   qa_new = read_qa(exo_new)
   for n in eachindex(qa_old)
     @test qa_old[n] == qa_new[n]
   end
+
+  # sideset
+  for sset in ssets
+    write_set(exo_new, sset)
+    temp_sset = read_set(exo_new, SideSet, sset.id)
+    @test temp_sset.id == sset.id
+    @test temp_sset.elements == sset.elements
+    @test temp_sset.sides == sset.sides
+  end
+
+  sset_names_gold = ["sset_1", "sset_2", "sset_3", "sset_4"]
+  write_names(exo_new, SideSet, sset_names_gold)
+  sset_names = read_names(exo_new, SideSet)
+  @test sset_names == sset_names_gold
 
   # times
   write_time(exo_new, 1, 0.)

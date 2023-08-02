@@ -37,13 +37,9 @@ export read_element_variable_values
 export read_global_variable_name
 export read_global_variable_names
 export read_global_variable_values
-
 export read_ids
-
 export read_info
-
 export read_names
-
 export read_nodal_variable_name
 export read_nodal_variable_names
 export read_nodal_variable_values
@@ -61,8 +57,8 @@ export read_number_of_nodal_variables
 export read_number_of_node_set_variables
 export read_number_of_side_set_variables
 export read_number_of_time_steps
-export read_side_set_elements_and_sides
-export read_side_set_node_list
+export read_set
+export read_sets
 export read_side_set_variable_name
 export read_side_set_variable_names
 export read_side_set_variable_values
@@ -85,16 +81,14 @@ export write_global_variable_names
 export write_global_variable_values
 export write_info
 export write_initialization!
+export write_name
+export write_names
 export write_nodal_variable_name
 export write_nodal_variable_names
 export write_nodal_variable_values
-export write_node_set
-export write_node_set_name
-export write_node_set_names
 export write_node_set_variable_name
 export write_node_set_variable_names
 export write_node_set_variable_values
-export write_node_sets
 export write_number_of_element_variables
 export write_number_of_global_variables
 export write_number_of_nodal_variables
@@ -103,13 +97,10 @@ export write_number_of_side_set_variables
 export write_partial_coordinates
 export write_partial_coordinates_component
 export write_qa
-export write_side_set
-export write_side_set_name
-export write_side_set_names
+export write_set
 export write_side_set_variable_name
 export write_side_set_variable_names
 export write_side_set_variable_values
-export write_side_sets
 export write_time
 
 # exported parallel methods - note not all are exported on purpose
