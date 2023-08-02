@@ -17,5 +17,6 @@ end
 # @includetests ARGS
 include("TestRead.jl")
 include("TestReadWrite.jl")
+include("TestWrite.jl")
 
 Aqua.test_all(Exodus)

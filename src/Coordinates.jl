@@ -106,8 +106,6 @@ function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num:
     coord_id = 2
   elseif lowercase(component) == "z"
     coord_id = 3
-  else
-    throw(ErrorException("undefined coordinate component $component"))
   end
   return read_partial_coordinates_component(exo, start_node_num, num_nodes, coord_id)
 end
@@ -134,12 +132,25 @@ end
 """
 Method to write coordinates
 """
-function write_coordinates(exo::ExodusDatabase, coords::Matrix{F}) where {F <: AbstractFloat}
-  if size(coords, 1) != exo.init.num_dim || size(coords, 2) != exo.init.num_nodes
-    throw(ErrorException("Invalid set of coordinates (of size $(size(coords))) to write to exo = $exo"))
+function write_coordinates(exo::ExodusDatabase, coords::VecOrMat{F}) where {F <: AbstractFloat}
+  # if size(coords, 1) != exo.init.num_dim || size(coords, 2) != exo.init.num_nodes
+  #   throw(ErrorException("Invalid set of coordinates (of size $(size(coords))) to write to exo = $exo"))
+  # end
+
+  if length(size(coords)) == 1
+    if length(coords) != exo.init.num_nodes
+      throw(ErrorException("Invalid set of coordinates of size $(size(coords)) to write to exo = $exo"))
+    end
+  elseif length(size(coords)) == 2
+    if size(coords, 2) != exo.init.num_nodes
+      throw(ErrorException("Invalid set of coordinates of size $(size(coords)) to write to exo = $exo"))
+    end
   end
-  if size(coords, 1) == 1
-    x_coords = coords[1, :]
+
+  # if size(coords, 1) == 1
+  if length(size(coords)) == 1
+    # x_coords = coords[1, :]
+    x_coords = coords
     y_coords = C_NULL
     z_coords = C_NULL
   elseif size(coords, 1) == 2

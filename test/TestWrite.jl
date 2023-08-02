@@ -1,4 +1,44 @@
-@testset ExtendedTestSet "Write example" begin
+@exodus_unit_test_set "Test Read/Write ExodusDatabase - 1D Mesh" begin
+  coords = [0.0, 0.25, 0.5, 0.75, 1.0]
+  conn = [
+    1 2
+    2 3
+    3 4
+    4 5
+  ]
+  
+  # set the types
+  maps_int_type = Int32
+  ids_int_type  = Int32
+  bulk_int_type = Int32
+  float_type    = Float64
+
+  # initialization parameters
+  # num_dim, num_nodes = size(coords)
+  num_dim       = 1
+  num_nodes     = size(coords, 1)
+  num_elems     = size(conn, 1)
+  num_elem_blks = 1
+  num_side_sets = 0
+  num_node_sets = 0
+
+  # create exodus database
+  exo = ExodusDatabase(
+    "test_write_1D_mesh.e";
+    maps_int_type, ids_int_type, bulk_int_type, float_type,
+    num_dim, num_nodes, num_elems,
+    num_elem_blks, num_node_sets, num_side_sets
+  )
+  
+  # how to write coordinates
+  write_coordinates(exo, coords)
+  coords_read = read_coordinates(exo)
+  @test coords == coords_read[1, :]
+
+  Base.Filesystem.rm("test_write_1D_mesh.e")
+end
+
+@exodus_unit_test_set "Write example - 2D Mesh" begin
   # data to write
   coords = [
     1.0 0.5 0.5 1.0 0.0 0.0 0.5 1.0 0.0
@@ -34,13 +74,11 @@
 
   # create exodus database
   exo = ExodusDatabase(
-    "test_write.e";
+    "test_write_2D_mesh.e";
     maps_int_type, ids_int_type, bulk_int_type, float_type,
     num_dim, num_nodes, num_elems,
     num_elem_blks, num_node_sets, num_side_sets
   )
-
-  @show exo
   
   # how to write coordinates
   write_coordinates(exo, coords)
@@ -81,5 +119,6 @@
   # don't forget to close the exodusdatabase, it can get corrupted otherwise if you're writing
   close(exo)
 
-  rm("test_write.e")
+  # rm("test_write.e")
+  Base.Filesystem.rm("test_write_2D_mesh.e")
 end
