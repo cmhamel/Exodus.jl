@@ -5,8 +5,11 @@ module Exodus
 
 # exported types
 export Block
+export Element
 export ExodusDatabase
+export Global
 export Initialization
+export Nodal
 export NodeSet
 export SideSet
 
@@ -29,7 +32,6 @@ export read_element_block_ids
 export read_element_block_names
 export read_element_block_connectivity
 export read_element_block_parameters
-export read_element_map
 export read_element_type
 export read_element_variable_name
 export read_element_variable_names
@@ -39,6 +41,7 @@ export read_global_variable_names
 export read_global_variable_values
 export read_ids
 export read_info
+export read_map
 export read_names
 export read_nodal_variable_name
 export read_nodal_variable_names

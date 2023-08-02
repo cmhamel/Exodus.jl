@@ -1,9 +1,11 @@
 """
 """
 function read_number_of_variables(exo::ExodusDatabase, type::ex_entity_type)
+# function read_number_of_variables(exo::ExodusDatabase, type::Type{S}) where S <: AbstractExodusType
   num_vars = Ref{Cint}(0)
   error_code = @ccall libexodus.ex_get_variable_param(
     get_file_id(exo)::Cint, type::ex_entity_type, num_vars::Ptr{Cint}
+    # get_file_id(exo)::Cint, entity_type(type)::ex_entity_type, num_vars::Ptr{Cint}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_number_of_variables -> libexodus.ex_get_variable_param")
   return num_vars[]

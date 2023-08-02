@@ -35,7 +35,10 @@ get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
 
 # sets and blocks
-abstract type AbstractSet{I, B} end
+abstract type AbstractExodusType end
+abstract type AbstractSet{I, B} <: AbstractExodusType end
+abstract type AbstractVariable <: AbstractExodusType end
+
 
 """
 """
@@ -120,3 +123,18 @@ print(
   "\tNumber of elements = ", length(sset.elements), "\n",
   "\tNumber of sides    = ", length(sset.sides),    "\n"
 )
+
+struct Element <: AbstractVariable
+end
+
+struct Global <: AbstractVariable
+end
+
+struct Nodal <: AbstractVariable
+end
+
+entity_type(::Type{S}) where S <: Element = EX_ELEM
+entity_type(::Type{S}) where S <: Global  = EX_GLOBAL
+entity_type(::Type{S}) where S <: Nodal   = EX_NODAL
+entity_type(::Type{S}) where S <: NodeSet = EX_NODE_SET
+entity_type(::Type{S}) where S <: SideSet = EX_SIDE_SET

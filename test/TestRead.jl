@@ -40,6 +40,10 @@ number_of_elements_3D = 512
   @test exo.init.num_node_sets == 4
   @test exo.init.num_side_sets == 4
 
+  # maps
+  elem_map = read_map(exo)
+  @test length(elem_map) == exo.init.num_elems 
+
   # nodesets
   nset_ids = read_ids(exo, NodeSet)
   @test nset_ids == [1, 2, 3 ,4]
