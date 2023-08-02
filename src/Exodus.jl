@@ -98,6 +98,7 @@ export write_partial_coordinates
 export write_partial_coordinates_component
 export write_qa
 export write_set
+export write_sets
 export write_side_set_variable_name
 export write_side_set_variable_names
 export write_side_set_variable_values

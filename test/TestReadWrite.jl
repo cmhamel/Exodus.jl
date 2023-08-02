@@ -44,10 +44,24 @@
     @test temp_nset.nodes == nset.nodes
   end
 
+  write_sets(exo_new, nsets)
+  for nset in nsets
+    temp_nset = read_set(exo_new, NodeSet, nset.id)
+    @test temp_nset.id == nset.id
+    @test temp_nset.nodes == nset.nodes
+  end
+
   nset_names_gold = ["nset_1", "nset_2", "nset_3", "nset_4"]
   write_names(exo_new, NodeSet, nset_names_gold)
   nset_names = read_names(exo_new, NodeSet)
   @test nset_names == nset_names_gold
+
+  for (n, nset_name) in enumerate(nset_names_gold)
+    write_name(exo_new, nsets[n], nset_name)
+    temp_nset = read_set(exo_new, NodeSet, nsets[n].id)
+    @test temp_nset.id == nsets[n].id
+    @test temp_nset.nodes == nsets[n].nodes
+  end
 
   # qa
   write_qa(exo_new, qa_old)
@@ -65,10 +79,26 @@
     @test temp_sset.sides == sset.sides
   end
 
+  write_sets(exo_new, ssets)
+  for sset in ssets
+    temp_sset = read_set(exo_new, SideSet, sset.id)
+    @test temp_sset.id == sset.id
+    @test temp_sset.elements == sset.elements
+    @test temp_sset.sides == sset.sides
+  end
+
   sset_names_gold = ["sset_1", "sset_2", "sset_3", "sset_4"]
   write_names(exo_new, SideSet, sset_names_gold)
   sset_names = read_names(exo_new, SideSet)
   @test sset_names == sset_names_gold
+
+  for (n, sset_name) in enumerate(sset_names_gold)
+    write_name(exo_new, ssets[n], sset_name)
+    temp_sset = read_set(exo_new, SideSet, ssets[n].id)
+    @test temp_sset.id == ssets[n].id
+    @test temp_sset.elements == ssets[n].elements
+    @test temp_sset.sides == ssets[n].sides
+  end
 
   # times
   write_time(exo_new, 1, 0.)

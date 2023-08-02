@@ -133,8 +133,6 @@ function write_set_parameters(exo::ExodusDatabase{M, I, B, F}, set::T) where {M,
     type = EX_NODE_SET
   elseif T == SideSet{I, B}
     type = EX_SIDE_SET
-  else
-    throw(ErrorException("Incompatable ExodusDatabase and AbstractSet types"))
   end
   error_code = @ccall libexodus.ex_put_set_param(
     get_file_id(exo)::Cint, type::ex_entity_type, set.id::Clonglong, # should be ex_entity_id
@@ -152,8 +150,6 @@ function write_set(exo::ExodusDatabase{M, I, B, F}, set::T) where {T <: Abstract
     type = EX_NODE_SET
   elseif T == SideSet{I, B}
     type = EX_SIDE_SET
-  else
-    throw(ErrorException("Incompatable ExodusDatabase and AbstractSet types"))
   end
   write_set_parameters(exo, set)
   error_code = @ccall libexodus.ex_put_set(
@@ -173,7 +169,7 @@ end
 
 """
 """
-function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{T}, name::String) where {M, I, B, F, T <: AbstractSet}
+function write_name(exo::ExodusDatabase{M, I, B, F}, set::T, name::String) where {M, I, B, F, T <: AbstractSet}
   if T <: NodeSet
     ex_type = EX_NODE_SET
   elseif T <: SideSet
