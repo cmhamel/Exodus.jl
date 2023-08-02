@@ -14,6 +14,8 @@ macro exodus_unit_test_set(test_name::String, ex)
   end
 end
 
-@includetests ARGS
+# @includetests ARGS
+include("TestRead.jl")
+include("TestReadWrite.jl")
 
 Aqua.test_all(Exodus)

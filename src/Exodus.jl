@@ -37,6 +37,9 @@ export read_element_variable_values
 export read_global_variable_name
 export read_global_variable_names
 export read_global_variable_values
+
+export read_ids
+
 export read_info
 export read_nodal_variable_name
 export read_nodal_variable_names
@@ -157,6 +160,9 @@ include("QA.jl")
 # the basic stuff
 include("Coordinates.jl")
 include("Times.jl")
+
+# IDs of sets, blocks, etc.
+include("IDs.jl")
 
 # maps
 include("Maps.jl")
