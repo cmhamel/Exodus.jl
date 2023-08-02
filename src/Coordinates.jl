@@ -229,8 +229,6 @@ function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num
     coord_id = 2
   elseif lowercase(component) == "z"
     coord_id = 3
-  else
-    throw(ErrorException("undefined coordinate component $component"))
   end
   coords = convert(Vector{get_float_type(exo)}, coords)
   write_partial_coordinates_component(exo, start_node_num, coord_id, coords)

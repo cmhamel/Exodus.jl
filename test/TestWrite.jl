@@ -166,3 +166,72 @@ end
   # rm("test_write.e")
   Base.Filesystem.rm("test_write_2D_mesh.e")
 end
+
+@exodus_unit_test_set "Write example - 3D Mesh" begin
+  coords = [
+    0.0 1.0 1.0 0.0 0.0 1.0 1.0 0.0
+    0.0 0.0 1.0 1.0 0.0 0.0 1.0 1.0
+    0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0
+  ]
+
+  conn = [
+    1 2 3 4 5 6 7 8
+  ]
+
+  # set the types
+  maps_int_type = Int32
+  ids_int_type  = Int32
+  bulk_int_type = Int32
+  float_type    = Float64
+
+  # initialization parameters
+  num_dim, num_nodes = 3, 8
+  num_elems          = 1
+  num_elem_blks      = 1
+  num_side_sets      = 0
+  num_node_sets      = 0
+
+  # create exodus database
+  exo = ExodusDatabase(
+    "test_write_3D_mesh.e";
+    maps_int_type, ids_int_type, bulk_int_type, float_type,
+    num_dim, num_nodes, num_elems,
+    num_elem_blks, num_node_sets, num_side_sets
+  )
+
+  # how to write coordinates
+  write_coordinates(exo, coords)
+  # test bad coordinates write
+  @test_throws ErrorException write_coordinates(exo, randn(100, 4))
+  # test partial coord write/read
+  temp = randn(3, 2)
+  write_partial_coordinates(exo, 2, temp)
+  partial_coords = read_partial_coordinates(exo, 2, 2)
+  @test partial_coords == temp
+  # test partial coord write/read with component index
+  temp = randn(3, 2)
+  write_partial_coordinates_component(exo, 2, 1, temp[1, :])
+  write_partial_coordinates_component(exo, 2, 2, temp[2, :])
+  write_partial_coordinates_component(exo, 2, 3, temp[3, :])
+  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, 1)
+  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, 2)
+  partial_coords_z = read_partial_coordinates_component(exo, 2, 2, 3)
+  @test partial_coords_x == temp[1, :]
+  @test partial_coords_y == temp[2, :]
+  @test partial_coords_z == temp[3, :]
+  # test partial coord write/read with component name
+  temp = randn(3, 2)
+  write_partial_coordinates_component(exo, 2, "x", temp[1, :])
+  write_partial_coordinates_component(exo, 2, "y", temp[2, :])
+  write_partial_coordinates_component(exo, 2, "z", temp[3, :])
+  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, "x")
+  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, "y")
+  partial_coords_z = read_partial_coordinates_component(exo, 2, 2, "z")
+  @test partial_coords_x == temp[1, :]
+  @test partial_coords_y == temp[2, :]
+  @test partial_coords_z == temp[3, :]
+
+  close(exo)
+
+  Base.Filesystem.rm("test_write_3D_mesh.e")
+end
