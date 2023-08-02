@@ -184,23 +184,26 @@ end
 
 """
 """
-function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::Matrix{F}) where {I <: Integer, F <: AbstractFloat}
-  coords = convert(Matrix{get_float_type(exo)}, coords)
-  if size(coords, 1) == 1
-    x_coords = coords[1, :]
+function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::VecOrMat{F}) where {I <: Integer, F <: AbstractFloat}
+  coords = convert(VecOrMat{get_float_type(exo)}, coords)
+  if length(size(coords)) == 1
+    x_coords = coords
     y_coords = C_NULL
     z_coords = C_NULL
+    num_nodes = length(coords)
   elseif size(coords, 1) == 2
     x_coords = coords[1, :]
     y_coords = coords[2, :]
     z_coords = C_NULL
+    num_nodes = size(coords, 2)
   elseif size(coords, 1) == 3
     x_coords = coords[1, :]
     y_coords = coords[2, :]
     z_coords = coords[3, :]
+    num_nodes = size(coords, 2)
   end
   error_code = @ccall libexodus.ex_put_partial_coord(
-    get_file_id(exo)::Cint, start_node_num::Clonglong, size(coords, 2)::Clonglong,
+    get_file_id(exo)::Cint, start_node_num::Clonglong, num_nodes::Clonglong,
     x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
   )::Cint
   exodus_error_check(error_code, "Exodus.write_partial_coordinates -> libexodus.ex_put_partial_coord")
