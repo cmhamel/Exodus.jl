@@ -15,6 +15,10 @@ macro exodus_unit_test_set(test_name::String, ex)
 end
 
 # @includetests ARGS
+include("TestDecomp.jl")
+include("TestEpu.jl")
+include("TestErrors.jl")
+include("TestExoDiff.jl")
 include("TestRead.jl")
 include("TestReadWrite.jl")
 include("TestWrite.jl")

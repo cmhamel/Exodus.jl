@@ -39,6 +39,14 @@
     @test qa_old[n] == qa_new[n]
   end
 
+  # times
+  write_time(exo_new, 1, 0.)
+  write_time(exo_new, 2, 1.)
+  n_steps = read_number_of_time_steps(exo_new)
+  times = read_times(exo_new)
+  @test n_steps == 2
+  @test times == [0., 1.]
+
   close(exo_new)
 
   Base.Filesystem.rm("./test_output_2D_Mesh.e")
