@@ -4,11 +4,20 @@
   init_old = Initialization(exo_old)
   coords_old = read_coordinates(exo_old)
   coord_names_old = read_coordinate_names(exo_old)
-
+  qa_old = read_qa(exo_old)
   close(exo_old)
 
-  # init
   exo_new = ExodusDatabase("./test_output_2D_Mesh.e", init_old)
+
+  # info
+  info = ["info entry 1", "info entry 2", "info entry 3"]
+  write_info(exo_new, info)
+  new_info = read_info(exo_new)
+  for n in eachindex(info)
+    @test info[n] == new_info[n]
+  end
+
+  # init
   @test init_old == exo_new.init
 
   # coordinate values
@@ -22,6 +31,13 @@
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"
+
+  # qa
+  write_qa(exo_new, qa_old)
+  qa_new = read_qa(exo_new)
+  for n in eachindex(qa_old)
+    @test qa_old[n] == qa_new[n]
+  end
 
   close(exo_new)
 

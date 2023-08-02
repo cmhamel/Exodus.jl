@@ -31,6 +31,13 @@ number_of_elements_3D = 512
   coord_names = read_coordinate_names(exo)
   @test coord_names == ["x", "y"]
 
+  # qa
+  qa = read_qa(exo)
+  @test qa[1, 1] == "CUBIT"
+  @test qa[1, 2] == "2021.5"     # may change
+  @test qa[1, 3] == "06/29/2023" # may change
+  @test qa[1, 4] == "19:34:08"   # may change
+
   close(exo)
 end
 
