@@ -1,5 +1,6 @@
 using Aqua
 using Exodus
+using Exodus_jll
 using Test
 using TestSetExtensions
 
@@ -11,6 +12,17 @@ macro exodus_unit_test_set(test_name::String, ex)
       local val = $ex
       val
     end
+  end
+end
+
+# copy 
+@exodus_unit_test_set "copy" begin
+  exo = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
+  copy(exo, "./copy_test.e")
+  close(exo)
+
+  Exodus_jll.exodiff_exe() do exe
+    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
   end
 end
 
