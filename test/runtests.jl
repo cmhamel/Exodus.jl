@@ -14,6 +14,11 @@ macro exodus_unit_test_set(test_name::String, ex)
   end
 end
 
+# simple test of error handling capability
+@exodus_unit_test_set "Test Errors working" begin
+  @test_throws ErrorException Exodus.exodus_error_check(-1, "JohnSmithMethod")
+end
+
 # @includetests ARGS
 include("TestDecomp.jl")
 # include("TestEpu.jl")
