@@ -47,13 +47,9 @@ export read_names
 export read_nodal_variable_name
 export read_nodal_variable_names
 export read_nodal_variable_values
-export read_node_set_ids
-export read_node_set_names
-export read_node_set_parameters
 export read_node_set_variable_name
 export read_node_set_variable_names
 export read_node_set_variable_values
-export read_node_sets
 export read_partial_coordinates
 export read_partial_coordinates_component
 export read_partial_element_block_connectivity
@@ -65,15 +61,11 @@ export read_number_of_nodal_variables
 export read_number_of_node_set_variables
 export read_number_of_side_set_variables
 export read_number_of_time_steps
-export read_side_set_ids
-export read_side_set_names
-export read_side_set_parameters
 export read_side_set_elements_and_sides
 export read_side_set_node_list
 export read_side_set_variable_name
 export read_side_set_variable_names
 export read_side_set_variable_values
-export read_side_sets
 export read_time
 export read_times
 
