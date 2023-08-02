@@ -58,6 +58,9 @@ end
 """
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
   nodes = read_node_set_nodes(exo, id)
+  @show nodes
+  @show id
+  # @show NodeSet{I, B}(id, nodes)
   return NodeSet{I, B}(id, nodes)
 end
 

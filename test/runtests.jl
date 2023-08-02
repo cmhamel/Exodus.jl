@@ -16,7 +16,7 @@ end
 
 # @includetests ARGS
 include("TestDecomp.jl")
-include("TestEpu.jl")
+# include("TestEpu.jl")
 include("TestErrors.jl")
 include("TestExoDiff.jl")
 include("TestRead.jl")

@@ -46,6 +46,8 @@
   times = read_times(exo_new)
   @test n_steps == 2
   @test times == [0., 1.]
+  @test read_time(exo_new, 1) == 0.
+  @test read_time(exo_new, 2) == 1.
 
   close(exo_new)
 

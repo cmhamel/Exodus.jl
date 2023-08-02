@@ -1,5 +1,45 @@
 """
 """
+function read_ids(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, B, F, S <: AbstractSet}
+  if type <: NodeSet
+    num_entries = exo.init.num_node_sets
+    type = EX_NODE_SET
+  elseif type <: SideSet
+    num_entries = exo.init.num_side_sets
+    type = EX_SIDE_SET
+  end
+  ids = Vector{B}(undef, num_entries)
+  ids = Vector{B}(undef, num_entries)
+  error_code = @ccall libexodus.ex_get_ids(
+    get_file_id(exo)::Cint, type::ex_entity_type, ids::Ptr{B}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
+  return ids
+end
+
+"""
+"""
+function read_names(exo::ExodusDatabase, type::Type{S}) where {S}
+  if type <: NodeSet
+    ex_type = EX_NODE_SET
+  elseif type <: SideSet
+    ex_type = EX_SIDE_SET
+  end
+  names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_ids(exo, type))]
+  error_code = @ccall libexodus.ex_get_names(
+    get_file_id(exo)::Cint, ex_type::ex_entity_type, names::Ptr{Ptr{UInt8}}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_set_names -> libexodus.ex_get_names")
+  new_names = map(x -> unsafe_string(pointer(x)), names)
+  return new_names
+end
+
+######################################
+# old bel
+#########################################
+
+"""
+"""
 function read_set_ids(exo::ExodusDatabase{M, I, B, F}, type::ex_entity_type) where {M, I, B, F}
   if type == EX_NODE_SET
     num_entries = exo.init.num_node_sets
@@ -13,34 +53,6 @@ function read_set_ids(exo::ExodusDatabase{M, I, B, F}, type::ex_entity_type) whe
   exodus_error_check(error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
   return ids
 end
-
-"""
-"""
-read_node_set_ids(exo::ExodusDatabase) = read_set_ids(exo, EX_NODE_SET)
-"""
-"""
-read_side_set_ids(exo::ExodusDatabase) = read_set_ids(exo, EX_SIDE_SET)
-
-
-"""
-"""
-function read_set_names(exo::ExodusDatabase, type::ex_entity_type)
-  names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_set_ids(exo, type))]
-  error_code = @ccall libexodus.ex_get_names(
-    get_file_id(exo)::Cint, type::ex_entity_type, names::Ptr{Ptr{UInt8}}
-  )::Cint
-  exodus_error_check(error_code, "Exodus.read_set_names -> libexodus.ex_get_names")
-  new_names = map(x -> unsafe_string(pointer(x)), names)
-  return new_names
-end
-
-"""
-"""
-read_node_set_names(exo::ExodusDatabase) = read_set_names(exo, EX_NODE_SET)
-
-"""
-"""
-read_side_set_names(exo::ExodusDatabase) = read_set_names(exo, EX_SIDE_SET)
 
 """
 """
@@ -126,26 +138,26 @@ end
 
 """
 """
-function read_sets!(sets::Vector{T}, exo::ExodusDatabase, set_ids::Vector{I}) where {I <: Integer, T <: AbstractSet}
+function read_sets!(sets::Vector{T}, exo::ExodusDatabase, set_ids::Vector{I}) where {T <: AbstractSet, I}
+  if T <: NodeSet
+    type = NodeSet
+  elseif T <: SideSet
+    type = SideSet
+  end
+
   for n in eachindex(sets)
-    sets[n] = T(exo, set_ids[n])
+    sets[n] = type(exo, set_ids[n])
   end
 end
 
 """
 """
-function read_sets(exo::ExodusDatabase, set_ids::Vector{I}, type::Type{T}) where {I <: Integer, T <: AbstractSet}
-  sets = Vector{type}(undef, length(set_ids))
+function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, B, F, S <: AbstractSet}
+  set_ids = read_ids(exo, type)
+  sets = Vector{S{I, B}}(undef, length(set_ids))
   read_sets!(sets, exo, set_ids)
   return sets
 end
-
-"""
-"""
-read_node_sets(exo::ExodusDatabase, set_ids::Vector{<:Integer}) = read_sets(exo, set_ids, NodeSet)
-"""
-"""
-read_side_sets(exo::ExodusDatabase, set_ids::Vector{<:Integer}) = read_sets(exo, set_ids, SideSet)
 
 """
 WARNING:

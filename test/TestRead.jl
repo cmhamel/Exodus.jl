@@ -1,6 +1,7 @@
 mesh_file_name_2D = "./mesh/square_meshes/mesh_test.g"
 number_of_nodes_2D = 16641
 number_of_elements_2D = 128^2
+number_of_node_set_nodes_2D = 128 + 1
 
 mesh_file_name_3D = "./mesh/cube_meshes/mesh_test.g"
 number_of_nodes_3D = 729
@@ -39,12 +40,39 @@ number_of_elements_3D = 512
   @test exo.init.num_node_sets == 4
   @test exo.init.num_side_sets == 4
 
+  # nodesets
+  nset_ids = read_ids(exo, NodeSet)
+  @test nset_ids == [1, 2, 3 ,4]
+
+  for (id, nset_id) in enumerate(nset_ids)
+    nset = NodeSet(exo, nset_id)
+    @test nset.id == id
+    @test length(nset.nodes) == number_of_node_set_nodes_2D
+  end
+
+  nset_names = read_names(exo, NodeSet)
+  nset_names_gold = ["nset_1", "nset_2", "nset_3", "nset_4"]
+  for (n, nset_name) in enumerate(nset_names)
+    @test nset_name == nset_names_gold[n]
+  end
+
   # qa
   qa = read_qa(exo)
   @test qa[1, 1] == "CUBIT"
   @test qa[1, 2] == "2021.5"     # may change
   @test qa[1, 3] == "06/29/2023" # may change
   @test qa[1, 4] == "19:34:08"   # may change
+
+  # sidesets
+  sset_ids = read_ids(exo, SideSet)
+  @test sset_ids == [1, 2, 3, 4]
+
+  for (id, sset_id) in enumerate(sset_ids)
+    sset = SideSet(exo, sset_id)
+    @test sset.id == id
+    @test length(sset.elements) == number_of_node_set_nodes_2D - 1
+    @test length(sset.sides)    == number_of_node_set_nodes_2D - 1
+  end
 
   close(exo)
 end
@@ -85,6 +113,10 @@ end
   @test exo.init.num_elem_blks == 1
   @test exo.init.num_node_sets == 6
   @test exo.init.num_side_sets == 6
+
+  # nodesets
+  nset_ids = read_ids(exo, NodeSet)
+  @test nset_ids == [1, 2, 3, 4, 5, 6]
 
   close(exo)
 end
