@@ -31,6 +31,14 @@ number_of_elements_3D = 512
   coord_names = read_coordinate_names(exo)
   @test coord_names == ["x", "y"]
 
+  # init
+  @test exo.init.num_dim       == 2
+  @test exo.init.num_nodes     == number_of_nodes_2D
+  @test exo.init.num_elems     == number_of_elements_2D
+  @test exo.init.num_elem_blks == 1
+  @test exo.init.num_node_sets == 4
+  @test exo.init.num_side_sets == 4
+
   # qa
   qa = read_qa(exo)
   @test qa[1, 1] == "CUBIT"
@@ -69,6 +77,14 @@ end
   # coordinate names
   coord_names = read_coordinate_names(exo)
   @test coord_names == ["x", "y", "z"]
+
+  # init
+  @test exo.init.num_dim       == 3
+  @test exo.init.num_nodes     == number_of_nodes_3D
+  @test exo.init.num_elems     == number_of_elements_3D
+  @test exo.init.num_elem_blks == 1
+  @test exo.init.num_node_sets == 6
+  @test exo.init.num_side_sets == 6
 
   close(exo)
 end
