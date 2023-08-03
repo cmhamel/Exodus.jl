@@ -23,10 +23,8 @@ function exo_int_types(exoid::Cint)
     maps_int_type = Cint
     ids_int_type = Cint
     bulk_int_type = Cint
-  # TODO this will break for non 32 bit case
-  # TODO figure out other cases from hex codes in exodusII.h
-  else
-    error("This should never happen")
+    # TODO this will break for non 32 bit case
+    # TODO figure out other cases from hex codes in exodusII.h
   end
   return maps_int_type, ids_int_type, bulk_int_type
 end
@@ -41,8 +39,6 @@ function exo_float_type(exoid::Cint)
     float_type = Cfloat
   elseif float_size == 8
     float_type = Cdouble
-  else
-    error("This should never happen")
   end
   return float_type
 end
