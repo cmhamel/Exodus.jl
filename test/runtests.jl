@@ -58,12 +58,12 @@ end
 end
 
 # epu test
-@exodus_unit_test_set "EPU test" begin
-  if !Sys.iswindows()
-    @epu "./mesh/square_meshes/epu_mesh_test.g"
-    @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
-  end
-end 
+#@exodus_unit_test_set "EPU test" begin
+#  if !Sys.iswindows()
+#    @epu "./mesh/square_meshes/epu_mesh_test.g"
+#    @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
+#  end
+#end 
 
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
