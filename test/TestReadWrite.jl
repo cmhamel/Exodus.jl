@@ -40,6 +40,15 @@
   @test block_old.elem_type == block_new.elem_type
   @test block_old.conn == block_new.conn
 
+  write_blocks(exo_new, [block_old])
+  block_new = Block(exo_new, block_old.id)
+  @show block_new
+  @test block_old.id == block_new.id
+  @test block_old.num_elem == block_new.num_elem
+  @test block_old.num_nodes_per_elem == block_new.num_nodes_per_elem
+  @test block_old.elem_type == block_new.elem_type
+  @test block_old.conn == block_new.conn
+
   conn = Exodus.read_block_connectivity(exo_new, 1)
   conn = reshape(conn, block_new.num_nodes_per_elem, block_new.num_elem)
   partial_conn = Exodus.read_partial_block_connectivity(exo_new, 1, 10, 100)

@@ -158,7 +158,7 @@ end
 """
 function write_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
   for block in blocks
-    write_element_block(exo, block)
+    write_block(exo, block)
   end
 end
 
