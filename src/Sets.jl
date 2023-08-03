@@ -1,18 +1,31 @@
 """
 """
 function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F, S <: AbstractSet}
-  if S <: NodeSet
+  if S <: Block
+    num_entries = exo.init.num_elem_blks
+  elseif S <: NodeSet
     num_entries = exo.init.num_node_sets
   elseif S <: SideSet
     num_entries = exo.init.num_side_sets
   end
-  ids = Vector{B}(undef, num_entries)
   ids = Vector{B}(undef, num_entries)
   error_code = @ccall libexodus.ex_get_ids(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, ids::Ptr{B}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
   return ids
+end
+
+"""
+"""
+function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
+  name = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  error_code = @ccall libexodus.ex_get_name(
+    get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, 
+    id::ex_entity_id, name::Ptr{UInt8}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_name -> libexodus.ex_get_name")
+  return unsafe_string(pointer(name))
 end
 
 """
@@ -44,7 +57,6 @@ end
 """
 """
 function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
-  # num_entries, _ = read_set_parameters(exo, set_id, EX_NODE_SET)
   num_entries, _ = read_set_parameters(exo, set_id, NodeSet)
   entries = Vector{B}(undef, num_entries)
   extras = C_NULL
@@ -59,7 +71,6 @@ end
 """
 """
 function read_side_set_elements_and_sides(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
-  # num_entries, _ = read_set_parameters(exo, set_id, EX_SIDE_SET)
   num_entries, _ = read_set_parameters(exo, set_id, SideSet)
   entries = Vector{B}(undef, num_entries)
   extras = Vector{B}(undef, num_entries)

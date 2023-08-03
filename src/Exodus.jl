@@ -18,31 +18,20 @@ export SideSetVariable
 # exported io/misc methods
 export close
 export copy
-export exo_int_types
-export exo_float_type
 export length
-export set_exodus_max_name_length
-export set_exodus_options
 
 # exported read methods
-export collection_element_block_connectivities
+export collect_block_connectivities
+export read_block
+export read_blocks
+export read_block_id_map
 export read_coordinates
-export read_coordinate_names
-export read_element_blocks
-export read_element_block_id_map
-export read_element_block_ids
-export read_element_block_names
-export read_element_block_connectivity
-export read_element_block_parameters
 export read_element_type
 export read_ids
 export read_info
 export read_map
 export read_name
 export read_names
-export read_partial_coordinates
-export read_partial_coordinates_component
-export read_partial_element_block_connectivity
 export read_qa
 export read_number_of_variables
 export read_number_of_time_steps
@@ -53,20 +42,13 @@ export read_times
 export read_values
 
 # exported write methods
+export write_block
+export write_blocks
 export write_coordinates
-export write_coordinate_names
-export write_element_block
-export write_element_block_connectivity
-export write_element_block_name
-export write_element_block_names
-export write_element_blocks
 export write_info
-export write_initialization!
 export write_name
 export write_names
 export write_number_of_variables
-export write_partial_coordinates
-export write_partial_coordinates_component
 export write_qa
 export write_set
 export write_sets

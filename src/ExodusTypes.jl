@@ -43,12 +43,46 @@ abstract type AbstractVariable <: AbstractExodusType end
 """
 """
 struct Block{I, B} <: AbstractSet{I, B}
-  block_id::I
+  id::I
   num_elem::Clonglong
   num_nodes_per_elem::Clonglong
   elem_type::String # TODO maybe just make an index
   conn::Matrix{B}
 end
+
+"""
+Init method for block container.
+"""
+function Block(exo::ExodusDatabase, block_id::Integer)
+  block_id = convert(get_id_int_type(exo), block_id) # for convenience interfacing
+  element_type, num_elem, num_nodes, _, _, _ =
+  read_block_parameters(exo, block_id)
+  conn = read_block_connectivity(exo, block_id)
+  conn = reshape(conn, (num_nodes, num_elem))#'
+  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn)
+end
+
+"""
+"""
+function Block(exo::ExodusDatabase, block_name::String)
+  block_ids = read_ids(exo, Block)
+  name_index = findall(x -> x == block_name, read_names(exo, Block))
+  if length(name_index) < 1
+    throw(BoundsError(read_names(exo, Block), name_index))
+  end
+  name_index = name_index[1]
+  return Block(exo, block_ids[name_index])
+end
+
+"""
+"""
+Base.show(io::IO, block::B) where {B <: Block} =
+print(io, "Block:\n",
+      "\tBlock ID           = ", block.id, "\n",
+      "\tNum elem           = ", block.num_elem, "\n",
+      "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
+      "\tElem type          = ", block.elem_type, "\n")
+
 
 """
 """
@@ -67,10 +101,10 @@ end
 """
 """
 function NodeSet(exo::ExodusDatabase, name::String)
-  ids = read_node_set_ids(exo)
-  name_index = findall(x -> x == name, read_node_set_names(exo))
+  ids = read_ids(exo, NodeSet)
+  name_index = findall(x -> x == name, read_names(exo, NodeSet))
   if length(name_index) < 1
-    throw(BoundsError(read_node_set_names(exo), name_index))
+    throw(BoundsError(read_names(exo, NodeSet), name_index))
   end
   name_index = name_index[1]
   return NodeSet(exo, ids[name_index])
@@ -104,10 +138,13 @@ end
 """
 """
 function SideSet(exo::ExodusDatabase, name::String)
-  ids = read_side_set_ids(exo)
-  name_index = findall(x -> x == name, read_side_set_names(exo))
+  # ids = read_side_set_ids(exo)
+  ids = read_ids(exo, SideSet)
+  # name_index = findall(x -> x == name, read_side_set_names(exo))
+  name_index = findall(x -> x == name, read_names(exo, SideSet))
   if length(name_index) < 1
-    throw(BoundsError(read_side_set_names(exo), name_index))
+    # throw(BoundsError(read_side_set_names(exo), name_index))
+    throw(BoundsError(read_names(exo, SideSet), name_index))
   end
   name_index = name_index[1]
   return SideSet(exo, ids[name_index])
@@ -139,6 +176,7 @@ end
 struct SideSetVariable <: AbstractVariable
 end
 
+entity_type(::Type{S}) where S <: Block           = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: Element         = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: Global          = EX_GLOBAL
 entity_type(::Type{S}) where S <: Nodal           = EX_NODAL

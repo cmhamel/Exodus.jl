@@ -4,7 +4,7 @@
   init_old = Initialization(exo_old)
   block_old = Block(exo_old, 1)
   coords_old = read_coordinates(exo_old)
-  coord_names_old = read_coordinate_names(exo_old)
+  coord_names_old = Exodus.read_coordinate_names(exo_old)
   nsets = read_sets(exo_old, NodeSet)
   nset_names = read_names(exo_old, NodeSet)
   ssets = read_sets(exo_old, SideSet)
@@ -22,6 +22,8 @@
     @test info[n] == new_info[n]
   end
 
+  @test Exodus.get_mode(exo_new) == "w"
+
   # init
   @test init_old == exo_new.init
 
@@ -29,7 +31,20 @@
   write_time(exo_new, 1, 0.0)
 
   # block
-  write_element_block(exo_new, block_old)
+  write_block(exo_new, block_old)
+  block_new = Block(exo_new, block_old.id)
+  @show block_new
+  @test block_old.id == block_new.id
+  @test block_old.num_elem == block_new.num_elem
+  @test block_old.num_nodes_per_elem == block_new.num_nodes_per_elem
+  @test block_old.elem_type == block_new.elem_type
+  @test block_old.conn == block_new.conn
+
+  conn = Exodus.read_block_connectivity(exo_new, 1)
+  conn = reshape(conn, block_new.num_nodes_per_elem, block_new.num_elem)
+  partial_conn = Exodus.read_partial_block_connectivity(exo_new, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block_new.num_nodes_per_elem, 100)
+  @test conn[:, 10:110 - 1] ≈ partial_conn
 
   # coordinate values
   write_coordinates(exo_new, coords_old)
@@ -37,8 +52,8 @@
   @test coords_old == coords_new
 
   # coordinate names
-  write_coordinate_names(exo_new, coord_names_old)
-  coord_names_new = read_coordinate_names(exo_new)
+  Exodus.write_coordinate_names(exo_new, coord_names_old)
+  coord_names_new = Exodus.read_coordinate_names(exo_new)
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"
@@ -180,6 +195,12 @@
     @test temp_nset.nodes == nsets[n].nodes
   end
 
+  nset_names = read_names(exo_new, NodeSet)
+  for nset_name in nset_names
+    nset = NodeSet(exo_new, nset_name)
+    @show nset
+  end
+
   # nodeset variables
   write_number_of_variables(exo_new, NodeSetVariable, 2)
   @test read_number_of_variables(exo_new, NodeSetVariable) == 2
@@ -237,6 +258,12 @@
     @test temp_sset.id == ssets[n].id
     @test temp_sset.elements == ssets[n].elements
     @test temp_sset.sides == ssets[n].sides
+  end
+
+  sset_names = read_names(exo_new, SideSet)
+  for sset_name in sset_names
+    sset = SideSet(exo_new, sset_name)
+    @show sset
   end
 
   # sideset variables
@@ -304,7 +331,7 @@ end
 
   init_old = Initialization(exo_old)
   coords_old = read_coordinates(exo_old)
-  coord_names_old = read_coordinate_names(exo_old)
+  coord_names_old = Exodus.read_coordinate_names(exo_old)
   
   close(exo_old)
 
@@ -318,8 +345,8 @@ end
   @test coords_old == coords_new
 
   # coordinate names
-  write_coordinate_names(exo_new, coord_names_old)
-  coord_names_new = read_coordinate_names(exo_new)
+  Exodus.write_coordinate_names(exo_new, coord_names_old)
+  coord_names_new = Exodus.read_coordinate_names(exo_new)
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"

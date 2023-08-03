@@ -54,7 +54,7 @@ function read_values(
     num_entries = exo.init.num_nodes
   elseif V <: Element
     _, num_entries, _, _, _, _ =
-    read_element_block_parameters(exo, id)
+    read_block_parameters(exo, id)
   elseif V <: Global
     num_entries = read_number_of_variables(exo, V)
   elseif V <: NodeSetVariable || V <: SideSetVariable

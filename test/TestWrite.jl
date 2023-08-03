@@ -40,20 +40,20 @@
 
   # test partial coord write/read
   temp = randn(2)
-  write_partial_coordinates(exo, 2, temp)
-  partial_coords = read_partial_coordinates(exo, 2, 2)
+  Exodus.write_partial_coordinates(exo, 2, temp)
+  partial_coords = Exodus.read_partial_coordinates(exo, 2, 2)
   @test partial_coords[1, :] == temp
 
   # test partial coord write/read with component index
   temp = randn(2)
-  write_partial_coordinates_component(exo, 2, 1, temp)
-  partial_coords = read_partial_coordinates_component(exo, 2, 2, 1)
+  Exodus.write_partial_coordinates_component(exo, 2, 1, temp)
+  partial_coords = Exodus.read_partial_coordinates_component(exo, 2, 2, 1)
   @test partial_coords == temp
 
   # test partial coord write/read with component name
   temp = randn(2)
-  write_partial_coordinates_component(exo, 2, "x", temp)
-  partial_coords = read_partial_coordinates_component(exo, 2, 2, "x")
+  Exodus.write_partial_coordinates_component(exo, 2, "x", temp)
+  partial_coords = Exodus.read_partial_coordinates_component(exo, 2, 2, "x")
   @test partial_coords == temp
 
   close(exo)
@@ -109,27 +109,27 @@ end
   @test_throws ErrorException write_coordinates(exo, randn(100, 4))
   # test partial coord write/read
   temp = randn(2, 2)
-  write_partial_coordinates(exo, 2, temp)
-  partial_coords = read_partial_coordinates(exo, 2, 2)
+  Exodus.write_partial_coordinates(exo, 2, temp)
+  partial_coords = Exodus.read_partial_coordinates(exo, 2, 2)
   @test partial_coords == temp
   # test partial coord write/read with component index
   temp = randn(2, 2)
-  write_partial_coordinates_component(exo, 2, 1, temp[1, :])
-  write_partial_coordinates_component(exo, 2, 2, temp[2, :])
-  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, 1)
-  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, 2)
+  Exodus.write_partial_coordinates_component(exo, 2, 1, temp[1, :])
+  Exodus.write_partial_coordinates_component(exo, 2, 2, temp[2, :])
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 2, 2, 1)
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 2, 2, 2)
   @test partial_coords_x == temp[1, :]
   @test partial_coords_y == temp[2, :]
   # test partial coord write/read with component name
   temp = randn(2, 2)
-  write_partial_coordinates_component(exo, 2, "x", temp[1, :])
-  write_partial_coordinates_component(exo, 2, "y", temp[2, :])
-  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, "x")
-  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, "y")
+  Exodus.write_partial_coordinates_component(exo, 2, "x", temp[1, :])
+  Exodus.write_partial_coordinates_component(exo, 2, "y", temp[2, :])
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 2, 2, "x")
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 2, 2, "y")
   @test partial_coords_x == temp[1, :]
   @test partial_coords_y == temp[2, :]
   # how to write a block
-  write_element_block(exo, 1, "QUAD4", conn)
+  write_block(exo, 1, "QUAD4", conn)
   # need at least one timestep to output variables
   write_time(exo, 1, 0.0)
   # write number of variables and their names
@@ -207,28 +207,28 @@ end
   @test_throws ErrorException write_coordinates(exo, randn(100, 4))
   # test partial coord write/read
   temp = randn(3, 2)
-  write_partial_coordinates(exo, 2, temp)
-  partial_coords = read_partial_coordinates(exo, 2, 2)
+  Exodus.write_partial_coordinates(exo, 2, temp)
+  partial_coords = Exodus.read_partial_coordinates(exo, 2, 2)
   @test partial_coords == temp
   # test partial coord write/read with component index
   temp = randn(3, 2)
-  write_partial_coordinates_component(exo, 2, 1, temp[1, :])
-  write_partial_coordinates_component(exo, 2, 2, temp[2, :])
-  write_partial_coordinates_component(exo, 2, 3, temp[3, :])
-  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, 1)
-  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, 2)
-  partial_coords_z = read_partial_coordinates_component(exo, 2, 2, 3)
+  Exodus.write_partial_coordinates_component(exo, 2, 1, temp[1, :])
+  Exodus.write_partial_coordinates_component(exo, 2, 2, temp[2, :])
+  Exodus.write_partial_coordinates_component(exo, 2, 3, temp[3, :])
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 2, 2, 1)
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 2, 2, 2)
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 2, 2, 3)
   @test partial_coords_x == temp[1, :]
   @test partial_coords_y == temp[2, :]
   @test partial_coords_z == temp[3, :]
   # test partial coord write/read with component name
   temp = randn(3, 2)
-  write_partial_coordinates_component(exo, 2, "x", temp[1, :])
-  write_partial_coordinates_component(exo, 2, "y", temp[2, :])
-  write_partial_coordinates_component(exo, 2, "z", temp[3, :])
-  partial_coords_x = read_partial_coordinates_component(exo, 2, 2, "x")
-  partial_coords_y = read_partial_coordinates_component(exo, 2, 2, "y")
-  partial_coords_z = read_partial_coordinates_component(exo, 2, 2, "z")
+  Exodus.write_partial_coordinates_component(exo, 2, "x", temp[1, :])
+  Exodus.write_partial_coordinates_component(exo, 2, "y", temp[2, :])
+  Exodus.write_partial_coordinates_component(exo, 2, "z", temp[3, :])
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 2, 2, "x")
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 2, 2, "y")
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 2, 2, "z")
   @test partial_coords_x == temp[1, :]
   @test partial_coords_y == temp[2, :]
   @test partial_coords_z == temp[3, :]

@@ -10,26 +10,56 @@ number_of_elements_3D = 512
 @exodus_unit_test_set "Test Read ExodusDatabase - 2D Mesh" begin
   exo = ExodusDatabase(mesh_file_name_2D, "r")
 
+  # blocks
+  @test read_ids(exo, Block) == [1]
+  @test read_names(exo, Block) == ["block_1"]
+  @test read_name(exo, Block, 1) == "block_1"
+
+  block = Block(exo, 1)
+  @test block.id                 == 1
+  @test block.num_elem           == number_of_elements_2D
+  @test block.num_nodes_per_elem == 4
+  @test block.elem_type          == "QUAD4"
+  @test size(block.conn)         == (4, number_of_elements_2D)
+
+  block = Block(exo, "block_1")
+  @test block.id                 == 1
+  @test block.num_elem           == number_of_elements_2D
+  @test block.num_nodes_per_elem == 4
+  @test block.elem_type          == "QUAD4"
+  @test size(block.conn)         == (4, number_of_elements_2D)
+
+  conn = Exodus.read_block_connectivity(exo, 1)
+  conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
+  partial_conn = Exodus.read_partial_block_connectivity(exo, 1, 10, 100)
+  partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
+
+  @test conn[:, 10:110 - 1] ≈ partial_conn
+
+  block_id_map = read_block_id_map(exo, 1)
+  @test block_id_map == 1:Block(exo, 1).num_elem |> collect
+  
+
   # coordinate values
   coords = read_coordinates(exo)
   @test size(coords) == (2, number_of_nodes_2D)
 
   # parital coordiantes values
-  partial_coords = read_partial_coordinates(exo, 10, 100)
+  partial_coords = Exodus.read_partial_coordinates(exo, 10, 100)
   @test coords[:, 10:110 - 1] ≈ partial_coords
 
-  partial_coords_x = read_partial_coordinates_component(exo, 10, 100, 1)
-  partial_coords_y = read_partial_coordinates_component(exo, 10, 100, 2)
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, 1)
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
 
-  partial_coords_x = read_partial_coordinates_component(exo, 10, 100, "x")
-  partial_coords_y = read_partial_coordinates_component(exo, 10, 100, "y")
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, "x")
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
 
   # coordinate names
-  coord_names = read_coordinate_names(exo)
+  coord_names = Exodus.read_coordinate_names(exo)
   @test coord_names == ["x", "y"]
 
   # init
@@ -99,25 +129,25 @@ end
   @test size(coords) == (3, number_of_nodes_3D)
 
   # partial coordinate values
-  partial_coords = read_partial_coordinates(exo, 10, 100)
+  partial_coords = Exodus.read_partial_coordinates(exo, 10, 100)
   @test coords[:, 10:110 - 1] ≈ partial_coords
 
-  partial_coords_x = read_partial_coordinates_component(exo, 10, 100, 1)
-  partial_coords_y = read_partial_coordinates_component(exo, 10, 100, 2)
-  partial_coords_z = read_partial_coordinates_component(exo, 10, 100, 3)
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, 1)
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, 3)
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
   @test coords[3, 10:110 - 1] ≈ partial_coords_z
 
-  partial_coords_x = read_partial_coordinates_component(exo, 10, 100, "x")
-  partial_coords_y = read_partial_coordinates_component(exo, 10, 100, "y")
-  partial_coords_z = read_partial_coordinates_component(exo, 10, 100, "z")
+  partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, "x")
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, "z")
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
   @test coords[3, 10:110 - 1] ≈ partial_coords_z
 
   # coordinate names
-  coord_names = read_coordinate_names(exo)
+  coord_names = Exodus.read_coordinate_names(exo)
   @test coord_names == ["x", "y", "z"]
 
   # init

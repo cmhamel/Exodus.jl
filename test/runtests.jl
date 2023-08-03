@@ -81,9 +81,6 @@ end
 end
 
 @includetests ARGS
-# include("TestRead.jl")
-# include("TestReadWrite.jl")
-# include("TestWrite.jl")
 
 # aqua testing
 Aqua.test_all(Exodus)
