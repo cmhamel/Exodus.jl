@@ -21,6 +21,7 @@ number_of_elements_3D = 512
   @test block.num_nodes_per_elem == 4
   @test block.elem_type          == "QUAD4"
   @test size(block.conn)         == (4, number_of_elements_2D)
+  @test Exodus.read_element_type(exo, 1) == "QUAD4"
 
   block = Block(exo, "block_1")
   @test block.id                 == 1
@@ -28,11 +29,11 @@ number_of_elements_3D = 512
   @test block.num_nodes_per_elem == 4
   @test block.elem_type          == "QUAD4"
   @test size(block.conn)         == (4, number_of_elements_2D)
+  @test Exodus.read_element_type(exo, 1) == "QUAD4"
 
   block = read_block(exo, 1)
   block = read_block(exo, "block_1")
   blocks = read_blocks(exo, read_ids(exo, Block))
-
 
   conn = Exodus.read_block_connectivity(exo, 1)
   conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
