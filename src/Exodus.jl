@@ -11,7 +11,9 @@ export Global
 export Initialization
 export Nodal
 export NodeSet
+export NodeSetVariable
 export SideSet
+export SideSetVariable
 
 # exported io/misc methods
 export close

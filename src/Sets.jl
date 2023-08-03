@@ -29,11 +29,12 @@ end
 
 """
 """
-function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, type::ex_entity_type) where {M, I, B, F}
+# function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, type::ex_entity_type) where {M, I, B, F}
+function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, ::Type{S}) where {M, I, B, F, S <: AbstractSet}
   num_entries = Ref{I}(0)
   num_df = Ref{I}(0)
   error_code = @ccall libexodus.ex_get_set_param(
-    get_file_id(exo)::Cint, type::ex_entity_type, set_id::Clonglong, # set_id is really an ex_entity_id but that is weirdly causing a type instability
+    get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, set_id::Clonglong, # set_id is really an ex_entity_id but that is weirdly causing a type instability
     num_entries::Ptr{I}, num_df::Ptr{I}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_set_parameters -> libexodus.ex_get_set_param")
@@ -43,7 +44,8 @@ end
 """
 """
 function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
-  num_entries, _ = read_set_parameters(exo, set_id, EX_NODE_SET)
+  # num_entries, _ = read_set_parameters(exo, set_id, EX_NODE_SET)
+  num_entries, _ = read_set_parameters(exo, set_id, NodeSet)
   entries = Vector{B}(undef, num_entries)
   extras = C_NULL
     error_code = @ccall libexodus.ex_get_set(
@@ -57,7 +59,8 @@ end
 """
 """
 function read_side_set_elements_and_sides(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
-  num_entries, _ = read_set_parameters(exo, set_id, EX_SIDE_SET)
+  # num_entries, _ = read_set_parameters(exo, set_id, EX_SIDE_SET)
+  num_entries, _ = read_set_parameters(exo, set_id, SideSet)
   entries = Vector{B}(undef, num_entries)
   extras = Vector{B}(undef, num_entries)
     error_code = @ccall libexodus.ex_get_set(

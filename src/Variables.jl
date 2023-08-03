@@ -25,9 +25,7 @@ end
 
 """
 """
-# function read_variable_names(exo::ExodusDatabase, type::ex_entity_type)
 function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
-  # num_vars = read_number_of_variables(exo, type)
   num_vars = read_number_of_variables(exo, V)
   var_names = Vector{Vector{UInt8}}(undef, num_vars)
   for n in 1:length(var_names)
@@ -50,28 +48,23 @@ end
 function read_values(
   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
-  # type::ex_entity_type
 ) where {M, I, B, F, V <: AbstractVariable}
-  # if type == EX_NODAL
+
   if V <: Nodal
     num_entries = exo.init.num_nodes
-  # elseif type == EX_ELEM_BLOCK
   elseif V <: Element
     _, num_entries, _, _, _, _ =
     read_element_block_parameters(exo, id)
-  # elseif type == EX_GLOBAL
   elseif V <: Global
     num_entries = read_number_of_variables(exo, V)
-  # elseif type == EX_NODE_SET || type == EX_SIDE_SET
-  elseif V <: NodeSet || V <: SideSet
-    num_entries, _ = read_set_parameters(exo, id, V)
+  elseif V <: NodeSetVariable || V <: SideSetVariable
+    num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   else
     throw(ErrorException("Unsuported variable type $V"))
   end
 
   values = Vector{F}(undef, num_entries)
   error_code = @ccall libexodus.ex_get_var(
-    # get_file_id(exo)::Cint, timestep::Cint, type::ex_entity_type,
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
@@ -93,7 +86,7 @@ end
 """
 """
 function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, var_name::String, nset_name::String) where V <: AbstractVariable
-  var_name_index = findall(x -> x == var_name, read_names(exo, type))
+  var_name_index = findall(x -> x == var_name, read_names(exo, Vs))
   if length(var_name_index) < 1
     throw(BoundsError(read_names(exo, V), var_name_index))
   end
@@ -176,7 +169,7 @@ end
 function write_values(
   exo::ExodusDatabase, 
   ::Type{V},
-  timestep::Int, id::Int, var_index::Int, 
+  timestep::Integer, id::Integer, var_index::Integer, 
   var_values::Vector{<:AbstractFloat},
 ) where V <: AbstractVariable
 

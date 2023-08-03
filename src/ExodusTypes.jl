@@ -148,4 +148,4 @@ entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
 entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
-set_equivalent(::Type{S}) where S <: SideSetVariable = SideSetVariable
+set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet

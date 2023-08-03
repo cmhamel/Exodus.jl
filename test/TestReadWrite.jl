@@ -180,6 +180,28 @@
     @test temp_nset.nodes == nsets[n].nodes
   end
 
+  # nodeset variables
+  write_number_of_variables(exo_new, NodeSetVariable, 2)
+  @test read_number_of_variables(exo_new, NodeSetVariable) == 2
+
+  write_names(exo_new, NodeSetVariable, ["nset_displ_x_temp", "nset_displ_y_temp"])
+  @test read_names(exo_new, NodeSetVariable) == ["nset_displ_x_temp", "nset_displ_y_temp"]
+
+  write_name(exo_new, NodeSetVariable, 1, "nset_displ_x")
+  write_name(exo_new, NodeSetVariable, 2, "nset_displ_y")
+  @test read_name(exo_new, NodeSetVariable, 1) == "nset_displ_x"
+  @test read_name(exo_new, NodeSetVariable, 2) == "nset_displ_y"
+
+  nsets = read_sets(exo_new, NodeSet)
+  for nset in nsets
+    u_x = randn(length(nset.nodes))
+    u_y = randn(length(nset.nodes))
+    write_values(exo_new, NodeSetVariable, 1, nset.id, 1, u_x)
+    write_values(exo_new, NodeSetVariable, 1, nset.id, 2, u_y)
+    @test read_values(exo_new, NodeSetVariable, 1, nset.id, 1) == u_x
+    @test read_values(exo_new, NodeSetVariable, 1, nset.id, 2) == u_y
+  end
+
   # qa
   write_qa(exo_new, qa_old)
   qa_new = read_qa(exo_new)
@@ -215,6 +237,51 @@
     @test temp_sset.id == ssets[n].id
     @test temp_sset.elements == ssets[n].elements
     @test temp_sset.sides == ssets[n].sides
+  end
+
+  # sideset variables
+  write_number_of_variables(exo_new, SideSetVariable, 3)
+  @test read_number_of_variables(exo_new, SideSetVariable) == 3
+
+  write_names(exo_new, SideSetVariable, ["stress_xx_temp", "stress_yy_temp", "stress_xy_temp"])
+  @test read_names(exo_new, SideSetVariable) == ["stress_xx_temp", "stress_yy_temp", "stress_xy_temp"]
+
+  write_name(exo_new, SideSetVariable, 1, "stress_xx")
+  write_name(exo_new, SideSetVariable, 2, "stress_yy")
+  write_name(exo_new, SideSetVariable, 3, "stress_xy")
+
+  @test read_name(exo_new, SideSetVariable, 1) == "stress_xx"
+  @test read_name(exo_new, SideSetVariable, 2) == "stress_yy"
+  @test read_name(exo_new, SideSetVariable, 3) == "stress_xy"
+
+  ssets = read_sets(exo_new, SideSet)
+
+  for sset in ssets
+    stress_xx = randn(length(sset.elements))
+    stress_yy = randn(length(sset.elements))
+    stress_xy = randn(length(sset.elements))
+
+    write_values(exo_new, SideSetVariable, 1, sset.id, 1, stress_xx)
+    write_values(exo_new, SideSetVariable, 1, sset.id, 2, stress_yy)
+    write_values(exo_new, SideSetVariable, 1, sset.id, 3, stress_xy)
+
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, 1) == stress_xx
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, 2) == stress_yy
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, 3) == stress_xy
+  end
+
+  for sset in ssets
+    stress_xx = randn(length(sset.elements))
+    stress_yy = randn(length(sset.elements))
+    stress_xy = randn(length(sset.elements))
+
+    write_values(exo_new, SideSetVariable, 1, sset.id, "stress_xx", stress_xx)
+    write_values(exo_new, SideSetVariable, 1, sset.id, "stress_yy", stress_yy)
+    write_values(exo_new, SideSetVariable, 1, sset.id, "stress_xy", stress_xy)
+
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, "stress_xx") == stress_xx
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, "stress_yy") == stress_yy
+    @test read_values(exo_new, SideSetVariable, 1, sset.id, "stress_xy") == stress_xy
   end
 
   # times
