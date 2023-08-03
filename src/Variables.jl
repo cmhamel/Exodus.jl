@@ -81,12 +81,9 @@ end
 
 """
 """
-# function read_variable_values(exo::ExodusDatabase, time_step::Integer, id::Integer, var_name::String, type::ex_entity_type)
 function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractVariable
-  # var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    # throw(BoundsError(read_variable_names(exo, type), var_name_index))
     throw(BoundsError(read_names(exo, V), var_name_index))
   end
   var_name_index = var_name_index[1]
@@ -117,9 +114,9 @@ function read_partial_values(
   time_step::Integer, id::Integer, var_index::Integer, 
   start_node::Integer, num_nodes::Integer, 
 ) where {M, I, B, F, V <: AbstractVariable}
+
   values = Vector{F}(undef, num_nodes)
   error_code = @ccall libexodus.ex_get_partial_var(
-    # get_file_id(exo)::Cint, time_step::Cint, type::ex_entity_type, 
     get_file_id(exo)::Cint, time_step::Cint, entity_type(V)::ex_entity_type, 
     var_index::Cint, id::Cint, 
     start_node::Clonglong, num_nodes::Clonglong,
@@ -179,13 +176,12 @@ end
 function write_values(
   exo::ExodusDatabase, 
   ::Type{V},
-  timestep::Integer, id::Integer, var_index::Integer, 
+  timestep::Int, id::Int, var_index::Int, 
   var_values::Vector{<:AbstractFloat},
-  # type::ex_entity_type
 ) where V <: AbstractVariable
+
   num_nodes = size(var_values, 1)
   error_code = @ccall libexodus.ex_put_var(
-    # get_file_id(exo)::Cint, timestep::Cint, type::ex_entity_type,
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id,
     num_nodes::Clonglong, var_values::Ptr{Cvoid}
@@ -200,12 +196,10 @@ function write_values(
   ::Type{V},
   time_step::Integer, id::Integer, var_name::String, 
   var_value::Vector{<:AbstractFloat}
-  # type::ex_entity_type
 ) where V <: AbstractVariable
-  # var_name_index = findall(x -> x == var_name, read_variable_names(exo, type))
-  var_name_index = findall(x -> x == var_name, read_names(exo, V))
+
+var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    # throw(BoundsError(read_variable_names(exo, type), var_name_index))
     throw(BoundsError(read_names(exo, V), var_name_index))
   end
   var_name_index = var_name_index[1]
@@ -220,6 +214,7 @@ function write_values(
   time_step::Integer, var_name::String, set_name::String, 
   var_value::Vector{<:AbstractFloat}
 ) where V <: AbstractVariable
+
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
     throw(BoundsError(read_names(exo, V), var_name_index))

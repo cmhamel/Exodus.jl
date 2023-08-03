@@ -24,6 +24,9 @@
   # init
   @test init_old == exo_new.init
 
+  # time
+  write_time(exo_new, 1, 0.0)
+
   # coordinate values
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
@@ -35,6 +38,42 @@
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"
+
+  # global variables
+  write_number_of_variables(exo_new, Global, 5)
+  @test read_number_of_variables(exo_new, Global) == 5
+
+  write_name(exo_new, Global, 1, "global_var_1")
+  write_name(exo_new, Global, 2, "global_var_2")
+  write_name(exo_new, Global, 3, "global_var_3")
+  write_name(exo_new, Global, 4, "global_var_4")
+  write_name(exo_new, Global, 5, "global_var_5")
+
+  @test read_name(exo_new, Global, 1) == "global_var_1"
+  @test read_name(exo_new, Global, 2) == "global_var_2"
+  @test read_name(exo_new, Global, 3) == "global_var_3"
+  @test read_name(exo_new, Global, 4) == "global_var_4"
+  @test read_name(exo_new, Global, 5) == "global_var_5"
+
+  write_names(
+    exo_new, Global,
+    ["global_var_1", "global_var_2", "global_var_3", "global_var_4", "global_var_5"]
+  )
+  global_vars = read_names(exo_new, Global)
+
+  @test global_vars[1] == "global_var_1"
+  @test global_vars[2] == "global_var_2"
+  @test global_vars[3] == "global_var_3"
+  @test global_vars[4] == "global_var_4"
+  @test global_vars[5] == "global_var_5"
+
+  write_values(exo_new, Global, 1, 1, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+  global_vars = read_values(exo_new, Global, 1, 1, 1)
+  @test global_vars[1] ≈ 10.0
+  @test global_vars[2] ≈ 20.0
+  @test global_vars[3] ≈ 30.0
+  @test global_vars[4] ≈ 40.0
+  @test global_vars[5] ≈ 50.0
 
   # nodesets
   for nset in nsets

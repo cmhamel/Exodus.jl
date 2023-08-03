@@ -36,6 +36,7 @@ export read_element_type
 export read_ids
 export read_info
 export read_map
+export read_name
 export read_names
 export read_partial_coordinates
 export read_partial_coordinates_component
