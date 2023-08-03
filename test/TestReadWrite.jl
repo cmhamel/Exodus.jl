@@ -2,6 +2,7 @@
   exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
   
   init_old = Initialization(exo_old)
+  block_old = Block(exo_old, 1)
   coords_old = read_coordinates(exo_old)
   coord_names_old = read_coordinate_names(exo_old)
   nsets = read_sets(exo_old, NodeSet)
@@ -27,6 +28,9 @@
   # time
   write_time(exo_new, 1, 0.0)
 
+  # block
+  write_element_block(exo_new, block_old)
+
   # coordinate values
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
@@ -38,6 +42,52 @@
   @test coord_names_new == coord_names_old
   @test coord_names_new[1] == "x"
   @test coord_names_new[2] == "y"
+
+  # element variables
+  write_number_of_variables(exo_new, Element, 3)
+  n_vars = read_number_of_variables(exo_new, Element)
+  @test n_vars == 3
+
+  write_names(exo_new, Element, ["stress_xx", "stress_yy", "stress_xy"])
+  var_names = read_names(exo_new, Element)
+  @test var_names == ["stress_xx", "stress_yy", "stress_xy"] 
+  @test read_name(exo_new, Element, 1) == "stress_xx"
+  @test read_name(exo_new, Element, 2) == "stress_yy"
+  @test read_name(exo_new, Element, 3) == "stress_xy"
+
+  block = Block(exo_new, 1)
+
+  stress_xx = randn(block.num_elem)
+  stress_yy = randn(block.num_elem)
+  stress_xy = randn(block.num_elem)
+
+  write_values(exo_new, Element, 1, 1, 1, stress_xx)
+  write_values(exo_new, Element, 1, 1, 2, stress_yy)
+  write_values(exo_new, Element, 1, 1, 3, stress_xy)
+
+  stress_xx_read = read_values(exo_new, Element, 1, 1, 1)
+  stress_yy_read = read_values(exo_new, Element, 1, 1, 2)
+  stress_xy_read = read_values(exo_new, Element, 1, 1, 3)
+
+  @test stress_xx ≈ stress_xx_read
+  @test stress_yy ≈ stress_yy_read
+  @test stress_xy ≈ stress_xy_read
+
+  stress_xx = randn(block.num_elem)
+  stress_yy = randn(block.num_elem)
+  stress_xy = randn(block.num_elem)
+
+  write_values(exo_new, Element, 1, 1, "stress_xx", stress_xx)
+  write_values(exo_new, Element, 1, 1, "stress_yy", stress_yy)
+  write_values(exo_new, Element, 1, 1, "stress_xy", stress_xy)
+
+  stress_xx_read = read_values(exo_new, Element, 1, 1, "stress_xx")
+  stress_yy_read = read_values(exo_new, Element, 1, 1, "stress_yy")
+  stress_xy_read = read_values(exo_new, Element, 1, 1, "stress_xy")
+
+  @test stress_xx ≈ stress_xx_read
+  @test stress_yy ≈ stress_yy_read
+  @test stress_xy ≈ stress_xy_read
 
   # global variables
   write_number_of_variables(exo_new, Global, 5)
@@ -74,6 +124,34 @@
   @test global_vars[3] ≈ 30.0
   @test global_vars[4] ≈ 40.0
   @test global_vars[5] ≈ 50.0
+
+  # nodal variables
+  write_number_of_variables(exo_new, Nodal, 2)
+  @test read_number_of_variables(exo_new, Nodal) == 2
+
+  write_names(exo_new, Nodal, ["displ_x_temp", "displ_y_temp"])
+  @test read_names(exo_new, Nodal) == ["displ_x_temp", "displ_y_temp"]
+
+  write_name(exo_new, Nodal, 1, "displ_x")
+  write_name(exo_new, Nodal, 2, "displ_y")
+  @test read_name(exo_new, Nodal, 1) == "displ_x"
+  @test read_name(exo_new, Nodal, 2) == "displ_y"
+
+  u_x = randn(exo_new.init.num_nodes)
+  u_y = randn(exo_new.init.num_nodes)
+
+  write_values(exo_new, Nodal, 1, 1, 1, u_x)
+  write_values(exo_new, Nodal, 1, 1, 2, u_y)
+  @test read_values(exo_new, Nodal, 1, 1, 1) == u_x
+  @test read_values(exo_new, Nodal, 1, 1, 2) == u_y
+
+  u_x = randn(exo_new.init.num_nodes)
+  u_y = randn(exo_new.init.num_nodes)
+
+  write_values(exo_new, Nodal, 1, 1, "displ_x", u_x)
+  write_values(exo_new, Nodal, 1, 1, "displ_y", u_y)
+  @test read_values(exo_new, Nodal, 1, 1, "displ_x") == u_x
+  @test read_values(exo_new, Nodal, 1, 1, "displ_y") == u_y
 
   # nodesets
   for nset in nsets
