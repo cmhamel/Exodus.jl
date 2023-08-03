@@ -133,8 +133,19 @@ end
 struct Nodal <: AbstractVariable
 end
 
-entity_type(::Type{S}) where S <: Element = EX_ELEM
-entity_type(::Type{S}) where S <: Global  = EX_GLOBAL
-entity_type(::Type{S}) where S <: Nodal   = EX_NODAL
-entity_type(::Type{S}) where S <: NodeSet = EX_NODE_SET
-entity_type(::Type{S}) where S <: SideSet = EX_SIDE_SET
+struct NodeSetVariable <: AbstractVariable
+end
+
+struct SideSetVariable <: AbstractVariable
+end
+
+entity_type(::Type{S}) where S <: Element         = EX_ELEM_BLOCK
+entity_type(::Type{S}) where S <: Global          = EX_GLOBAL
+entity_type(::Type{S}) where S <: Nodal           = EX_NODAL
+entity_type(::Type{S}) where S <: NodeSet         = EX_NODE_SET
+entity_type(::Type{S}) where S <: NodeSetVariable = EX_NODE_SET
+entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
+entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
+
+set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
+set_equivalent(::Type{S}) where S <: SideSetVariable = SideSetVariable
