@@ -59,8 +59,6 @@ function read_values(
     num_entries = read_number_of_variables(exo, V)
   elseif V <: NodeSetVariable || V <: SideSetVariable
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
-  else
-    throw(ErrorException("Unsuported variable type $V"))
   end
 
   values = Vector{F}(undef, num_entries)
@@ -77,7 +75,10 @@ end
 function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractVariable
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(BoundsError(read_names(exo, V), var_name_index))
+    # throw(BoundsError(read_names(exo, V), var_name_index))
+    println("WARNING: Variable name: $var_name not found")
+    println("Available variables are: \n$(read_names(exo, V))")
+    return
   end
   var_name_index = var_name_index[1]
   read_values(exo, V, time_step, id, var_name_index)
@@ -85,18 +86,23 @@ end
 
 """
 """
-function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, var_name::String, nset_name::String) where V <: AbstractVariable
-  var_name_index = findall(x -> x == var_name, read_names(exo, Vs))
+function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, set_name::String, var_name::String) where V <: AbstractVariable
+  var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
     throw(BoundsError(read_names(exo, V), var_name_index))
   end
   var_name_index = var_name_index[1]
-  set_name_index = findall(x -> x == nset_name, read_names(exo, V))
+  set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
   if length(set_name_index) < 1
-    throw(BoundsError(read_names(exo, type), var_name_index))
+    println("WARNING: Set name: $set_name not found")
+    println("Available sets are: \n$(read_sets(exo, set_equivalent(V)))")
+    # throw(BoundsError("Set name: $set_name not found"))
+    # throw(BoundsError(read_names(exo, V), var_name_index))
+    return 
   end
   set_name_index = set_name_index[1]
-  read_values(exo, V, ime_step, var_name_index, set_name_index)
+  # read_values(exo, V, time_step, var_name_index, set_name_index)
+  read_values(exo, V, time_step, set_name_index, var_name_index)
 end
 
 """

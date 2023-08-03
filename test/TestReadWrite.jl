@@ -232,6 +232,17 @@
     @test read_values(exo_new, NodeSetVariable, 1, nset.id, 2) == u_y
   end
 
+  nset_names = read_names(exo_new, NodeSet)
+  for nset_name in nset_names
+    nset = NodeSet(exo_new, nset_name)
+    u_x = randn(length(nset.nodes))
+    u_y = randn(length(nset.nodes))
+    write_values(exo_new, NodeSetVariable, 1, nset.id, 1, u_x)
+    write_values(exo_new, NodeSetVariable, 1, nset.id, 2, u_y)
+    @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_x") == u_x
+    @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_y") == u_y
+  end
+
   # qa
   write_qa(exo_new, qa_old)
   qa_new = read_qa(exo_new)
@@ -329,6 +340,10 @@
   @test times == [0., 1.]
   @test read_time(exo_new, 1) == 0.
   @test read_time(exo_new, 2) == 1.
+
+  # variable throw error
+  # @test_throws BoundsError read_values(exo_new, Nodal, 1, 1, "fake_variable")
+  read_values(exo_new, Nodal, 1, 1, "fake_variable")
 
   close(exo_new)
 
