@@ -1,7 +1,7 @@
-using Exodus2
+using Exodus
 using Documenter
 
-DocMeta.setdocmeta!(Exodus2, :DocTestSetup, :(using Exodus2); recursive=true)
+DocMeta.setdocmeta!(Exodus, :DocTestSetup, :(using Exodus); recursive=true)
 
 makedocs(;
     modules=[Exodus2],
