@@ -7,7 +7,7 @@ makedocs(;
     modules=[Exodus2],
     authors="Craig M. Hamel <cmhamel32@gmail.com> and contributors",
     repo="https://github.com/cmhamel/Exodus.jl/blob/{commit}{path}#{line}",
-    sitename="Exodus2.jl",
+    sitename="Exodus.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://cmhamel.github.io/Exodus.jl",
