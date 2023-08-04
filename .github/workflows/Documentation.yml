@@ -19,14 +19,6 @@ jobs:
           version: '1.9'
       - uses: julia-actions/julia-buildpkg@v1
       - name: Install dependencies
-        #run: |
-        #  julia --color=yes --project=docs/ -e '
-        #    #using Pkg 
-        #    #Pkg.develop(PackageSpec(path=pwd())) 
-        #    #Pkg.instantiate()
-        #    #Pkg.add("Documenter")
-        #    #Pkg.add("Exodus")
-        #  '
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
