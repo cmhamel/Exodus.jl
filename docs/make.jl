@@ -10,7 +10,7 @@ makedocs(;
     sitename="Exodus.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://cmhamel.github.io/Exodus.jl",
+        canonical="https://cmhamel.github.io/Exodus.jl/stable",
         edit_link="master",
         assets=String[],
     ),
