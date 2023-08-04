@@ -4,7 +4,7 @@ using Documenter
 DocMeta.setdocmeta!(Exodus, :DocTestSetup, :(using Exodus); recursive=true)
 
 makedocs(;
-    modules=[Exodus2],
+    modules=[Exodus],
     authors="Craig M. Hamel <cmhamel32@gmail.com> and contributors",
     repo="https://github.com/cmhamel/Exodus.jl/blob/{commit}{path}#{line}",
     sitename="Exodus.jl",
