@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = Exodus2
+CurrentModule = Exodus
 ```
 
-# Exodus2
+# Exodus
 
-Documentation for [Exodus2](https://github.com/cmhamel/Exodus2.jl).
+Documentation for [Exodus](https://github.com/cmhamel/Exodus.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [Exodus2]
+Modules = [Exodus]
 ```

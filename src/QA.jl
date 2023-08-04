@@ -1,3 +1,5 @@
+"""
+"""
 function read_qa(exo::ExodusDatabase)
   num_qa_rec = @ccall libexodus.ex_inquire_int(
     get_file_id(exo)::Cint, EX_INQ_QA::ex_inquiry
@@ -22,6 +24,8 @@ function read_qa(exo::ExodusDatabase)
   return new_qa_record
 end
 
+"""
+"""
 function write_qa(exo::ExodusDatabase, qa_record::Matrix{String})
   num_qa_records = size(qa_record, 1)
   error_code = @ccall libexodus.ex_put_qa(

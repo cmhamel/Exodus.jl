@@ -112,7 +112,13 @@ end
 
 entries(n::NodeSet)     = n.nodes
 extras(::NodeSet)       = C_NULL
+
+"""
+"""
 Base.length(n::NodeSet) = length(n.nodes)
+
+"""
+"""
 Base.show(io::IO, node_set::NodeSet) =
 print(
   io, "NodeSet:\n",
@@ -152,7 +158,13 @@ end
 
 entries(s::SideSet)     = s.elements
 extras(s::SideSet)      = s.sides
+
+"""
+"""
 Base.length(s::SideSet) = length(s.elements)
+
+"""
+"""
 Base.show(io::IO, sset::SideSet) = 
 print(
   io, "SideSet:\n",
@@ -161,18 +173,28 @@ print(
   "\tNumber of sides    = ", length(sset.sides),    "\n"
 )
 
+"""
+"""
 struct Element <: AbstractVariable
 end
 
+"""
+"""
 struct Global <: AbstractVariable
 end
 
+"""
+"""
 struct Nodal <: AbstractVariable
 end
 
+"""
+"""
 struct NodeSetVariable <: AbstractVariable
 end
 
+"""
+"""
 struct SideSetVariable <: AbstractVariable
 end
 
