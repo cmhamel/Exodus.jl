@@ -1,4 +1,21 @@
 """
+General method to read the number of variables for a given variable type V.
+
+Examples:
+julia> read_number_of_variables(exo, Element)
+6
+
+julia> read_number_of_variables(exo, Global)
+5
+
+julia> read_number_of_variables(exo, Nodal)
+3
+
+julia> read_number_of_variables(exo, NodeSetVariable)
+3
+
+julia> read_number_of_variables(exo, SideSetVariable)
+6
 """
 function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
   num_vars = Ref{Cint}(0)
@@ -68,11 +85,22 @@ function read_values(
 end
 
 """
+Wrapper method for global variables around the main read_values method
+read_values(exo::ExodusDatabase, t::Type{Global}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
+
+Example:
+read_values(exo, Global, 1)
 """
-function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractVariable
+read_values(exo::ExodusDatabase, t::Type{Global}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
+
+"""
+"""
+function read_values(
+  exo::ExodusDatabase, ::Type{V}, 
+  time_step::Integer, id::Integer, var_name::String
+) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    # throw(BoundsError(read_names(exo, V), var_name_index))
     println("WARNING: Variable name: $var_name not found")
     println("Available variables are: \n$(read_names(exo, V))")
     return
@@ -83,7 +111,10 @@ end
 
 """
 """
-function read_values(exo::ExodusDatabase, ::Type{V}, time_step::Integer, set_name::String, var_name::String) where V <: AbstractVariable
+function read_values(
+  exo::ExodusDatabase, ::Type{V}, 
+  time_step::Integer, set_name::String, var_name::String
+) where V <: Union{NodeSetVariable, SideSetVariable}
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
     throw(BoundsError(read_names(exo, V), var_name_index))
@@ -129,7 +160,8 @@ function read_partial_values(
   ::Type{V},
   time_step::Integer, id::Integer, var_name::String, 
   start_node::Integer, num_nodes::Integer,
-) where V <: AbstractVariable
+# ) where V <: AbstractVariable
+) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
     throw(BoundsError(read_names(exo, V), var_name_index))
@@ -139,6 +171,18 @@ function read_partial_values(
 end
 
 """
+General method to write the number of variables for a given variable type V.
+
+Examples:
+julia> write_number_of_variables(exo, Element, 6)
+
+julia> write_number_of_variables(exo, Global, 5)
+
+julia> write_number_of_variables(exo, Nodal, 3)
+
+julia> write_number_of_variables(exo, NodeSetVariable, 3)
+
+julia> write_number_of_variables(exo, SideSetVariable, 6)
 """
 function write_number_of_variables(exo::ExodusDatabase, ::Type{V}, num_vars::Integer) where V <: AbstractVariable
   error_code = @ccall libexodus.ex_put_variable_param(
@@ -184,6 +228,26 @@ function write_values(
   )::Cint
   exodus_error_check(error_code, "Exodus.write_variable_values -> libexodus.ex_put_var")
 end
+
+"""
+Wrapper method for global variables around the main write_values method
+write_values(
+  exo::ExodusDatabase, t::Type{Global}, 
+  timestep::Integer, var_values::Vector{<:AbstractFloat}
+) = write_values(exo, t, timestep, 1, 1, var_values)
+
+Note: you need to first run
+write_number_of_variables(exo, Global, n)
+where n is the number of variables.
+
+Example:
+write_number_of_variables(exo, Global, 5)
+write_values(exo, Global, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+"""
+write_values(
+  exo::ExodusDatabase, t::Type{Global}, 
+  timestep::Integer, var_values::Vector{<:AbstractFloat}
+) = write_values(exo, t, timestep, 1, 1, var_values)
 
 """
 """

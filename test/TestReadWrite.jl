@@ -141,8 +141,16 @@
   @test global_vars[4] == "global_var_4"
   @test global_vars[5] == "global_var_5"
 
-  write_values(exo_new, Global, 1, 1, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+  write_values(exo_new, Global, 1, 1, 1, [100.0, 200.0, 300.0, 400.0, 500.0])
   global_vars = read_values(exo_new, Global, 1, 1, 1)
+  @test global_vars[1] ≈ 100.0
+  @test global_vars[2] ≈ 200.0
+  @test global_vars[3] ≈ 300.0
+  @test global_vars[4] ≈ 400.0
+  @test global_vars[5] ≈ 500.0
+
+  write_values(exo_new, Global, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+  global_vars = read_values(exo_new, Global, 1)
   @test global_vars[1] ≈ 10.0
   @test global_vars[2] ≈ 20.0
   @test global_vars[3] ≈ 30.0
