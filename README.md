@@ -6,10 +6,11 @@
 [![Build Status](https://github.com/cmhamel/Exodus.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/cmhamel/Exodus.jl/actions/workflows/CI.yml?query=branch%3Amain) 
 [![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.html)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl) 
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://cmhamel.github.io/Exodus.jl/stable/) 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cmhamel.github.io/Exodus.jl/dev/) 
-[![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl) 
+
 
 
 # Exodus.jl
