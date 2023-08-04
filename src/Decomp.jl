@@ -80,6 +80,8 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
   return nem_spread_out
 end
 
+"""
+"""
 function decomp(file_name::String, n_procs::I) where I <: Integer
   # some file management up front
   # WARNING by default it removes old files

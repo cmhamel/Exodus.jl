@@ -1,10 +1,8 @@
 """
 """
-# function read_number_of_variables(exo::ExodusDatabase, type::ex_entity_type)
 function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
   num_vars = Ref{Cint}(0)
   error_code = @ccall libexodus.ex_get_variable_param(
-    # get_file_id(exo)::Cint, type::ex_entity_type, num_vars::Ptr{Cint}
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Ptr{Cint}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_number_of_variables -> libexodus.ex_get_variable_param")
@@ -13,7 +11,6 @@ end
 
 """
 """
-# function read_variable_name(exo::ExodusDatabase, var_index::Integer, type::ex_entity_type)
 function read_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <: AbstractVariable
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(

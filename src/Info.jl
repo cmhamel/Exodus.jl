@@ -1,3 +1,5 @@
+"""
+"""
 function read_info(exo::ExodusDatabase)
   num_info = @ccall libexodus.ex_inquire_int(
     get_file_id(exo)::Cint, EX_INQ_INFO::ex_inquiry
@@ -17,6 +19,8 @@ function read_info(exo::ExodusDatabase)
   return new_info
 end
 
+"""
+"""
 function write_info(exo::ExodusDatabase, info::Vector{String})
   error_code = @ccall libexodus.ex_put_info(
     get_file_id(exo)::Cint, length(info)::Cint, info::Ptr{Ptr{UInt8}}

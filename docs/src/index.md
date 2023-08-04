@@ -1,8 +1,14 @@
-# Exodus.jl
+```@meta
+CurrentModule = Exodus
+```
 
-Documentation for Exodus.jl
+# Exodus
 
-## Documentation
+Documentation for [Exodus](https://github.com/cmhamel/Exodus.jl).
+
+```@index
+```
+
 ```@autodocs
 Modules = [Exodus]
 ```
