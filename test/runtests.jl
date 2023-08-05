@@ -85,7 +85,7 @@ end
 
   types = [Block, NodeSet, SideSet]
   for type in types
-    e = Exodus.SetIDException(exo, type, -1)
+    e = Exodus.SetIDException(exo, type, 1001)
     @show e
     e = Exodus.SetNameException(exo, type, "fake_set_name")
     @show e
@@ -93,7 +93,7 @@ end
 
   types = [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
   for type in types
-    e = Exodus.VariableIDException(exo, type, -1)
+    e = Exodus.VariableIDException(exo, type, 1001)
     @show e
     e = Exodus.VariableNameException(exo, type, "fake_variable_name")
     @show e
