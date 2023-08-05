@@ -98,6 +98,9 @@ number_of_elements_3D = 512
 
   nsets = read_sets(exo, NodeSet)
 
+  @test_throws Exodus.SetNameException NodeSet(exo, "nset_fake")
+  @test_throws Exodus.SetNameException read_set(exo, NodeSet, "nset_fake")
+
   # qa
   qa = read_qa(exo)
   @test qa[1, 1] == "CUBIT"
@@ -123,6 +126,9 @@ number_of_elements_3D = 512
   end
 
   ssets = read_sets(exo, SideSet)
+
+  @test_throws Exodus.SetNameException SideSet(exo, "sset_fake")
+  @test_throws Exodus.SetNameException read_set(exo, SideSet, "sset_fake")
 
   close(exo)
 end

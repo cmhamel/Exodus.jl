@@ -251,6 +251,10 @@
     @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_y") == u_y
   end
 
+  # @test_throws Exodus.VariableNameException read_values(exo_new, NodeSetVariable, 1, "nset_fake_name", "nset_displ_x")
+  # @test_throws Exodus.VariableNameException read_values(exo_new, NodeSetVariable, 1, "nset_fake_name", "nset_displ_x")
+
+
   # qa
   write_qa(exo_new, qa_old)
   qa_new = read_qa(exo_new)
@@ -351,7 +355,7 @@
 
   # variable throw error
   # @test_throws BoundsError read_values(exo_new, Nodal, 1, 1, "fake_variable")
-  read_values(exo_new, Nodal, 1, 1, "fake_variable")
+  @test_throws Exodus.VariableNameException read_values(exo_new, Nodal, 1, 1, "fake_variable")
 
   close(exo_new)
 

@@ -34,11 +34,46 @@ get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
 
+"""
+"""
+struct SetNameException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  name::String
+end
+
+"""
+"""
+function Base.show(io::IO, e::SetNameException)
+  print(io, "\nSet named \"$(e.name)\" not found.\n")
+  print(io, "Available sets for type $(e.type) are:\n")
+  for name in read_names(e.exo, e.type)
+    print(io, "  $name\n")
+  end
+end
+
+"""
+"""
+struct VariableNameException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  name::String
+end
+
+"""
+"""
+function Base.show(io::IO, e::VariableNameException)
+  print(io, "\nVariable named \"$(e.name)\" not found.\n")
+  print(io, "Available variables of type $(e.type) are:\n")
+  for name in read_names(e.exo, e.type)
+    print(io, "  $name\n")
+  end
+end
+
 # sets and blocks
 abstract type AbstractExodusType end
 abstract type AbstractSet{I, B} <: AbstractExodusType end
 abstract type AbstractVariable <: AbstractExodusType end
-
 
 """
 """
@@ -104,7 +139,7 @@ function NodeSet(exo::ExodusDatabase, name::String)
   ids = read_ids(exo, NodeSet)
   name_index = findall(x -> x == name, read_names(exo, NodeSet))
   if length(name_index) < 1
-    throw(BoundsError(read_names(exo, NodeSet), name_index))
+    throw(SetNameException(exo, NodeSet, name))
   end
   name_index = name_index[1]
   return NodeSet(exo, ids[name_index])
@@ -144,13 +179,10 @@ end
 """
 """
 function SideSet(exo::ExodusDatabase, name::String)
-  # ids = read_side_set_ids(exo)
   ids = read_ids(exo, SideSet)
-  # name_index = findall(x -> x == name, read_side_set_names(exo))
   name_index = findall(x -> x == name, read_names(exo, SideSet))
   if length(name_index) < 1
-    # throw(BoundsError(read_side_set_names(exo), name_index))
-    throw(BoundsError(read_names(exo, SideSet), name_index))
+    throw(SetNameException(exo, SideSet, name))
   end
   name_index = name_index[1]
   return SideSet(exo, ids[name_index])

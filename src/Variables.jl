@@ -27,8 +27,28 @@ function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: Abs
 end
 
 """
+General method to read the name of a variable in index var_index 
+for a given variable type V.
+
+Examples:
+julia> read_name(exo, Element, 1)
+"stress_xx"
+
+julia> read_name(exo, Global, 2)
+"reaction_force"
+
+julia> read_name(exo, Nodal, 1)
+"displ_x"
+
+julia> read_name(exo, NodeSetVariable, 1)
+"nset_displ_x"
+
+julia> read_name(exo, SideSetVariable, 1)
+"pressure"
 """
-function read_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <: AbstractVariable
+function read_name(
+  exo::ExodusDatabase, ::Type{V}, var_index::Integer
+) where V <: AbstractVariable
   var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
@@ -38,6 +58,34 @@ function read_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <
 end
 
 """
+General method to read the names of variables
+for a given variable type V.
+
+Examples:
+julia> read_names(exo, Element)
+"stress_xx"
+"stress_yy"
+"stress_zz"
+"stress_xy"
+"stress_yz"
+"stress_zx"
+
+julia> read_names(exo, Global)
+"global_displ"
+"reaction_force"
+
+julia> read_names(exo, Nodal)
+"displ_x"
+"displ_y"
+"displ_z"
+
+julia> read_name(exo, NodeSetVariable)
+"nset_displ_x"
+"nset_displ_y"
+"nset_displ_z"
+
+julia> read_name(exo, SideSetVariable)
+"pressure"
 """
 function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
   num_vars = read_number_of_variables(exo, V)
@@ -58,6 +106,7 @@ function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
 end
 
 """
+General method to read variable values.
 """
 function read_values(
   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
@@ -99,11 +148,10 @@ function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, id::Integer, var_name::String
 ) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
+
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    println("WARNING: Variable name: $var_name not found")
-    println("Available variables are: \n$(read_names(exo, V))")
-    return
+    throw(VariableNameException(exo, V, var_name))
   end
   var_name_index = var_name_index[1]
   read_values(exo, V, time_step, id, var_name_index)
@@ -115,9 +163,10 @@ function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, set_name::String, var_name::String
 ) where V <: Union{NodeSetVariable, SideSetVariable}
+
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(BoundsError(read_names(exo, V), var_name_index))
+    throw(VariableNameException(exo, V, var_name))
   end
   var_name_index = var_name_index[1]
   set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
@@ -127,6 +176,7 @@ function read_values(
     # throw(BoundsError("Set name: $set_name not found"))
     # throw(BoundsError(read_names(exo, V), var_name_index))
     return 
+    # throw(SetNameException(read_names(exo, V), var_name_index))
   end
   set_name_index = set_name_index[1]
   # read_values(exo, V, time_step, var_name_index, set_name_index)
