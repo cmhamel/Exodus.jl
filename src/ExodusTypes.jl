@@ -34,10 +34,89 @@ get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
 
+"""
+"""
+struct SetIDException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  id::Int
+end
+
+"""
+"""
+function Base.show(io::IO, e::SetIDException)
+  print(io, "\nSet of type $(e.type) with ID \"$(e.id)\" not found.\n")
+  print(io, "Available set IDs for type $(e.type) are:\n")
+  for id in read_ids(e.exo, e.type)
+    print(io, "  $id\n")
+  end
+end
+
+"""
+"""
+struct SetNameException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  name::String
+end
+
+"""
+"""
+function Base.show(io::IO, e::SetNameException)
+  print(io, "\nSet of type $(e.type) named \"$(e.name)\" not found.\n")
+  print(io, "Available set names for type $(e.type) are:\n")
+  for name in read_names(e.exo, e.type)
+    print(io, "  $name\n")
+  end
+end
+
+"""
+"""
+struct VariableIDException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  id::Int
+end
+
+"""
+"""
+function Base.show(io::IO, e::VariableIDException)
+  print(io, "\nVariable of type $(e.type) with ID \"$(e.id)\" not found.\n")
+  print(io, "Available variable IDs of type $(e.type) are:\n")
+  # for id in read_ids(e.exo, e.type)
+  # TODO TODO TODO might not be best
+  for id in 1:read_number_of_variables(e.exo, e.type)
+    print(io, "  $id\n")
+  end
+end
+
+"""
+"""
+struct VariableNameException{M, I, B, F, V} <: Exception 
+  exo::ExodusDatabase{M, I, B, F}
+  type::Type{V}
+  name::String
+end
+
+"""
+"""
+function Base.show(io::IO, e::VariableNameException)
+  print(io, "\nVariable of type $(e.type) named \"$(e.name)\" not found.\n")
+  print(io, "Available variable names of type $(e.type) are:\n")
+  for name in read_names(e.exo, e.type)
+    print(io, "  $name\n")
+  end
+end
+
 # sets and blocks
 abstract type AbstractExodusType end
 abstract type AbstractSet{I, B} <: AbstractExodusType end
 abstract type AbstractVariable <: AbstractExodusType end
+
+id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
 
 
 """
@@ -68,7 +147,7 @@ function Block(exo::ExodusDatabase, block_name::String)
   block_ids = read_ids(exo, Block)
   name_index = findall(x -> x == block_name, read_names(exo, Block))
   if length(name_index) < 1
-    throw(BoundsError(read_names(exo, Block), name_index))
+    throw(SetNameException(exo, Block, block_name))
   end
   name_index = name_index[1]
   return Block(exo, block_ids[name_index])
@@ -94,6 +173,9 @@ end
 """
 """
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
+  if findall(x -> x == id, read_ids(exo, NodeSet)) |> length < 1
+    throw(SetIDException(exo, NodeSet, id))
+  end
   nodes = read_node_set_nodes(exo, id)
   return NodeSet{I, B}(id, nodes)
 end
@@ -104,7 +186,7 @@ function NodeSet(exo::ExodusDatabase, name::String)
   ids = read_ids(exo, NodeSet)
   name_index = findall(x -> x == name, read_names(exo, NodeSet))
   if length(name_index) < 1
-    throw(BoundsError(read_names(exo, NodeSet), name_index))
+    throw(SetNameException(exo, NodeSet, name))
   end
   name_index = name_index[1]
   return NodeSet(exo, ids[name_index])
@@ -137,6 +219,9 @@ end
 """
 """
 function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
+  if findall(x -> x == id, read_ids(exo, SideSet)) |> length < 1
+    throw(SetIDException(exo, SideSet, id))
+  end
   elements, sides = read_side_set_elements_and_sides(exo, id)
   return SideSet{I, B}(id, elements, sides)
 end
@@ -144,13 +229,10 @@ end
 """
 """
 function SideSet(exo::ExodusDatabase, name::String)
-  # ids = read_side_set_ids(exo)
   ids = read_ids(exo, SideSet)
-  # name_index = findall(x -> x == name, read_side_set_names(exo))
   name_index = findall(x -> x == name, read_names(exo, SideSet))
   if length(name_index) < 1
-    # throw(BoundsError(read_side_set_names(exo), name_index))
-    throw(BoundsError(read_names(exo, SideSet), name_index))
+    throw(SetNameException(exo, SideSet, name))
   end
   name_index = name_index[1]
   return SideSet(exo, ids[name_index])
@@ -207,5 +289,6 @@ entity_type(::Type{S}) where S <: NodeSetVariable = EX_NODE_SET
 entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
 entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 
+set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet

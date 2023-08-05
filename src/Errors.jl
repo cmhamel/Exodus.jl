@@ -9,3 +9,9 @@ function exodus_error_check(error_code::T, method_name::String) where {T <: Inte
     error("Error from exodus library call in method $method_name with code $error_code")
   end
 end
+
+
+# id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
+# name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
+# id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
+# name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
