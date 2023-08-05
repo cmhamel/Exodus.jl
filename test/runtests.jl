@@ -80,6 +80,28 @@ end
   end
 end
 
+@exodus_unit_test_set "Exception testing" begin
+  exo = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
+
+  types = [Block, NodeSet, SideSet]
+  for type in types
+    e = Exodus.SetIDException(exo, type, -1)
+    @show e
+    e = Exodus.SetNameException(exo, type, "fake_set_name")
+    @show e
+  end
+
+  types = [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+  for type in types
+    e = Exodus.VariableIDException(exo, type, -1)
+    @show e
+    e = Exodus.VariableNameException(exo, type, "fake_variable_name")
+    @show e
+  end
+
+  close(exo)
+end
+
 @includetests ARGS
 
 # aqua testing
