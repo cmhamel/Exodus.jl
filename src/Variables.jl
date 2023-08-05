@@ -113,14 +113,28 @@ function read_values(
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: AbstractVariable}
 
+  # not sure if this is the best way TODO TODO TODO
+  n_vars = read_number_of_variables(exo, V)
+  if var_index < 1 || var_index > n_vars
+    throw(VariableIDException(exo, V, var_index))
+  end
+
   if V <: Nodal
     num_entries = exo.init.num_nodes
   elseif V <: Element
+    if findall(x -> x == id, read_ids(exo, Block)) |> length < 1
+      throw(SetIDException(exo, Block, id))
+    end
+
     _, num_entries, _, _, _, _ =
     read_block_parameters(exo, id)
   elseif V <: Global
     num_entries = read_number_of_variables(exo, V)
   elseif V <: NodeSetVariable || V <: SideSetVariable
+    if findall(x -> x == id, read_ids(exo, set_equivalent(V))) |> length < 1
+      throw(SetIDException(exo, set_equivalent(V), id))
+    end
+
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   end
 
@@ -169,56 +183,52 @@ function read_values(
     throw(VariableNameException(exo, V, var_name))
   end
   var_name_index = var_name_index[1]
+
   set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
   if length(set_name_index) < 1
-    println("WARNING: Set name: $set_name not found")
-    println("Available sets are: \n$(read_sets(exo, set_equivalent(V)))")
-    # throw(BoundsError("Set name: $set_name not found"))
-    # throw(BoundsError(read_names(exo, V), var_name_index))
-    return 
-    # throw(SetNameException(read_names(exo, V), var_name_index))
+    throw(SetNameException(exo, set_equivalent(V), var_name))
   end
   set_name_index = set_name_index[1]
-  # read_values(exo, V, time_step, var_name_index, set_name_index)
+
   read_values(exo, V, time_step, set_name_index, var_name_index)
 end
 
-"""
-"""
-function read_partial_values(
-  exo::ExodusDatabase{M, I, B, F}, 
-  ::Type{V},
-  time_step::Integer, id::Integer, var_index::Integer, 
-  start_node::Integer, num_nodes::Integer, 
-) where {M, I, B, F, V <: AbstractVariable}
+# """
+# """
+# function read_partial_values(
+#   exo::ExodusDatabase{M, I, B, F}, 
+#   ::Type{V},
+#   time_step::Integer, id::Integer, var_index::Integer, 
+#   start_node::Integer, num_nodes::Integer, 
+# ) where {M, I, B, F, V <: AbstractVariable}
 
-  values = Vector{F}(undef, num_nodes)
-  error_code = @ccall libexodus.ex_get_partial_var(
-    get_file_id(exo)::Cint, time_step::Cint, entity_type(V)::ex_entity_type, 
-    var_index::Cint, id::Cint, 
-    start_node::Clonglong, num_nodes::Clonglong,
-    values::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(error_code, "Exodus.read_partial_nodal_variable_values -> libexodus.ex_get_partial_var")
-  return values
-end
+#   values = Vector{F}(undef, num_nodes)
+#   error_code = @ccall libexodus.ex_get_partial_var(
+#     get_file_id(exo)::Cint, time_step::Cint, entity_type(V)::ex_entity_type, 
+#     var_index::Cint, id::Cint, 
+#     start_node::Clonglong, num_nodes::Clonglong,
+#     values::Ptr{Cvoid}
+#   )::Cint
+#   exodus_error_check(error_code, "Exodus.read_partial_nodal_variable_values -> libexodus.ex_get_partial_var")
+#   return values
+# end
 
-"""
-"""
-function read_partial_values(
-  exo::ExodusDatabase, 
-  ::Type{V},
-  time_step::Integer, id::Integer, var_name::String, 
-  start_node::Integer, num_nodes::Integer,
-# ) where V <: AbstractVariable
-) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
-  var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  if length(var_name_index) < 1
-    throw(BoundsError(read_names(exo, V), var_name_index))
-  end
-  var_name_index = var_name_index[1]
-  read_partial_values(exo, V, time_step, id, var_name_index, start_node, num_nodes)
-end
+# """
+# """
+# function read_partial_values(
+#   exo::ExodusDatabase, 
+#   ::Type{V},
+#   time_step::Integer, id::Integer, var_name::String, 
+#   start_node::Integer, num_nodes::Integer,
+# # ) where V <: AbstractVariable
+# ) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
+#   var_name_index = findall(x -> x == var_name, read_names(exo, V))
+#   if length(var_name_index) < 1
+#     throw(VariableNameException(exo, V, var_name))
+#   end
+#   var_name_index = var_name_index[1]
+#   read_partial_values(exo, V, time_step, id, var_name_index, start_node, num_nodes)
+# end
 
 """
 General method to write the number of variables for a given variable type V.
@@ -310,7 +320,7 @@ function write_values(
 
 var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(BoundsError(read_names(exo, V), var_name_index))
+    throw(VariableNameException(exo, V, var_name))
   end
   var_name_index = var_name_index[1]
   write_values(exo, V, time_step, id, var_name_index, var_value)
@@ -321,19 +331,22 @@ end
 function write_values(
   exo::ExodusDatabase, 
   ::Type{V},
-  time_step::Integer, var_name::String, set_name::String, 
+  time_step::Integer, set_name::String, var_name::String,
   var_value::Vector{<:AbstractFloat}
 ) where V <: AbstractVariable
 
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(BoundsError(read_names(exo, V), var_name_index))
+    throw(VariableNameException(exo, V, var_name))
   end
   var_name_index = var_name_index[1]
+
   set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
   if length(set_name_index) < 1
-    throw(BoundsError(read_names(exo, set_equivalent(V)), set_name_index))
+    throw(SetNameException(exo, set_equivalent(V), set_name))
   end
   set_name_index = set_name_index[1]
-  write_values(exo, V, time_step, var_name_index, set_name_index, var_value)
+
+  # write_values(exo, V, time_step, var_name_index, set_name_index, var_value)
+  write_values(exo, V, time_step, set_name_index, var_name_index, var_value)
 end

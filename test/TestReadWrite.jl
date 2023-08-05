@@ -113,6 +113,9 @@
   @test stress_yy ≈ stress_yy_read
   @test stress_xy ≈ stress_xy_read
 
+  @test_throws Exodus.VariableIDException read_values(exo_new, Element, 1, 1, 6)
+  @test_throws Exodus.VariableNameException read_values(exo_new, Element, 1, 1, "fake_variable")
+
   # global variables
   write_number_of_variables(exo_new, Global, 5)
   @test read_number_of_variables(exo_new, Global) == 5
@@ -185,6 +188,9 @@
   @test read_values(exo_new, Nodal, 1, 1, "displ_x") == u_x
   @test read_values(exo_new, Nodal, 1, 1, "displ_y") == u_y
 
+  @test_throws Exodus.VariableIDException read_values(exo_new, Nodal, 1, 1, 4)
+  @test_throws Exodus.VariableNameException read_values(exo_new, Nodal, 1, 1, "fake_variable")
+
   # nodesets
   for nset in nsets
     write_set(exo_new, nset)
@@ -251,9 +257,21 @@
     @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_y") == u_y
   end
 
-  # @test_throws Exodus.VariableNameException read_values(exo_new, NodeSetVariable, 1, "nset_fake_name", "nset_displ_x")
-  # @test_throws Exodus.VariableNameException read_values(exo_new, NodeSetVariable, 1, "nset_fake_name", "nset_displ_x")
+  nset_names = read_names(exo_new, NodeSet)
+  for nset_name in nset_names
+    nset = NodeSet(exo_new, nset_name)
+    u_x = randn(length(nset.nodes))
+    u_y = randn(length(nset.nodes))
+    write_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_x", u_x)
+    write_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_y", u_y)
+    @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_x") == u_x
+    @test read_values(exo_new, NodeSetVariable, 1, nset_name, "nset_displ_y") == u_y
+  end
 
+  @test_throws Exodus.SetIDException read_values(exo_new, NodeSetVariable, 1, 6, 1)
+  @test_throws Exodus.SetNameException read_values(exo_new, NodeSetVariable, 1, "fake", "nset_displ_x")
+  @test_throws Exodus.VariableIDException read_values(exo_new, NodeSetVariable, 1, 1, 6)
+  @test_throws Exodus.VariableNameException read_values(exo_new, NodeSetVariable, 1, 1, "fake_variable")
 
   # qa
   write_qa(exo_new, qa_old)
@@ -343,6 +361,27 @@
     @test read_values(exo_new, SideSetVariable, 1, sset.id, "stress_xy") == stress_xy
   end
 
+  for sset in ssets
+    stress_xx = randn(length(sset.elements))
+    stress_yy = randn(length(sset.elements))
+    stress_xy = randn(length(sset.elements))
+
+    name = read_name(exo_new, SideSet, sset.id)
+
+    write_values(exo_new, SideSetVariable, 1, name, "stress_xx", stress_xx)
+    write_values(exo_new, SideSetVariable, 1, name, "stress_yy", stress_yy)
+    write_values(exo_new, SideSetVariable, 1, name, "stress_xy", stress_xy)
+
+    @test read_values(exo_new, SideSetVariable, 1, name, "stress_xx") == stress_xx
+    @test read_values(exo_new, SideSetVariable, 1, name, "stress_yy") == stress_yy
+    @test read_values(exo_new, SideSetVariable, 1, name, "stress_xy") == stress_xy
+  end
+
+  @test_throws Exodus.SetIDException read_values(exo_new, SideSetVariable, 1, 6, 1)
+  @test_throws Exodus.SetNameException read_values(exo_new, SideSetVariable, 1, "fake", "stress_xx")
+  @test_throws Exodus.VariableIDException read_values(exo_new, SideSetVariable, 1, 1, 6)
+  @test_throws Exodus.VariableNameException read_values(exo_new, SideSetVariable, 1, 1, "fake_variable")
+
   # times
   write_time(exo_new, 1, 0.)
   write_time(exo_new, 2, 1.)
@@ -354,7 +393,6 @@
   @test read_time(exo_new, 2) == 1.
 
   # variable throw error
-  # @test_throws BoundsError read_values(exo_new, Nodal, 1, 1, "fake_variable")
   @test_throws Exodus.VariableNameException read_values(exo_new, Nodal, 1, 1, "fake_variable")
 
   close(exo_new)

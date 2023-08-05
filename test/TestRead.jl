@@ -45,7 +45,6 @@ number_of_elements_3D = 512
   block_id_map = read_block_id_map(exo, 1)
   @test block_id_map == 1:Block(exo, 1).num_elem |> collect
   
-
   # coordinate values
   coords = read_coordinates(exo)
   @test size(coords) == (2, number_of_nodes_2D)
@@ -98,6 +97,8 @@ number_of_elements_3D = 512
 
   nsets = read_sets(exo, NodeSet)
 
+  @test_throws Exodus.SetIDException NodeSet(exo, 5)
+  @test_throws Exodus.SetIDException read_set(exo, NodeSet, 5)
   @test_throws Exodus.SetNameException NodeSet(exo, "nset_fake")
   @test_throws Exodus.SetNameException read_set(exo, NodeSet, "nset_fake")
 
@@ -127,6 +128,8 @@ number_of_elements_3D = 512
 
   ssets = read_sets(exo, SideSet)
 
+  @test_throws Exodus.SetIDException SideSet(exo, 5)
+  @test_throws Exodus.SetIDException read_set(exo, SideSet, 5)
   @test_throws Exodus.SetNameException SideSet(exo, "sset_fake")
   @test_throws Exodus.SetNameException read_set(exo, SideSet, "sset_fake")
 
