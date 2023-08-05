@@ -116,14 +116,16 @@ function read_values(
   # not sure if this is the best way TODO TODO TODO
   n_vars = read_number_of_variables(exo, V)
   if var_index < 1 || var_index > n_vars
-    throw(VariableIDException(exo, V, var_index))
+    # throw(VariableIDException(exo, V, var_index))
+    id_error(exo, V, var_index)
   end
 
   if V <: Nodal
     num_entries = exo.init.num_nodes
   elseif V <: Element
     if findall(x -> x == id, read_ids(exo, Block)) |> length < 1
-      throw(SetIDException(exo, Block, id))
+      # throw(SetIDException(exo, Block, id))
+      id_error(exo, Block, id)
     end
 
     _, num_entries, _, _, _, _ =
@@ -132,7 +134,8 @@ function read_values(
     num_entries = read_number_of_variables(exo, V)
   elseif V <: NodeSetVariable || V <: SideSetVariable
     if findall(x -> x == id, read_ids(exo, set_equivalent(V))) |> length < 1
-      throw(SetIDException(exo, set_equivalent(V), id))
+      # throw(SetIDException(exo, set_equivalent(V), id))
+      id_error(exo, set_equivalent(V), id)
     end
 
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
@@ -165,7 +168,8 @@ function read_values(
 
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(VariableNameException(exo, V, var_name))
+    # throw(VariableNameException(exo, V, var_name))
+    name_error(exo, V, var_name)
   end
   var_name_index = var_name_index[1]
   read_values(exo, V, time_step, id, var_name_index)
@@ -176,17 +180,19 @@ end
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, set_name::String, var_name::String
-) where V <: Union{NodeSetVariable, SideSetVariable}
+) where V <: Union{Element, NodeSetVariable, SideSetVariable}
 
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(VariableNameException(exo, V, var_name))
+    # throw(VariableNameException(exo, V, var_name))
+    name_error(exo, V, var_name)
   end
   var_name_index = var_name_index[1]
 
   set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
   if length(set_name_index) < 1
-    throw(SetNameException(exo, set_equivalent(V), var_name))
+    # throw(SetNameException(exo, set_equivalent(V), var_name))
+    name_error(exo, set_equivalent(V), set_name)
   end
   set_name_index = set_name_index[1]
 
@@ -320,7 +326,8 @@ function write_values(
 
 var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(VariableNameException(exo, V, var_name))
+    # throw(VariableNameException(exo, V, var_name))
+    name_error(exo, V, var_name)
   end
   var_name_index = var_name_index[1]
   write_values(exo, V, time_step, id, var_name_index, var_value)
@@ -337,13 +344,15 @@ function write_values(
 
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    throw(VariableNameException(exo, V, var_name))
+    # throw(VariableNameException(exo, V, var_name))
+    name_error(exo, V, var_name)
   end
   var_name_index = var_name_index[1]
 
   set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
   if length(set_name_index) < 1
-    throw(SetNameException(exo, set_equivalent(V), set_name))
+    # throw(SetNameException(exo, set_equivalent(V), set_name))
+    name_error(exo, set_equivalent(V), set_name)
   end
   set_name_index = set_name_index[1]
 

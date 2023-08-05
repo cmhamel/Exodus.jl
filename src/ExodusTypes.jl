@@ -113,6 +113,12 @@ abstract type AbstractExodusType end
 abstract type AbstractSet{I, B} <: AbstractExodusType end
 abstract type AbstractVariable <: AbstractExodusType end
 
+id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
+
+
 """
 """
 struct Block{I, B} <: AbstractSet{I, B}
@@ -283,5 +289,6 @@ entity_type(::Type{S}) where S <: NodeSetVariable = EX_NODE_SET
 entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
 entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 
+set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet

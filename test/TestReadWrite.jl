@@ -55,6 +55,9 @@
   partial_conn = reshape(partial_conn, block_new.num_nodes_per_elem, 100)
   @test conn[:, 10:110 - 1] ≈ partial_conn
 
+  write_name(exo_new, Block, 1, "block_1")
+  @test read_name(exo_new, Block, 1) == "block_1"
+
   # coordinate values
   write_coordinates(exo_new, coords_old)
   coords_new = read_coordinates(exo_new)
@@ -79,7 +82,8 @@
   @test read_name(exo_new, Element, 2) == "stress_yy"
   @test read_name(exo_new, Element, 3) == "stress_xy"
 
-  block = Block(exo_new, 1)
+  # block = Block(exo_new, 1)
+  block = Block(exo_new, "block_1")
 
   stress_xx = randn(block.num_elem)
   stress_yy = randn(block.num_elem)
@@ -113,6 +117,8 @@
   @test stress_yy ≈ stress_yy_read
   @test stress_xy ≈ stress_xy_read
 
+  @test_throws Exodus.SetIDException read_values(exo_new, Element, 1, 2, 1)
+  @test_throws Exodus.SetNameException read_values(exo_new, Element, 1, "fake", "stress_xx")
   @test_throws Exodus.VariableIDException read_values(exo_new, Element, 1, 1, 6)
   @test_throws Exodus.VariableNameException read_values(exo_new, Element, 1, 1, "fake_variable")
 
