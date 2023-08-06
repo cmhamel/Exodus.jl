@@ -19,15 +19,15 @@ struct Initialization{B}
 end
 
 # @with_kw struct ExodusDatabase{M, I, B, F}
-struct ExodusDatabase{M, I, B, F}
+@kwdef struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   init::Initialization{B}
   # cache arrays and variables
-  cache_M::Vector{M}# = M[]
-  cache_I::Vector{I}# = I[]
-  cache_B::Vector{B}# = B[]
-  cache_F::Vector{F}# = F[]
+  cache_M::Vector{M} = M[]
+  cache_I::Vector{I} = I[]
+  cache_B::Vector{B} = B[]
+  cache_F::Vector{F} = F[]
 end
 
 get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M

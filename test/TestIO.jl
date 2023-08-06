@@ -89,3 +89,35 @@ end
   close(exo_new)
   Base.rm("./test_output.e")
 end
+
+@exodus_unit_test_set "Test different type combos" begin
+
+  exo_old = ExodusDatabase("mesh/square_meshes/mesh_test.g", "r")
+  coords_old = read_coordinates(exo_old)
+  init_old = Initialization(exo_old)
+  close(exo_old)
+
+  Ms = [Int32, Int64]
+  Is = [Int32, Int64]
+  Bs = [Int32, Int64]
+  Fs = [Float32, Float64]
+
+  for M in Ms
+    for I in Is
+      for B in Bs
+        for F in Fs
+          init = Initialization{B}(
+            init_old.num_dim, init_old.num_nodes, init_old.num_elems,
+            init_old.num_elem_blks, init_old.num_node_sets, init_old.num_side_sets
+          )
+          exo = ExodusDatabase("./dummy_$(M)_$(I)_$(B)_$(F).e", "w", init, M, I, B, F)
+          @test typeof(exo) == ExodusDatabase{M, I, B, F}
+
+          close(exo)
+
+          Base.Filesystem.rm("./dummy_$(M)_$(I)_$(B)_$(F).e")
+        end
+      end
+    end
+  end
+end

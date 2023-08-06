@@ -16,10 +16,11 @@ end
 
 """
 """
-function int_and_float_modes(exo::Cint)
+function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
 
+  # should be 8 options or 2^3
   if int64_status == 0x00000000
     M, I, B = Cint, Cint, Cint
   elseif int64_status == EX_MAPS_INT64_API
@@ -51,21 +52,60 @@ function int_and_float_modes(exo::Cint)
   return M, I, B, F
 end
 
+function map_int_type(int_status::UInt32)
+  if int_status == 0x00000000
+    return Cint
+  elseif int_status == EX_MAPS_INT64_API
+    return Clonglong
+  elseif int_status == EX_ALL_INT64_API
+    return Clonglong
+  else
+    return Cint# hack for now
+  end
+end
+
+function id_int_type(int_status::UInt32)
+  if int_status == 0x00000000
+    return Cint
+  elseif int_status == EX_IDS_INT64_API
+    return Clonglong
+  elseif int_status == EX_ALL_INT64_API
+    return Clonglong
+  else
+    return Cint# hack for now
+  end
+end
+
+function bulk_int_type(int_status::UInt32)
+  if int_status == 0x00000000
+    return Cint
+  elseif int_status == EX_BULK_INT64_API
+    return Clonglong
+  elseif int_status == EX_ALL_INT64_API
+    return Clonglong
+  else
+    return Cint# hack for now
+  end
+end
+
+function float_type(float_size::Int32)
+  if float_size == 4
+    return Cfloat
+  elseif float_size == 8
+    return Cdouble
+  end
+end
+
 """
 """
 function ExodusDatabase(
-  exo::Cint, mode::String, init::Initialization{B},
+  exo::Cint, mode::String,
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F},
 ) where {M, I, B, F}
   
-  # setup caches
-  cache_M, cache_I, cache_B, cache_F = M[], I[], B[], F[]
-  
-  # finally return the ExodusDatabase
-  return ExodusDatabase{M, I, B, F}(
-    exo, mode, init,
-    cache_M, cache_I, cache_B, cache_F
-  )
+  # get init
+  init = Initialization(exo, B)
+  return ExodusDatabase{M, I, B, F}(exo=exo, mode=mode, init=init)
 end
 
 """
@@ -98,20 +138,24 @@ function ExodusDatabase(file_name::String, mode::String)
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
   end
 
-  # get types
-  M, I, B, F = int_and_float_modes(exo)
+  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+
+  M = map_int_type(int64_status)
+  I = id_int_type(int64_status)
+  B = bulk_int_type(int64_status)
+  F = float_type(float_size)
 
   # init read or write
-  if mode == "r" || mode == "rw"
-    init = Initialization(exo, B)
-  elseif mode == "w" && isfile(file_name)
-    init = Initialization(exo, B)
-  else
-    init = Initialization(B)
-  end
+  # if mode == "r" || mode == "rw"
+  #   init = Initialization(exo, B)
+  # elseif mode == "w" && isfile(file_name)
+  #   init = Initialization(exo, B)
+  # else
+  #   init = Initialization(B)
+  # end
 
-  # now dispatch on types
-  return ExodusDatabase(exo, mode, init, M, I, B, F)
+  return ExodusDatabase(exo, mode, M, I, B, F)
 end
 
 function ExodusDatabase(
@@ -119,16 +163,16 @@ function ExodusDatabase(
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
 ) where {M, I, B, F}
   
-  # TODO actually set types!!!
-  println("WARNING: This method currently only supports ExodusDatabase{Int32, Int32, Int32, Float64} as a type")
-
   if mode != "w"
-    throw(ModeException("You can only use write mode with this method"))
+    # throw(ModeException("You can only use write mode with this method"))
+    mode_error("You can only use write mode with this method!")
   end
 
+  # trying out different float sizes
   exo = @ccall libexodus.ex_create_int(
     file_name::Cstring, EX_WRITE::Cint, 
-    cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
+    # sizeof(F)::Ref{Cint}, sizeof(F)::Ref{Cint}, 
+    cpu_word_size::Ref{Cint}, sizeof(F)::Ref{Cint},
     EX_API_VERS_NODOT::Cint
   )::Cint
   exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
