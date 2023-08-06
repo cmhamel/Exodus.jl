@@ -1,6 +1,8 @@
 @exodus_unit_test_set "Test Read/Write ExodusDatabase - 2D Mesh" begin
   exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
   
+  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
+
   init_old = Initialization(exo_old)
   block_old = Block(exo_old, 1)
   coords_old = read_coordinates(exo_old)
@@ -12,7 +14,10 @@
   qa_old = read_qa(exo_old)
   close(exo_old)
 
-  exo_new = ExodusDatabase("./test_output_2D_Mesh.e", init_old)
+  exo_new = ExodusDatabase(
+    "./test_output_2D_Mesh.e", "w", init_old,
+    M, I, B, F
+  )
 
   # info
   info = ["info entry 1", "info entry 2", "info entry 3"]
@@ -408,15 +413,17 @@ end
 
 @exodus_unit_test_set "Test Read/Write ExodusDatabase - 3D Mesh" begin
   exo_old = ExodusDatabase(abspath(mesh_file_name_3D), "r")
-
+  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
   init_old = Initialization(exo_old)
   coords_old = read_coordinates(exo_old)
   coord_names_old = Exodus.read_coordinate_names(exo_old)
-  
   close(exo_old)
 
   # init
-  exo_new = ExodusDatabase("./test_output_3D_Mesh.e", init_old)
+  exo_new = ExodusDatabase(
+    "./test_output_3D_Mesh.e", "w", init_old,
+    M, I, B, F
+  )
   @test init_old == exo_new.init
 
   # coordinate values

@@ -14,7 +14,8 @@ end
 
 """
 """
-function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
+# function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
+function Initialization(exo::Cint, ::Type{B}) where B
   num_dim       = Ref{B}(0)
   num_nodes     = Ref{B}(0)
   num_elems     = Ref{B}(0)
@@ -23,7 +24,8 @@ function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
   num_side_sets = Ref{B}(0)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   error_code = @ccall libexodus.ex_get_init(
-    get_file_id(exo)::Cint, 
+    # get_file_id(exo)::Cint, 
+    exo::Cint,
     title::Ptr{UInt8},
     num_dim::Ptr{B}, num_nodes::Ptr{B}, num_elems::Ptr{B},
     num_elem_blks::Ptr{B}, num_node_sets::Ptr{B}, num_side_sets::Ptr{B}
@@ -33,6 +35,8 @@ function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
   return Initialization{B}(num_dim[], num_nodes[], num_elems[],
                            num_elem_blks[], num_node_sets[], num_side_sets[])
 end
+
+Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = Initialization(exo.exo, B)
 
 # Initialization(exo::ExodusDatabase) = Initialization(get_file_id(exo))
 

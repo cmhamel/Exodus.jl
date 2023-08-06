@@ -16,132 +16,150 @@ end
 
 """
 """
-function exo_int_types(exoid::Cint)
-  int64_status = @ccall libexodus.ex_int64_status(exoid::Cint)::UInt32
-  # TODO need better checks for non 32 bit case
-  if int64_status == 0x0000
-    maps_int_type = Cint
-    ids_int_type = Cint
-    bulk_int_type = Cint
-    # TODO this will break for non 32 bit case
-    # TODO figure out other cases from hex codes in exodusII.h
-  end
-  return maps_int_type, ids_int_type, bulk_int_type
-end
+function int_and_float_modes(exo::Cint)
+  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
 
-"""
-"""
-function exo_float_type(exoid::Cint)
-  float_size = @ccall libexodus.ex_inquire_int(exoid::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
-  exodus_error_check(float_size, "Exodus.exo_float_type -> libexodus.ex_inquire_int")
-  # this is more straightforward
+  if int64_status == 0x00000000
+    M, I, B = Cint, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API
+    M, I, B = Clonglong, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API
+    M, I, B = Clonglong, Clonglong, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Cint, Clonglong
+  elseif int64_status == EX_IDS_INT64_API
+    M, I, B = Cint, Clonglong, Cint
+  elseif int64_status == EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Cint, Clonglong, Clonglong
+  elseif int64_status == EX_BULK_INT64_API
+    M, I, B = Cint, Cint, Clonglong
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Clonglong, Clonglong
+  else
+    mode_error("Bad int64_status, probably 64 int bit mesh, not supported right now $int64_status")
+  end
+
   if float_size == 4
-    float_type = Cfloat
+    F = Cfloat
   elseif float_size == 8
-    float_type = Cdouble
+    F = Cdouble
+  else
+    mode_error("Bad float mode: float_size == $(float_size)")
   end
-  return float_type
+
+  return M, I, B, F
 end
 
 """
-Init method for read/read-write
+"""
+function ExodusDatabase(
+  exo::Cint, mode::String, init::Initialization{B},
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F},
+) where {M, I, B, F}
+  
+  # setup caches
+  cache_M, cache_I, cache_B, cache_F = M[], I[], B[], F[]
+  
+  # finally return the ExodusDatabase
+  return ExodusDatabase{M, I, B, F}(
+    exo, mode, init,
+    cache_M, cache_I, cache_B, cache_F
+  )
+end
+
+"""
 """
 function ExodusDatabase(file_name::String, mode::String)
-  if lowercase(mode) == "r"
-    exo = @ccall libexodus.ex_open_int(
-      file_name::Cstring, EX_READ::Cint, 
-      cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
-      version_number::Ref{Cfloat}, EX_API_VERS_NODOT::Cint
-    )::Cint
-    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
+  if mode == "r"
+    ex_mode = EX_READ
+  elseif mode == "rw" || (mode == "w" && !isfile(file_name))
+    ex_mode = EX_WRITE
+  elseif mode == "w" && isfile(file_name)
+    ex_mode = EX_CLOBBER
+  else
+    mode_error(mode)
+  end
 
-    M, I, B = exo_int_types(exo)
-    F       = exo_float_type(exo)
-    
-    exo_temp = ExodusDatabase{M, I, B, F}(exo, "r", Initialization(B))
-
-    # init = Initialization(exo)
-    init = Initialization(exo_temp)
-    return ExodusDatabase{M, I, B, F}(exo, mode, init)
-  # elseif lowercase(mode) == "w"
-    # exo = 
-  elseif lowercase(mode) == "rw"
-    exo = @ccall libexodus.ex_open_int(
+  # get exodus
+  if mode == "w" && !isfile(file_name)
+    exo = @ccall libexodus.ex_create_int(
       file_name::Cstring, EX_WRITE::Cint, 
       cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
-      version_number::Ref{Cfloat}, EX_API_VERS_NODOT::Cint
+      EX_API_VERS_NODOT::Cint
     )::Cint
-    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
-
-    M, I, B = exo_int_types(exo)
-    F       = exo_float_type(exo)
-    exo_temp = ExodusDatabase{M, I, B, F}(exo, "r", Initialization(B))
-    init = Initialization(exo_temp)
-    return ExodusDatabase{M, I, B, F}(exo, mode, init)
-  # elseif lowercase(mode) == "w"
-  #   exo = ex_create(file_name, EX_WRITE, cpu_word_size, IO_word_size)
-  #   maps_int_type, ids_int_type, bulk_int_type = Int32, Int32, Int32
+    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
   else
-    throw(ErrorException("Invalid mode"))
-  end
-end
-
-"""
-"""
-function ExodusDatabase(
-  file_name::String;
-  maps_int_type::Type = Int32, ids_int_type::Type = Int32, 
-  bulk_int_type::Type = Int32, float_type::Type = Float64,
-  num_dim::I = 0, num_nodes::I = 0, num_elems::I = 0,
-  num_elem_blks::I = 0, num_node_sets::I = 0, num_side_sets::I = 0
-) where {I <: Integer}
-
-  if isfile(file_name)
     exo = @ccall libexodus.ex_open_int(
-      file_name::Cstring, EX_CLOBBER::Cint, 
+      file_name::Cstring, ex_mode::Cint, 
       cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
       version_number::Ref{Cfloat}, EX_API_VERS_NODOT::Cint
     )::Cint
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
-    exo_temp = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(exo, "rw", Initialization(bulk_int_type))
-    init = Initialization(exo_temp)
-    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(exo, "rw", init)
-  else
-    exo = @ccall libexodus.ex_create_int(
-      file_name::Cstring, EX_WRITE::Cint, cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, EX_API_VERS_NODOT::Cint
-    )::Cint
-    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
-
-    # below is what they do in the example but this is weirdly throwing an error
-    # exo = @ccall libexodus.ex_create_int(
-    #   file_name::Cstring, EX_CLOBBER::Cint, Ref{Cint}(0)::Ref{Cint}, Ref{Cint}(4)::Ref{Cint}, EX_API_VERS_NODOT::Cint
-    # )::Cint
-    # exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
-
-    init = Initialization{bulk_int_type}(
-      num_dim, num_nodes, num_elems,
-      num_elem_blks, num_node_sets, num_side_sets
-    )
-    write_initialization!(exo, init)
-    return ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
-      exo, "w", init
-    )
   end
+
+  # get types
+  M, I, B, F = int_and_float_modes(exo)
+
+  # init read or write
+  if mode == "r" || mode == "rw"
+    init = Initialization(exo, B)
+  elseif mode == "w" && isfile(file_name)
+    init = Initialization(exo, B)
+  else
+    init = Initialization(B)
+  end
+
+  # now dispatch on types
+  return ExodusDatabase(exo, mode, init, M, I, B, F)
 end
 
-"""
-"""
 function ExodusDatabase(
-  file_name::String, init::Initialization;
-  maps_int_type::Type = Int32, ids_int_type::Type = Int32, 
-  bulk_int_type::Type = Int32, float_type::Type = Float64,
-)
-  return ExodusDatabase(
-    file_name;
-    maps_int_type, ids_int_type,
-    bulk_int_type, float_type,
-    init.num_dim, init.num_nodes, init.num_elems,
-    init.num_elem_blks, init.num_node_sets, init.num_side_sets
+  file_name::String, mode::String, init::Initialization{B},
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
+) where {M, I, B, F}
+  
+  # TODO actually set types!!!
+  println("WARNING: This method currently only supports ExodusDatabase{Int32, Int32, Int32, Float64} as a type")
+
+  if mode != "w"
+    throw(ModeException("You can only use write mode with this method"))
+  end
+
+  exo = @ccall libexodus.ex_create_int(
+    file_name::Cstring, EX_WRITE::Cint, 
+    cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
+    EX_API_VERS_NODOT::Cint
+  )::Cint
+  exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+
+  int_modes = 0x00000000
+  if M == Int64
+    int_modes = int_modes | EX_MAPS_INT64_API
+  end
+
+  if I == Int64
+    int_modes = int_modes | EX_IDS_INT64_API
+  end
+
+  if B == Int64
+    int_modes = int_modes | EX_BULK_INT64_API
+  end
+
+  if int_modes != 0x00000000
+    error = @ccall libexodus.ex_set_int64_status(exo::Cint, int_modes::Cint)::Cint
+    exodus_error_check(error, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
+  end
+
+  write_initialization!(exo, init)
+
+  # setup caches
+  cache_M, cache_I, cache_B, cache_F = M[], I[], B[], F[]
+  
+  # finally return the ExodusDatabase
+  return ExodusDatabase{M, I, B, F}(
+    exo, mode, init,
+    cache_M, cache_I, cache_B, cache_F
   )
 end
 

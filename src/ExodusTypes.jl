@@ -18,10 +18,16 @@ struct Initialization{B}
   num_side_sets::B
 end
 
+# @with_kw struct ExodusDatabase{M, I, B, F}
 struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   init::Initialization{B}
+  # cache arrays and variables
+  cache_M::Vector{M}# = M[]
+  cache_I::Vector{I}# = I[]
+  cache_B::Vector{B}# = B[]
+  cache_F::Vector{F}# = F[]
 end
 
 get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M
@@ -33,6 +39,17 @@ get_mode(exo::ExodusDatabase)      = getfield(exo, :mode)
 get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
+
+"""
+"""
+struct ModeException <: Exception
+  mode::String
+end
+Base.show(io::IO, e::ModeException) = 
+print(io, "Bad read/write mode: $(e.mode)", "\nAvailablae modes are \"r\"")
+
+mode_error(mode::String) = throw(ModeException(mode))
+
 
 """
 """
@@ -292,3 +309,44 @@ entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet
+
+# check methods for ids and names
+function check_for_id(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
+  if findall(x -> x == id, read_ids(exo, S)) |> length < 1
+    id_error(exo, S, id)
+  end
+end
+
+function check_for_id(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <: AbstractVariable
+  n_vars = read_number_of_variables(exo, V)
+  if var_index < 1 || var_index > n_vars
+    id_error(exo, V, var_index)
+  end
+end
+
+function get_id_from_name(exo::ExodusDatabase, ::Type{T}, name::String) where T
+  if T <: AbstractSet
+    ids = read_ids(exo, T)
+  elseif T <: AbstractVariable
+    ids = 1:read_number_of_variables(exo, T)
+  end
+
+  names = read_names(exo, T)
+  index = findfirst(x -> x == name, names)
+  if index === nothing
+    name_error(exo, T, name)
+  else
+    return ids[index]
+  end
+end
+
+# function get_id_from_name(exo::ExodusDatabase, ::Type{V}, name::String) where V <: AbstractVariable
+#   ids = 1:read_number_of_variables(exo, V)
+#   names = read_names(exo, V)
+#   index = findfirst(x -> x == name, names)
+#   if index === nothing
+#     name_error(exo, V, name)
+#   else
+#     return ids[index]
+#   end
+# end

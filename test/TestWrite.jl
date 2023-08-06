@@ -19,17 +19,21 @@
   num_nodes     = size(coords, 1)
   num_elems     = size(conn, 1)
   num_elem_blks = 1
-  num_side_sets = 0
   num_node_sets = 0
+  num_side_sets = 0
+
+  # create init  
+  init = Initialization(
+    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
+    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
+  )
 
   # create exodus database
   exo = ExodusDatabase(
-    "test_write_1D_mesh.e";
-    maps_int_type, ids_int_type, bulk_int_type, float_type,
-    num_dim, num_nodes, num_elems,
-    num_elem_blks, num_node_sets, num_side_sets
+    "test_write_1D_mesh.e", "w", init,
+    Int32, Int32, Int32, Float64
   )
-  
+
   # how to write coordinates
   write_coordinates(exo, coords)
   coords_read = read_coordinates(exo)
@@ -92,15 +96,19 @@ end
   num_dim, num_nodes = size(coords)
   num_elems          = size(conn, 2)
   num_elem_blks      = 1
-  num_side_sets      = 0
   num_node_sets      = 0
+  num_side_sets      = 0
+
+  # create init
+  init = Initialization(
+    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
+    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
+  )
 
   # create exodus database
   exo = ExodusDatabase(
-    "test_write_2D_mesh.e";
-    maps_int_type, ids_int_type, bulk_int_type, float_type,
-    num_dim, num_nodes, num_elems,
-    num_elem_blks, num_node_sets, num_side_sets
+    "test_write_2D_mesh.e", "w", init,
+    Int32, Int32, Int32, Float64
   )
   
   # how to write coordinates
@@ -190,15 +198,25 @@ end
   num_dim, num_nodes = 3, 8
   num_elems          = 1
   num_elem_blks      = 1
-  num_side_sets      = 0
   num_node_sets      = 0
+  num_side_sets      = 0
 
   # create exodus database
+  # exo = ExodusDatabase(
+  #   "test_write_3D_mesh.e";
+  #   maps_int_type, ids_int_type, bulk_int_type, float_type,
+  #   num_dim, num_nodes, num_elems,
+  #   num_elem_blks, num_node_sets, num_side_sets
+  # )
+
+  init = Initialization(
+    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
+    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
+  )
+
   exo = ExodusDatabase(
-    "test_write_3D_mesh.e";
-    maps_int_type, ids_int_type, bulk_int_type, float_type,
-    num_dim, num_nodes, num_elems,
-    num_elem_blks, num_node_sets, num_side_sets
+    "test_write_3D_mesh.e", "w", init,
+    Int32, Int32, Int32, Float64
   )
 
   # how to write coordinates
