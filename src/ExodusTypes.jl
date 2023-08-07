@@ -18,8 +18,8 @@ struct Initialization{B}
   num_side_sets::B
 end
 
-# @with_kw struct ExodusDatabase{M, I, B, F}
-@kwdef struct ExodusDatabase{M, I, B, F}
+@with_kw struct ExodusDatabase{M, I, B, F}
+# @kwdef struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   init::Initialization{B}

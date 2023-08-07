@@ -65,6 +65,7 @@ export @exodiff
 # dependencies
 using DocStringExtensions
 using Exodus_jll
+using Parameters
 using Suppressor
 
 # for docs
