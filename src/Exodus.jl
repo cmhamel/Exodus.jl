@@ -65,6 +65,7 @@ export @exodiff
 # dependencies
 using DocStringExtensions
 using Exodus_jll
+using Parameters
 using Suppressor
 
 # for docs
@@ -86,10 +87,6 @@ include("Errors.jl")
 # exodus constants and type definitions
 include("ExodusConstants.jl")
 include("ExodusTypes.jl")
-
-# setup
-include("IO.jl")
-include("Initializations.jl")
 
 # record keeping
 include("Info.jl")

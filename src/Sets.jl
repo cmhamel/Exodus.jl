@@ -16,13 +16,9 @@ function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F,
   return ids
 end
 
-
 """
 """
 function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
-  if findall(x -> x == id, read_ids(exo, S)) |> length < 1
-    name_error(exo, S, id)
-  end
   name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_name(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, 
@@ -171,9 +167,9 @@ end
 
 """
 """
-function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{T}, set_id::Int, name::String) where {M, I, B, F, T <: AbstractSet}
+function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer, name::String) where {M, I, B, F, S <: AbstractSet}
   error_code = @ccall libexodus.ex_put_name(
-    get_file_id(exo)::Cint, entity_type(T)::ex_entity_type, set_id::Clonglong, # should really be ex_entity_id
+    get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, set_id::Clonglong, # should really be ex_entity_id
     name::Ptr{UInt8}
   )::Cint
   exodus_error_check(error_code, "Exodus.write_set_name -> libexodus.ex_put_name")

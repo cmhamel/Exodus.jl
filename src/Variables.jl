@@ -113,31 +113,18 @@ function read_values(
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: AbstractVariable}
 
-  # not sure if this is the best way TODO TODO TODO
-  n_vars = read_number_of_variables(exo, V)
-  if var_index < 1 || var_index > n_vars
-    # throw(VariableIDException(exo, V, var_index))
-    id_error(exo, V, var_index)
-  end
+  check_for_id(exo, V, var_index)
 
   if V <: Nodal
     num_entries = exo.init.num_nodes
   elseif V <: Element
-    if findall(x -> x == id, read_ids(exo, Block)) |> length < 1
-      # throw(SetIDException(exo, Block, id))
-      id_error(exo, Block, id)
-    end
-
+    check_for_id(exo, set_equivalent(V), id)
     _, num_entries, _, _, _, _ =
     read_block_parameters(exo, id)
   elseif V <: Global
     num_entries = read_number_of_variables(exo, V)
   elseif V <: NodeSetVariable || V <: SideSetVariable
-    if findall(x -> x == id, read_ids(exo, set_equivalent(V))) |> length < 1
-      # throw(SetIDException(exo, set_equivalent(V), id))
-      id_error(exo, set_equivalent(V), id)
-    end
-
+    check_for_id(exo, set_equivalent(V), id)
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   end
 
@@ -166,12 +153,12 @@ function read_values(
   time_step::Integer, id::Integer, var_name::String
 ) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
 
-  var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  if length(var_name_index) < 1
-    # throw(VariableNameException(exo, V, var_name))
-    name_error(exo, V, var_name)
-  end
-  var_name_index = var_name_index[1]
+  # var_name_index = findall(x -> x == var_name, read_names(exo, V))
+  # if length(var_name_index) < 1
+  #   name_error(exo, V, var_name)
+  # end
+  # var_name_index = var_name_index[1]
+  var_name_index = get_id_from_name(exo, V, var_name)
   read_values(exo, V, time_step, id, var_name_index)
 end
 
@@ -184,7 +171,6 @@ function read_values(
 
   var_name_index = findall(x -> x == var_name, read_names(exo, V))
   if length(var_name_index) < 1
-    # throw(VariableNameException(exo, V, var_name))
     name_error(exo, V, var_name)
   end
   var_name_index = var_name_index[1]
