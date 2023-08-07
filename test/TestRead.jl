@@ -35,7 +35,8 @@ number_of_elements_3D = 512
   block = read_block(exo, "block_1")
   blocks = read_blocks(exo, read_ids(exo, Block))
 
-  conn = Exodus.read_block_connectivity(exo, 1)
+  conn = Exodus.read_block_connectivity(exo, 1, block.num_nodes_per_elem * block.num_elem)
+  conn = copy(conn)
   conn = reshape(conn, block.num_nodes_per_elem, block.num_elem)
   partial_conn = Exodus.read_partial_block_connectivity(exo, 1, 10, 100)
   partial_conn = reshape(partial_conn, block.num_nodes_per_elem, 100)
