@@ -194,6 +194,12 @@ end
   block_name_dict::Dict{String, I} = Dict{String, I}()
   nset_name_dict::Dict{String, I} = Dict{String, I}()
   sset_name_dict::Dict{String, I} = Dict{String, I}()
+  # variables names
+  element_var_name_dict::Dict{String, I} = Dict{String, I}()
+  global_var_name_dict::Dict{String, I} = Dict{String, I}()
+  nodal_var_name_dict::Dict{String, I} = Dict{String, I}()
+  nset_var_name_dict::Dict{String, I} = Dict{String, I}()
+  sset_var_name_dict::Dict{String, I} = Dict{String, I}()
   # cache arrays and variables
   use_cache_arrays::Bool
   cache_M::Vector{M} = M[]
@@ -269,6 +275,7 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
 
   exo_db = ExodusDatabase(exo, mode, M, I, B, F; use_cache_arrays=use_cache_arrays)
 
+  # set up set dicts
   block_ids   = read_ids(exo_db, Block)
   block_names = read_names(exo_db, Block)
 
@@ -292,6 +299,32 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
 
   for (n, name) in enumerate(sset_names)
     exo_db.sset_name_dict[name] = sset_ids[n]
+  end
+
+  # setup variable name dicts
+  element_var_names = read_names(exo_db, Element)
+  for (n, name) in enumerate(element_var_names)
+    exo_db.element_var_name_dict[name] = n
+  end
+
+  global_var_names = read_names(exo_db, Global)
+  for (n, name) in enumerate(global_var_names)
+    exo_db.global_var_name_dict[name] = n
+  end
+
+  nodal_var_names = read_names(exo_db, Nodal)
+  for (n, name) in enumerate(nodal_var_names)
+    exo_db.nodal_var_name_dict[name] = n
+  end
+
+  nset_var_names = read_names(exo_db, NodeSetVariable)
+  for (n, name) in enumerate(nset_var_names)
+    exo_db.nset_var_name_dict[name] = n
+  end
+
+  sset_var_names = read_names(exo_db, SideSetVariable)
+  for (n, name) in enumerate(sset_var_names)
+    exo_db.sset_var_name_dict[name] = n
   end
 
   return exo_db
@@ -545,11 +578,8 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
   end
   nodes = read_node_set_nodes(exo, id)
 
-  # if exo.use_cache_arrays
-  #   nodes = copy(nodes)
-  # end 
-
   nodes = copy(nodes) # need to copy here to be safe
+
   return NodeSet{I, B}(id, nodes)
 end
 
@@ -666,32 +696,46 @@ set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet
 
-# check methods for ids and names
-function check_for_id(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
-  if findall(x -> x == id, read_ids(exo, S)) |> length < 1
-    id_error(exo, S, id)
-  end
+set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
+
+var_name_dict(exo::ExodusDatabase, ::Type{Element})         = exo.element_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Global})          = exo.global_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Nodal})           = exo.nodal_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
+
+function set_var_name_index(exo::ExodusDatabase, ::Type{Element}, index::Integer, name::String) 
+  exo.element_var_name_dict[name] = index
 end
 
-function check_for_id(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <: AbstractVariable
-  n_vars = read_number_of_variables(exo, V)
-  if var_index < 1 || var_index > n_vars
-    id_error(exo, V, var_index)
-  end
+function set_var_name_index(exo::ExodusDatabase, ::Type{Global}, index::Integer, name::String) 
+  exo.global_var_name_dict[name] = index
 end
 
-function get_id_from_name(exo::ExodusDatabase, ::Type{T}, name::String) where T
-  if T <: AbstractSet
-    ids = read_ids(exo, T)
-  elseif T <: AbstractVariable
-    ids = 1:read_number_of_variables(exo, T)
-  end
+function set_var_name_index(exo::ExodusDatabase, ::Type{Nodal}, index::Integer, name::String) 
+  exo.nodal_var_name_dict[name] = index
+end
 
-  names = read_names(exo, T)
-  index = findfirst(x -> x == name, names)
-  if index === nothing
-    name_error(exo, T, name)
-  else
-    return ids[index]
+function set_var_name_index(exo::ExodusDatabase, ::Type{NodeSetVariable}, index::Integer, name::String) 
+  exo.nset_var_name_dict[name] = index
+end
+
+function set_var_name_index(exo::ExodusDatabase, ::Type{SideSetVariable}, index::Integer, name::String) 
+  exo.sset_var_name_dict[name] = index
+end
+
+function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractSet
+  if !(set_name in keys(set_name_dict(exo, V)))
+    name_error(exo, V, set_name)
   end
+  return set_name_dict(exo, V)[set_name]
+end
+
+function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractVariable
+  if !(var_name in keys(var_name_dict(exo, V)))
+    name_error(exo, V, var_name)
+  end
+  return var_name_dict(exo, V)[var_name]
 end

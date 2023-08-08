@@ -49,7 +49,8 @@ julia> read_name(exo, SideSetVariable, 1)
 function read_name(
   exo::ExodusDatabase, ::Type{V}, var_index::Integer
 ) where V <: AbstractVariable
-  var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  var_name = exo.cache_uint8
+  resize!(var_name, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
   )::Cint
@@ -89,21 +90,37 @@ julia> read_name(exo, SideSetVariable)
 """
 function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
   num_vars = read_number_of_variables(exo, V)
-  var_names = Vector{Vector{UInt8}}(undef, num_vars)
-  for n in 1:length(var_names)
-    var_names[n] = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  end
-  error_code = @ccall libexodus.ex_get_variable_names(
-    get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Cint, var_names::Ptr{Ptr{UInt8}}
-  )::Cint
-  exodus_error_check(error_code, "Exodus.read_variable_names -> libexodus.ex_get_names")
+  ids      = 1:num_vars
+  names = exo.cache_strings
+  resize!(names, num_vars)
 
-  new_var_names = Vector{String}(undef, num_vars)
-  for n in 1:length(var_names)
-    new_var_names[n] = unsafe_string(pointer(var_names[n]))
+  if !exo.use_cache_arrays
+    names = copy(names)
   end
-  return new_var_names
+
+  for n in axes(names, 1)
+    names[n] = read_name(exo, V, ids[n])
+  end
+  return names
 end
+
+# function read_names_old(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
+#   num_vars = read_number_of_variables(exo, V)
+#   var_names = Vector{Vector{UInt8}}(undef, num_vars)
+#   for n in 1:length(var_names)
+#     var_names[n] = Vector{UInt8}(undef, MAX_STR_LENGTH)
+#   end
+#   error_code = @ccall libexodus.ex_get_variable_names(
+#     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Cint, var_names::Ptr{Ptr{UInt8}}
+#   )::Cint
+#   exodus_error_check(error_code, "Exodus.read_variable_names -> libexodus.ex_get_names")
+
+#   new_var_names = Vector{String}(undef, num_vars)
+#   for n in 1:length(var_names)
+#     new_var_names[n] = unsafe_string(pointer(var_names[n]))
+#   end
+#   return new_var_names
+# end
 
 """
 General method to read variable values.
@@ -113,22 +130,50 @@ function read_values(
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: AbstractVariable}
 
-  check_for_id(exo, V, var_index)
+  # check_for_id(exo, V, var_index)
+  # if !(id in 1:read_number_of_variables(exo, V))
 
-  if V <: Nodal
-    num_entries = exo.init.num_nodes
-  elseif V <: Element
-    check_for_id(exo, set_equivalent(V), id)
-    _, num_entries, _, _, _, _ =
-    read_block_parameters(exo, id)
+  # error check for global/nodal in case someone uses this internal method
+  if V <: Global
+    if !(id == 1)
+      id_error(exo, Global, id)
+    end
+  elseif V <: Nodal
+    if !(id == 1)
+      id_error(exo, Nodal, id)
+    end
+  else
+    if !(id in read_ids(exo, set_equivalent(V)))
+      id_error(exo, set_equivalent(V), id)
+    end
+  end
+
+  # error check on var index, maybe a better way to do this
+  if !(var_index in 1:read_number_of_variables(exo, V))
+    id_error(exo, V, id)
+  end
+
+  # get number of entries - TODO make a method elsewhere
+  if V <: Element
+    # TODO allocation here due to reading element type
+    # TODO can maybe read the element map for a block?
+    _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
   elseif V <: Global
     num_entries = read_number_of_variables(exo, V)
+  elseif V <: Nodal
+    num_entries = exo.init.num_nodes
   elseif V <: NodeSetVariable || V <: SideSetVariable
-    check_for_id(exo, set_equivalent(V), id)
+    # check_for_id(exo, set_equivalent(V), id)
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   end
 
-  values = Vector{F}(undef, num_entries)
+  # values = Vector{F}(undef, num_entries)
+  values = exo.cache_F_1
+  resize!(values, num_entries)
+  if !exo.use_cache_arrays
+    values = copy(values)
+  end
+
   error_code = @ccall libexodus.ex_get_var(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
@@ -147,20 +192,26 @@ read_values(exo, Global, 1)
 read_values(exo::ExodusDatabase, t::Type{Global}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
 """
+Wrapper method for nodal variables
+"""
+read_values(exo::ExodusDatabase, t::Type{Nodal}, timestep::Integer, index::Integer) = 
+read_values(exo, t, timestep, 1, index)
+
+"""
 """
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, id::Integer, var_name::String
 ) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
 
-  # var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  # if length(var_name_index) < 1
-  #   name_error(exo, V, var_name)
-  # end
-  # var_name_index = var_name_index[1]
-  var_name_index = get_id_from_name(exo, V, var_name)
-  read_values(exo, V, time_step, id, var_name_index)
+  return read_values(exo, V, time_step, id, var_name_index(exo, V, var_name))
 end
+
+"""
+Wrapper method for nodal variables
+"""
+read_values(exo::ExodusDatabase, t::Type{Nodal}, timestep::Integer, name::String) = 
+read_values(exo, t, timestep, 1, name)
 
 """
 """
@@ -169,20 +220,9 @@ function read_values(
   time_step::Integer, set_name::String, var_name::String
 ) where V <: Union{Element, NodeSetVariable, SideSetVariable}
 
-  var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  if length(var_name_index) < 1
-    name_error(exo, V, var_name)
-  end
-  var_name_index = var_name_index[1]
-
-  set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
-  if length(set_name_index) < 1
-    # throw(SetNameException(exo, set_equivalent(V), var_name))
-    name_error(exo, set_equivalent(V), set_name)
-  end
-  set_name_index = set_name_index[1]
-
-  read_values(exo, V, time_step, set_name_index, var_name_index)
+  read_values(exo, V, time_step, 
+              set_name_index(exo, set_equivalent(V), set_name), 
+              var_name_index(exo, V, var_name))
 end
 
 # """
@@ -246,6 +286,11 @@ end
 """
 """
 function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name::String) where V <: AbstractVariable
+  # TODO probably need a railguard on var_index
+  
+  set_var_name_index(exo, V, var_index, var_name)
+
+  # if V <: 
   temp = Vector{UInt8}(var_name)
   error_code = @ccall libexodus.ex_put_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
@@ -256,6 +301,10 @@ end
 """
 """
 function write_names(exo::ExodusDatabase, ::Type{V}, var_names::Vector{String}) where V <: AbstractVariable
+  for (n, name) in enumerate(var_names)
+    set_var_name_index(exo, V, n, name)
+  end
+
   error_code = @ccall libexodus.ex_put_variable_names(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, length(var_names)::Cint,
     var_names::Ptr{Ptr{UInt8}}
@@ -302,22 +351,34 @@ write_values(
 ) = write_values(exo, t, timestep, 1, 1, var_values)
 
 """
+Wrapper for writing nodal variables by index number
+"""
+write_values(
+  exo::ExodusDatabase, t::Type{Nodal}, 
+  timestep::Integer, var_index::Integer,
+  var_values::Vector{<:AbstractFloat}
+) = write_values(exo, t, timestep, 1, var_index, var_values)
+
+"""
 """
 function write_values(
   exo::ExodusDatabase, 
   ::Type{V},
-  time_step::Integer, id::Integer, var_name::String, 
+  timestep::Integer, id::Integer, var_name::String, 
   var_value::Vector{<:AbstractFloat}
 ) where V <: AbstractVariable
 
-var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  if length(var_name_index) < 1
-    # throw(VariableNameException(exo, V, var_name))
-    name_error(exo, V, var_name)
-  end
-  var_name_index = var_name_index[1]
-  write_values(exo, V, time_step, id, var_name_index, var_value)
+  write_values(exo, V, timestep, id, var_name_index(exo, V, var_name), var_value)
 end
+
+"""
+Wrapper method for nodal variables
+"""
+write_values(
+  exo::ExodusDatabase, t::Type{Nodal},
+  timestep::Integer, var_name::String,
+  var_values::Vector{<:AbstractFloat}
+) = write_values(exo, t, timestep, 1, var_name_index(exo, V, var_name), var_values)
 
 """
 """
@@ -328,20 +389,8 @@ function write_values(
   var_value::Vector{<:AbstractFloat}
 ) where V <: AbstractVariable
 
-  var_name_index = findall(x -> x == var_name, read_names(exo, V))
-  if length(var_name_index) < 1
-    # throw(VariableNameException(exo, V, var_name))
-    name_error(exo, V, var_name)
-  end
-  var_name_index = var_name_index[1]
-
-  set_name_index = findall(x -> x == set_name, read_names(exo, set_equivalent(V)))
-  if length(set_name_index) < 1
-    # throw(SetNameException(exo, set_equivalent(V), set_name))
-    name_error(exo, set_equivalent(V), set_name)
-  end
-  set_name_index = set_name_index[1]
-
-  # write_values(exo, V, time_step, var_name_index, set_name_index, var_value)
-  write_values(exo, V, time_step, set_name_index, var_name_index, var_value)
+  write_values(exo, V, time_step, 
+               set_name_index(exo, set_equivalent(V), set_name), 
+               var_name_index(exo, V, var_name), 
+               var_value)
 end
