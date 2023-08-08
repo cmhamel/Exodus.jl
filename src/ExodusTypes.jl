@@ -609,10 +609,10 @@ end
 """
 Base.show(io::IO, block::B) where {B <: Block} =
 print(io, "Block:\n",
-      "\tBlock ID           = ", block.id, "\n",
-      "\tNum elem           = ", block.num_elem, "\n",
-      "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
-      "\tElem type          = ", block.elem_type, "\n")
+      "  Block ID           = ", block.id, "\n",
+      "  Num elem           = ", block.num_elem, "\n",
+      "  Num nodes per elem = ", block.num_nodes_per_elem, "\n",
+      "  Elem type          = ", block.elem_type, "\n")
 
 """
 """
@@ -649,8 +649,8 @@ Base.length(n::NodeSet) = length(n.nodes)
 Base.show(io::IO, node_set::NodeSet) =
 print(
   io, "NodeSet:\n",
-  "\tNode set ID     = ", node_set.id,      "\n",
-  "\tNumber of nodes = ", length(node_set), "\n"
+  "  Node set ID     = ", node_set.id,      "\n",
+  "  Number of nodes = ", length(node_set), "\n"
 )
 
 """
@@ -689,15 +689,15 @@ Base.length(s::SideSet) = length(s.elements)
 Base.show(io::IO, sset::SideSet) = 
 print(
   io, "SideSet:\n",
-  "\tSide set ID        = ", sset.id,               "\n",
-  "\tNumber of elements = ", length(sset.elements), "\n",
-  "\tNumber of sides    = ", length(sset.sides),    "\n"
+  "  Side set ID        = ", sset.id,               "\n",
+  "  Number of elements = ", length(sset.elements), "\n",
+  "  Number of sides    = ", length(sset.sides),    "\n"
 )
 
 entity_type(::Type{S}) where S <: Block           = EX_ELEM_BLOCK
-entity_type(::Type{S}) where S <: ElementVariable         = EX_ELEM_BLOCK
-entity_type(::Type{S}) where S <: GlobalVariable          = EX_GLOBAL
-entity_type(::Type{S}) where S <: NodalVariable           = EX_NODAL
+entity_type(::Type{S}) where S <: ElementVariable = EX_ELEM_BLOCK
+entity_type(::Type{S}) where S <: GlobalVariable  = EX_GLOBAL
+entity_type(::Type{S}) where S <: NodalVariable   = EX_NODAL
 entity_type(::Type{S}) where S <: NodeSet         = EX_NODE_SET
 entity_type(::Type{S}) where S <: NodeSetVariable = EX_NODE_SET
 entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
