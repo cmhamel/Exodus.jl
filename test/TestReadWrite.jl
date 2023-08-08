@@ -54,7 +54,8 @@
   @test block_old.elem_type == block_new.elem_type
   @test block_old.conn == block_new.conn
 
-  conn = Exodus.read_block_connectivity(exo_new, 1)
+  conn = Exodus.read_block_connectivity(exo_new, 1, block_new.num_nodes_per_elem * block_new.num_elem)
+  conn = copy(conn)
   conn = reshape(conn, block_new.num_nodes_per_elem, block_new.num_elem)
   partial_conn = Exodus.read_partial_block_connectivity(exo_new, 1, 10, 100)
   partial_conn = reshape(partial_conn, block_new.num_nodes_per_elem, 100)
@@ -114,6 +115,7 @@
   write_values(exo_new, Element, 1, 1, "stress_yy", stress_yy)
   write_values(exo_new, Element, 1, 1, "stress_xy", stress_xy)
 
+  
   stress_xx_read = read_values(exo_new, Element, 1, 1, "stress_xx")
   stress_yy_read = read_values(exo_new, Element, 1, 1, "stress_yy")
   stress_xy_read = read_values(exo_new, Element, 1, 1, "stress_xy")

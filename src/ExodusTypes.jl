@@ -142,15 +142,17 @@ function Initialization(exo::Cint, ::Type{B}) where B
   num_node_sets = Ref{B}(0)
   num_side_sets = Ref{B}(0)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+
   error_code = @ccall libexodus.ex_get_init(
-    # get_file_id(exo)::Cint, 
     exo::Cint,
     title::Ptr{UInt8},
     num_dim::Ptr{B}, num_nodes::Ptr{B}, num_elems::Ptr{B},
     num_elem_blks::Ptr{B}, num_node_sets::Ptr{B}, num_side_sets::Ptr{B}
   )::Cint
   exodus_error_check(error_code, "Exodus.Initialization -> libexodus.ex_get_init")
+
   title = unsafe_string(pointer(title))
+
   return Initialization{B}(num_dim[], num_nodes[], num_elems[],
                            num_elem_blks[], num_node_sets[], num_side_sets[])
 end
@@ -185,32 +187,52 @@ end
 
 
 @with_kw struct ExodusDatabase{M, I, B, F}
-# @kwdef struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   init::Initialization{B}
+  # name to id dict for reducing allocations from access by name
+  block_name_dict::Dict{String, I} = Dict{String, I}()
+  nset_name_dict::Dict{String, I} = Dict{String, I}()
+  sset_name_dict::Dict{String, I} = Dict{String, I}()
+  # variables names
+  element_var_name_dict::Dict{String, I} = Dict{String, I}()
+  global_var_name_dict::Dict{String, I} = Dict{String, I}()
+  nodal_var_name_dict::Dict{String, I} = Dict{String, I}()
+  nset_var_name_dict::Dict{String, I} = Dict{String, I}()
+  sset_var_name_dict::Dict{String, I} = Dict{String, I}()
   # cache arrays and variables
+  use_cache_arrays::Bool
   cache_M::Vector{M} = M[]
   cache_I::Vector{I} = I[]
-  cache_B::Vector{B} = B[]
-  cache_F::Vector{F} = F[]
+  cache_B_1::Vector{B} = B[]
+  cache_B_2::Vector{B} = B[]
+  cache_B_3::Vector{B} = B[]
+  cache_F_1::Vector{F} = F[]
+  cache_F_2::Vector{F} = F[]
+  cache_F_3::Vector{F} = F[]
+  cache_uint8::Vector{UInt8} = UInt8[]
+  cache_strings::Vector{String} = String[]
 end
 
 """
 """
 function ExodusDatabase(
   exo::Cint, mode::String,
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F},
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F};
+  use_cache_arrays::Bool = false
 ) where {M, I, B, F}
   
   # get init
   init = Initialization(exo, B)
-  return ExodusDatabase{M, I, B, F}(exo=exo, mode=mode, init=init)
+  return ExodusDatabase{M, I, B, F}(
+    exo=exo, mode=mode, init=init, 
+    use_cache_arrays=use_cache_arrays
+  )
 end
 
 """
 """
-function ExodusDatabase(file_name::String, mode::String)
+function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool = false)
   if mode == "r"
     ex_mode = EX_READ
   elseif mode == "rw" || (mode == "w" && !isfile(file_name))
@@ -246,25 +268,75 @@ function ExodusDatabase(file_name::String, mode::String)
   B = bulk_int_type(int64_status)
   F = float_type(float_size)
 
-  # init read or write
-  # if mode == "r" || mode == "rw"
-  #   init = Initialization(exo, B)
-  # elseif mode == "w" && isfile(file_name)
-  #   init = Initialization(exo, B)
-  # else
-  #   init = Initialization(B)
-  # end
+  if use_cache_arrays
+    println("WARNING: Arrays returned from methods in this mode will change")
+    println("WARNING: with subsequent method calls so use wisely!!!")
+  end
 
-  return ExodusDatabase(exo, mode, M, I, B, F)
+  exo_db = ExodusDatabase(exo, mode, M, I, B, F; use_cache_arrays=use_cache_arrays)
+
+  # set up set dicts
+  block_ids   = read_ids(exo_db, Block)
+  block_names = read_names(exo_db, Block)
+
+  @assert length(block_ids) == length(block_names)
+
+  for (n, name) in enumerate(block_names)
+    exo_db.block_name_dict[name] = block_ids[n]
+  end
+
+  nset_ids   = read_ids(exo_db, NodeSet)
+  nset_names = read_names(exo_db, NodeSet)
+
+  @assert length(nset_ids) == length(nset_names)
+
+  for (n, name) in enumerate(nset_names)
+    exo_db.nset_name_dict[name] = nset_ids[n]
+  end
+
+  sset_ids   = read_ids(exo_db, SideSet)
+  sset_names = read_names(exo_db, SideSet)
+
+  for (n, name) in enumerate(sset_names)
+    exo_db.sset_name_dict[name] = sset_ids[n]
+  end
+
+  # setup variable name dicts
+  element_var_names = read_names(exo_db, Element)
+  for (n, name) in enumerate(element_var_names)
+    exo_db.element_var_name_dict[name] = n
+  end
+
+  global_var_names = read_names(exo_db, Global)
+  for (n, name) in enumerate(global_var_names)
+    exo_db.global_var_name_dict[name] = n
+  end
+
+  nodal_var_names = read_names(exo_db, Nodal)
+  for (n, name) in enumerate(nodal_var_names)
+    exo_db.nodal_var_name_dict[name] = n
+  end
+
+  nset_var_names = read_names(exo_db, NodeSetVariable)
+  for (n, name) in enumerate(nset_var_names)
+    exo_db.nset_var_name_dict[name] = n
+  end
+
+  sset_var_names = read_names(exo_db, SideSetVariable)
+  for (n, name) in enumerate(sset_var_names)
+    exo_db.sset_var_name_dict[name] = n
+  end
+
+  return exo_db
 end
 
 function ExodusDatabase(
   file_name::String, mode::String, init::Initialization{B},
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F};
+  use_cache_arrays = false
 ) where {M, I, B, F}
   
   if mode != "w"
-    # throw(ModeException("You can only use write mode with this method"))
     mode_error("You can only use write mode with this method!")
   end
 
@@ -297,13 +369,14 @@ function ExodusDatabase(
 
   write_initialization!(exo, init)
 
-  # setup caches
-  cache_M, cache_I, cache_B, cache_F = M[], I[], B[], F[]
-  
+  if use_cache_arrays
+    println("WARNING: Arrays returned from methods in this mode will change")
+    println("WARNING: with subsequent method calls so use wisely!!!")
+  end
+
   # finally return the ExodusDatabase
   return ExodusDatabase{M, I, B, F}(
-    exo, mode, init,
-    cache_M, cache_I, cache_B, cache_F
+    exo=exo, mode=mode, init=init, use_cache_arrays=use_cache_arrays
   )
 end
 
@@ -362,10 +435,10 @@ mode_error(mode::String) = throw(ModeException(mode))
 
 """
 """
-struct SetIDException{M, I, B, F, V} <: Exception 
+struct SetIDException{M, I, B, F, V, I1 <: Integer} <: Exception 
   exo::ExodusDatabase{M, I, B, F}
   type::Type{V}
-  id::Int
+  id::I1
 end
 
 """
@@ -409,7 +482,6 @@ end
 function Base.show(io::IO, e::VariableIDException)
   print(io, "\nVariable of type $(e.type) with ID \"$(e.id)\" not found.\n")
   print(io, "Available variable IDs of type $(e.type) are:\n")
-  # for id in read_ids(e.exo, e.type)
   # TODO TODO TODO might not be best
   for id in 1:read_number_of_variables(e.exo, e.type)
     print(io, "  $id\n")
@@ -444,7 +516,6 @@ name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException
 id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
 name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
 
-
 """
 """
 struct Block{I, B} <: AbstractSet{I, B}
@@ -462,21 +533,24 @@ function Block(exo::ExodusDatabase, block_id::Integer)
   block_id = convert(get_id_int_type(exo), block_id) # for convenience interfacing
   element_type, num_elem, num_nodes, _, _, _ =
   read_block_parameters(exo, block_id)
-  conn = read_block_connectivity(exo, block_id)
-  conn = reshape(conn, (num_nodes, num_elem))#'
-  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn)
+  conn = read_block_connectivity(exo, 1, num_nodes * num_elem)
+
+  conn_out = Matrix{get_bulk_int_type(exo)}(undef, num_nodes, num_elem)
+  for e in axes(conn_out, 2)
+    conn_out[:, e] = @views conn[(e - 1) * num_nodes + 1:e * num_nodes]
+  end
+
+  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
 end
 
 """
 """
-function Block(exo::ExodusDatabase, block_name::String)
-  block_ids = read_ids(exo, Block)
-  name_index = findall(x -> x == block_name, read_names(exo, Block))
-  if length(name_index) < 1
-    throw(SetNameException(exo, Block, block_name))
+function Block(exo::ExodusDatabase, name::String)
+  if !(name in keys(exo.block_name_dict))
+    name_error(exo, Block, name)
   end
-  name_index = name_index[1]
-  return Block(exo, block_ids[name_index])
+
+  return Block(exo, exo.block_name_dict[name])
 end
 
 """
@@ -499,23 +573,24 @@ end
 """
 """
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
-  if findall(x -> x == id, read_ids(exo, NodeSet)) |> length < 1
-    throw(SetIDException(exo, NodeSet, id))
+  if !(id in read_ids(exo, NodeSet))
+    id_error(exo, NodeSet, id)
   end
   nodes = read_node_set_nodes(exo, id)
+
+  nodes = copy(nodes) # need to copy here to be safe
+
   return NodeSet{I, B}(id, nodes)
 end
 
 """
 """
 function NodeSet(exo::ExodusDatabase, name::String)
-  ids = read_ids(exo, NodeSet)
-  name_index = findall(x -> x == name, read_names(exo, NodeSet))
-  if length(name_index) < 1
+  if !(name in keys(exo.nset_name_dict))
     throw(SetNameException(exo, NodeSet, name))
   end
-  name_index = name_index[1]
-  return NodeSet(exo, ids[name_index])
+
+  return NodeSet(exo, exo.nset_name_dict[name])
 end
 
 entries(n::NodeSet)     = n.nodes
@@ -545,23 +620,25 @@ end
 """
 """
 function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
-  if findall(x -> x == id, read_ids(exo, SideSet)) |> length < 1
-    throw(SetIDException(exo, SideSet, id))
+  if !(id in read_ids(exo, SideSet))
+    id_error(exo, SideSet, id)
   end
   elements, sides = read_side_set_elements_and_sides(exo, id)
+
+  elements = copy(elements)
+  sides   = copy(sides)
+
   return SideSet{I, B}(id, elements, sides)
 end
 
 """
 """
 function SideSet(exo::ExodusDatabase, name::String)
-  ids = read_ids(exo, SideSet)
-  name_index = findall(x -> x == name, read_names(exo, SideSet))
-  if length(name_index) < 1
-    throw(SetNameException(exo, SideSet, name))
+  if !(name in keys(exo.sset_name_dict))
+    name_error(exo, SideSet, name)
   end
-  name_index = name_index[1]
-  return SideSet(exo, ids[name_index])
+
+  return SideSet(exo, exo.sset_name_dict[name])
 end
 
 entries(s::SideSet)     = s.elements
@@ -619,43 +696,46 @@ set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet
 
-# check methods for ids and names
-function check_for_id(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
-  if findall(x -> x == id, read_ids(exo, S)) |> length < 1
-    id_error(exo, S, id)
-  end
+set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
+
+var_name_dict(exo::ExodusDatabase, ::Type{Element})         = exo.element_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Global})          = exo.global_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Nodal})           = exo.nodal_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
+
+function set_var_name_index(exo::ExodusDatabase, ::Type{Element}, index::Integer, name::String) 
+  exo.element_var_name_dict[name] = index
 end
 
-function check_for_id(exo::ExodusDatabase, ::Type{V}, var_index::Integer) where V <: AbstractVariable
-  n_vars = read_number_of_variables(exo, V)
-  if var_index < 1 || var_index > n_vars
-    id_error(exo, V, var_index)
-  end
+function set_var_name_index(exo::ExodusDatabase, ::Type{Global}, index::Integer, name::String) 
+  exo.global_var_name_dict[name] = index
 end
 
-function get_id_from_name(exo::ExodusDatabase, ::Type{T}, name::String) where T
-  if T <: AbstractSet
-    ids = read_ids(exo, T)
-  elseif T <: AbstractVariable
-    ids = 1:read_number_of_variables(exo, T)
-  end
-
-  names = read_names(exo, T)
-  index = findfirst(x -> x == name, names)
-  if index === nothing
-    name_error(exo, T, name)
-  else
-    return ids[index]
-  end
+function set_var_name_index(exo::ExodusDatabase, ::Type{Nodal}, index::Integer, name::String) 
+  exo.nodal_var_name_dict[name] = index
 end
 
-# function get_id_from_name(exo::ExodusDatabase, ::Type{V}, name::String) where V <: AbstractVariable
-#   ids = 1:read_number_of_variables(exo, V)
-#   names = read_names(exo, V)
-#   index = findfirst(x -> x == name, names)
-#   if index === nothing
-#     name_error(exo, V, name)
-#   else
-#     return ids[index]
-#   end
-# end
+function set_var_name_index(exo::ExodusDatabase, ::Type{NodeSetVariable}, index::Integer, name::String) 
+  exo.nset_var_name_dict[name] = index
+end
+
+function set_var_name_index(exo::ExodusDatabase, ::Type{SideSetVariable}, index::Integer, name::String) 
+  exo.sset_var_name_dict[name] = index
+end
+
+function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractSet
+  if !(set_name in keys(set_name_dict(exo, V)))
+    name_error(exo, V, set_name)
+  end
+  return set_name_dict(exo, V)[set_name]
+end
+
+function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractVariable
+  if !(var_name in keys(var_name_dict(exo, V)))
+    name_error(exo, V, var_name)
+  end
+  return var_name_dict(exo, V)[var_name]
+end

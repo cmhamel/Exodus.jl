@@ -1,8 +1,17 @@
 """
 """
 function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
-  block = Block(exo, block_id)
-  block_id_map = Vector{get_map_int_type(exo)}(undef, block.num_elem)
+  # block = Block(exo, block_id)
+  # block_id_map = Vector{get_map_int_type(exo)}(undef, block.num_elem)
+  _, num_elem, _, _, _, _ = read_block_parameters(exo, block_id)
+  block_id_map = exo.cache_M
+  # resize!(block_id_map, exo.init.num_elem_blks)
+  resize!(block_id_map, num_elem)
+
+  if !exo.use_cache_arrays
+    block_id_map = copy(block_id_map)
+  end
+
   error_code = @ccall libexodus.ex_get_block_id_map(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id, block_id_map::Ptr{void_int}
   )::Cint
@@ -13,12 +22,15 @@ end
 """
 """
 function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
-  element_type   = Vector{UInt8}(undef, MAX_STR_LENGTH)
+  element_type   = exo.cache_uint8
   num_elem       = Ref{B}(0)
   num_nodes      = Ref{B}(0)
   num_edges      = Ref{B}(0)
   num_faces      = Ref{B}(0)
   num_attributes = Ref{B}(0)
+
+  resize!(element_type, MAX_STR_LENGTH)
+
   error_code = @ccall libexodus.ex_get_block(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
     element_type::Ptr{UInt8}, 
@@ -26,16 +38,16 @@ function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Intege
     num_faces::Ptr{B}, num_attributes::Ptr{B}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_element_block_parameters -> libexodus.ex_get_block")
-  element_type = unsafe_string(pointer(element_type))
-  return element_type, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
+  element_type_out = unsafe_string(pointer(element_type))
+  return element_type_out, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 
 """
 """
-function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
-  _, num_elem, num_nodes, _, _, _ =
-  read_block_parameters(exo, block_id)
-  conn = Vector{B}(undef, num_nodes * num_elem)
+function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Integer, conn_length::Integer) where {M, I, B, F}
+  conn = exo.cache_B_1
+  resize!(conn, conn_length)
+
   error_code = @ccall libexodus.ex_get_conn(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
     conn::Ptr{B}, C_NULL::Ptr{Cvoid}, C_NULL::Ptr{Cvoid}
