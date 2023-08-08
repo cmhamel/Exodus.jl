@@ -5,11 +5,11 @@ module Exodus
 
 # exported types
 export Block
-export Element
+export ElementVariable
 export ExodusDatabase
-export Global
+export GlobalVariable
 export Initialization
-export Nodal
+export NodalVariable
 export NodeSet
 export NodeSetVariable
 export SideSet

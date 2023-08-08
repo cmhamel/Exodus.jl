@@ -91,7 +91,7 @@ end
     @show e
   end
 
-  types = [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+  types = [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
   for type in types
     e = Exodus.VariableIDException(exo, type, 1001)
     @show e

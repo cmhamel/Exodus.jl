@@ -2,13 +2,13 @@
 General method to read the number of variables for a given variable type V.
 
 Examples:
-julia> read_number_of_variables(exo, Element)
+julia> read_number_of_variables(exo, ElementVariable)
 6
 
-julia> read_number_of_variables(exo, Global)
+julia> read_number_of_variables(exo, GlobalVariable)
 5
 
-julia> read_number_of_variables(exo, Nodal)
+julia> read_number_of_variables(exo, NodalVariable)
 3
 
 julia> read_number_of_variables(exo, NodeSetVariable)
@@ -31,13 +31,13 @@ General method to read the name of a variable in index var_index
 for a given variable type V.
 
 Examples:
-julia> read_name(exo, Element, 1)
+julia> read_name(exo, ElementVariable, 1)
 "stress_xx"
 
-julia> read_name(exo, Global, 2)
+julia> read_name(exo, GlobalVariable, 2)
 "reaction_force"
 
-julia> read_name(exo, Nodal, 1)
+julia> read_name(exo, NodalVariable, 1)
 "displ_x"
 
 julia> read_name(exo, NodeSetVariable, 1)
@@ -63,7 +63,7 @@ General method to read the names of variables
 for a given variable type V.
 
 Examples:
-julia> read_names(exo, Element)
+julia> read_names(exo, ElementVariable)
 "stress_xx"
 "stress_yy"
 "stress_zz"
@@ -71,11 +71,11 @@ julia> read_names(exo, Element)
 "stress_yz"
 "stress_zx"
 
-julia> read_names(exo, Global)
+julia> read_names(exo, GlobalVariable)
 "global_displ"
 "reaction_force"
 
-julia> read_names(exo, Nodal)
+julia> read_names(exo, NodalVariable)
 "displ_x"
 "displ_y"
 "displ_z"
@@ -134,13 +134,13 @@ function read_values(
   # if !(id in 1:read_number_of_variables(exo, V))
 
   # error check for global/nodal in case someone uses this internal method
-  if V <: Global
+  if V <: GlobalVariable
     if !(id == 1)
-      id_error(exo, Global, id)
+      id_error(exo, GlobalVariable, id)
     end
-  elseif V <: Nodal
+  elseif V <: NodalVariable
     if !(id == 1)
-      id_error(exo, Nodal, id)
+      id_error(exo, NodalVariable, id)
     end
   else
     if !(id in read_ids(exo, set_equivalent(V)))
@@ -154,13 +154,13 @@ function read_values(
   end
 
   # get number of entries - TODO make a method elsewhere
-  if V <: Element
+  if V <: ElementVariable
     # TODO allocation here due to reading element type
     # TODO can maybe read the element map for a block?
     _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
-  elseif V <: Global
+  elseif V <: GlobalVariable
     num_entries = read_number_of_variables(exo, V)
-  elseif V <: Nodal
+  elseif V <: NodalVariable
     num_entries = exo.init.num_nodes
   elseif V <: NodeSetVariable || V <: SideSetVariable
     # check_for_id(exo, set_equivalent(V), id)
@@ -184,17 +184,17 @@ end
 
 """
 Wrapper method for global variables around the main read_values method
-read_values(exo::ExodusDatabase, t::Type{Global}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
+read_values(exo::ExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
 Example:
-read_values(exo, Global, 1)
+read_values(exo, GlobalVariable, 1)
 """
-read_values(exo::ExodusDatabase, t::Type{Global}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
+read_values(exo::ExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
 """
 Wrapper method for nodal variables
 """
-read_values(exo::ExodusDatabase, t::Type{Nodal}, timestep::Integer, index::Integer) = 
+read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Integer, index::Integer) = 
 read_values(exo, t, timestep, 1, index)
 
 """
@@ -202,7 +202,7 @@ read_values(exo, t, timestep, 1, index)
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, id::Integer, var_name::String
-) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
+) where V <: Union{ElementVariable, NodalVariable, NodeSetVariable, SideSetVariable}
 
   return read_values(exo, V, time_step, id, var_name_index(exo, V, var_name))
 end
@@ -210,7 +210,7 @@ end
 """
 Wrapper method for nodal variables
 """
-read_values(exo::ExodusDatabase, t::Type{Nodal}, timestep::Integer, name::String) = 
+read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Integer, name::String) = 
 read_values(exo, t, timestep, 1, name)
 
 """
@@ -218,7 +218,7 @@ read_values(exo, t, timestep, 1, name)
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
   time_step::Integer, set_name::String, var_name::String
-) where V <: Union{Element, NodeSetVariable, SideSetVariable}
+) where V <: Union{ElementVariable, NodeSetVariable, SideSetVariable}
 
   read_values(exo, V, time_step, 
               set_name_index(exo, set_equivalent(V), set_name), 
@@ -253,7 +253,7 @@ end
 #   time_step::Integer, id::Integer, var_name::String, 
 #   start_node::Integer, num_nodes::Integer,
 # # ) where V <: AbstractVariable
-# ) where V <: Union{Element, Nodal, NodeSetVariable, SideSetVariable}
+# ) where V <: Union{ElementVariable, NodalVariable, NodeSetVariable, SideSetVariable}
 #   var_name_index = findall(x -> x == var_name, read_names(exo, V))
 #   if length(var_name_index) < 1
 #     throw(VariableNameException(exo, V, var_name))
@@ -266,11 +266,11 @@ end
 General method to write the number of variables for a given variable type V.
 
 Examples:
-julia> write_number_of_variables(exo, Element, 6)
+julia> write_number_of_variables(exo, ElementVariable, 6)
 
-julia> write_number_of_variables(exo, Global, 5)
+julia> write_number_of_variables(exo, GlobalVariable, 5)
 
-julia> write_number_of_variables(exo, Nodal, 3)
+julia> write_number_of_variables(exo, NodalVariable, 3)
 
 julia> write_number_of_variables(exo, NodeSetVariable, 3)
 
@@ -333,20 +333,20 @@ end
 """
 Wrapper method for global variables around the main write_values method
 write_values(
-  exo::ExodusDatabase, t::Type{Global}, 
+  exo::ExodusDatabase, t::Type{GlobalVariable}, 
   timestep::Integer, var_values::Vector{<:AbstractFloat}
 ) = write_values(exo, t, timestep, 1, 1, var_values)
 
 Note: you need to first run
-write_number_of_variables(exo, Global, n)
+write_number_of_variables(exo, GlobalVariable, n)
 where n is the number of variables.
 
 Example:
-write_number_of_variables(exo, Global, 5)
-write_values(exo, Global, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+write_number_of_variables(exo, GlobalVariable, 5)
+write_values(exo, GlobalVariable, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
 """
 write_values(
-  exo::ExodusDatabase, t::Type{Global}, 
+  exo::ExodusDatabase, t::Type{GlobalVariable}, 
   timestep::Integer, var_values::Vector{<:AbstractFloat}
 ) = write_values(exo, t, timestep, 1, 1, var_values)
 
@@ -354,7 +354,7 @@ write_values(
 Wrapper for writing nodal variables by index number
 """
 write_values(
-  exo::ExodusDatabase, t::Type{Nodal}, 
+  exo::ExodusDatabase, t::Type{NodalVariable}, 
   timestep::Integer, var_index::Integer,
   var_values::Vector{<:AbstractFloat}
 ) = write_values(exo, t, timestep, 1, var_index, var_values)
@@ -375,7 +375,7 @@ end
 Wrapper method for nodal variables
 """
 write_values(
-  exo::ExodusDatabase, t::Type{Nodal},
+  exo::ExodusDatabase, t::Type{NodalVariable},
   timestep::Integer, var_name::String,
   var_values::Vector{<:AbstractFloat}
 ) = write_values(exo, t, timestep, 1, var_name_index(exo, V, var_name), var_values)

@@ -77,16 +77,16 @@
   @test coord_names_new[2] == "y"
 
   # element variables
-  write_number_of_variables(exo_new, Element, 3)
-  n_vars = read_number_of_variables(exo_new, Element)
+  write_number_of_variables(exo_new, ElementVariable, 3)
+  n_vars = read_number_of_variables(exo_new, ElementVariable)
   @test n_vars == 3
 
-  write_names(exo_new, Element, ["stress_xx", "stress_yy", "stress_xy"])
-  var_names = read_names(exo_new, Element)
+  write_names(exo_new, ElementVariable, ["stress_xx", "stress_yy", "stress_xy"])
+  var_names = read_names(exo_new, ElementVariable)
   @test var_names == ["stress_xx", "stress_yy", "stress_xy"] 
-  @test read_name(exo_new, Element, 1) == "stress_xx"
-  @test read_name(exo_new, Element, 2) == "stress_yy"
-  @test read_name(exo_new, Element, 3) == "stress_xy"
+  @test read_name(exo_new, ElementVariable, 1) == "stress_xx"
+  @test read_name(exo_new, ElementVariable, 2) == "stress_yy"
+  @test read_name(exo_new, ElementVariable, 3) == "stress_xy"
 
   # block = Block(exo_new, 1)
   block = Block(exo_new, "block_1")
@@ -95,13 +95,13 @@
   stress_yy = randn(block.num_elem)
   stress_xy = randn(block.num_elem)
 
-  write_values(exo_new, Element, 1, 1, 1, stress_xx)
-  write_values(exo_new, Element, 1, 1, 2, stress_yy)
-  write_values(exo_new, Element, 1, 1, 3, stress_xy)
+  write_values(exo_new, ElementVariable, 1, 1, 1, stress_xx)
+  write_values(exo_new, ElementVariable, 1, 1, 2, stress_yy)
+  write_values(exo_new, ElementVariable, 1, 1, 3, stress_xy)
 
-  stress_xx_read = read_values(exo_new, Element, 1, 1, 1)
-  stress_yy_read = read_values(exo_new, Element, 1, 1, 2)
-  stress_xy_read = read_values(exo_new, Element, 1, 1, 3)
+  stress_xx_read = read_values(exo_new, ElementVariable, 1, 1, 1)
+  stress_yy_read = read_values(exo_new, ElementVariable, 1, 1, 2)
+  stress_xy_read = read_values(exo_new, ElementVariable, 1, 1, 3)
 
   @test stress_xx ≈ stress_xx_read
   @test stress_yy ≈ stress_yy_read
@@ -111,45 +111,45 @@
   stress_yy = randn(block.num_elem)
   stress_xy = randn(block.num_elem)
 
-  write_values(exo_new, Element, 1, 1, "stress_xx", stress_xx)
-  write_values(exo_new, Element, 1, 1, "stress_yy", stress_yy)
-  write_values(exo_new, Element, 1, 1, "stress_xy", stress_xy)
+  write_values(exo_new, ElementVariable, 1, 1, "stress_xx", stress_xx)
+  write_values(exo_new, ElementVariable, 1, 1, "stress_yy", stress_yy)
+  write_values(exo_new, ElementVariable, 1, 1, "stress_xy", stress_xy)
 
   
-  stress_xx_read = read_values(exo_new, Element, 1, 1, "stress_xx")
-  stress_yy_read = read_values(exo_new, Element, 1, 1, "stress_yy")
-  stress_xy_read = read_values(exo_new, Element, 1, 1, "stress_xy")
+  stress_xx_read = read_values(exo_new, ElementVariable, 1, 1, "stress_xx")
+  stress_yy_read = read_values(exo_new, ElementVariable, 1, 1, "stress_yy")
+  stress_xy_read = read_values(exo_new, ElementVariable, 1, 1, "stress_xy")
 
   @test stress_xx ≈ stress_xx_read
   @test stress_yy ≈ stress_yy_read
   @test stress_xy ≈ stress_xy_read
 
-  @test_throws Exodus.SetIDException read_values(exo_new, Element, 1, 2, 1)
-  @test_throws Exodus.SetNameException read_values(exo_new, Element, 1, "fake", "stress_xx")
-  @test_throws Exodus.VariableIDException read_values(exo_new, Element, 1, 1, 6)
-  @test_throws Exodus.VariableNameException read_values(exo_new, Element, 1, 1, "fake_variable")
+  @test_throws Exodus.SetIDException read_values(exo_new, ElementVariable, 1, 2, 1)
+  @test_throws Exodus.SetNameException read_values(exo_new, ElementVariable, 1, "fake", "stress_xx")
+  @test_throws Exodus.VariableIDException read_values(exo_new, ElementVariable, 1, 1, 6)
+  @test_throws Exodus.VariableNameException read_values(exo_new, ElementVariable, 1, 1, "fake_variable")
 
   # global variables
-  write_number_of_variables(exo_new, Global, 5)
-  @test read_number_of_variables(exo_new, Global) == 5
+  write_number_of_variables(exo_new, GlobalVariable, 5)
+  @test read_number_of_variables(exo_new, GlobalVariable) == 5
 
-  write_name(exo_new, Global, 1, "global_var_1")
-  write_name(exo_new, Global, 2, "global_var_2")
-  write_name(exo_new, Global, 3, "global_var_3")
-  write_name(exo_new, Global, 4, "global_var_4")
-  write_name(exo_new, Global, 5, "global_var_5")
+  write_name(exo_new, GlobalVariable, 1, "global_var_1")
+  write_name(exo_new, GlobalVariable, 2, "global_var_2")
+  write_name(exo_new, GlobalVariable, 3, "global_var_3")
+  write_name(exo_new, GlobalVariable, 4, "global_var_4")
+  write_name(exo_new, GlobalVariable, 5, "global_var_5")
 
-  @test read_name(exo_new, Global, 1) == "global_var_1"
-  @test read_name(exo_new, Global, 2) == "global_var_2"
-  @test read_name(exo_new, Global, 3) == "global_var_3"
-  @test read_name(exo_new, Global, 4) == "global_var_4"
-  @test read_name(exo_new, Global, 5) == "global_var_5"
+  @test read_name(exo_new, GlobalVariable, 1) == "global_var_1"
+  @test read_name(exo_new, GlobalVariable, 2) == "global_var_2"
+  @test read_name(exo_new, GlobalVariable, 3) == "global_var_3"
+  @test read_name(exo_new, GlobalVariable, 4) == "global_var_4"
+  @test read_name(exo_new, GlobalVariable, 5) == "global_var_5"
 
   write_names(
-    exo_new, Global,
+    exo_new, GlobalVariable,
     ["global_var_1", "global_var_2", "global_var_3", "global_var_4", "global_var_5"]
   )
-  global_vars = read_names(exo_new, Global)
+  global_vars = read_names(exo_new, GlobalVariable)
 
   @test global_vars[1] == "global_var_1"
   @test global_vars[2] == "global_var_2"
@@ -157,16 +157,16 @@
   @test global_vars[4] == "global_var_4"
   @test global_vars[5] == "global_var_5"
 
-  write_values(exo_new, Global, 1, 1, 1, [100.0, 200.0, 300.0, 400.0, 500.0])
-  global_vars = read_values(exo_new, Global, 1, 1, 1)
+  write_values(exo_new, GlobalVariable, 1, 1, 1, [100.0, 200.0, 300.0, 400.0, 500.0])
+  global_vars = read_values(exo_new, GlobalVariable, 1, 1, 1)
   @test global_vars[1] ≈ 100.0
   @test global_vars[2] ≈ 200.0
   @test global_vars[3] ≈ 300.0
   @test global_vars[4] ≈ 400.0
   @test global_vars[5] ≈ 500.0
 
-  write_values(exo_new, Global, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
-  global_vars = read_values(exo_new, Global, 1)
+  write_values(exo_new, GlobalVariable, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
+  global_vars = read_values(exo_new, GlobalVariable, 1)
   @test global_vars[1] ≈ 10.0
   @test global_vars[2] ≈ 20.0
   @test global_vars[3] ≈ 30.0
@@ -174,35 +174,35 @@
   @test global_vars[5] ≈ 50.0
 
   # nodal variables
-  write_number_of_variables(exo_new, Nodal, 2)
-  @test read_number_of_variables(exo_new, Nodal) == 2
+  write_number_of_variables(exo_new, NodalVariable, 2)
+  @test read_number_of_variables(exo_new, NodalVariable) == 2
 
-  write_names(exo_new, Nodal, ["displ_x_temp", "displ_y_temp"])
-  @test read_names(exo_new, Nodal) == ["displ_x_temp", "displ_y_temp"]
+  write_names(exo_new, NodalVariable, ["displ_x_temp", "displ_y_temp"])
+  @test read_names(exo_new, NodalVariable) == ["displ_x_temp", "displ_y_temp"]
 
-  write_name(exo_new, Nodal, 1, "displ_x")
-  write_name(exo_new, Nodal, 2, "displ_y")
-  @test read_name(exo_new, Nodal, 1) == "displ_x"
-  @test read_name(exo_new, Nodal, 2) == "displ_y"
-
-  u_x = randn(exo_new.init.num_nodes)
-  u_y = randn(exo_new.init.num_nodes)
-
-  write_values(exo_new, Nodal, 1, 1, 1, u_x)
-  write_values(exo_new, Nodal, 1, 1, 2, u_y)
-  @test read_values(exo_new, Nodal, 1, 1, 1) == u_x
-  @test read_values(exo_new, Nodal, 1, 1, 2) == u_y
+  write_name(exo_new, NodalVariable, 1, "displ_x")
+  write_name(exo_new, NodalVariable, 2, "displ_y")
+  @test read_name(exo_new, NodalVariable, 1) == "displ_x"
+  @test read_name(exo_new, NodalVariable, 2) == "displ_y"
 
   u_x = randn(exo_new.init.num_nodes)
   u_y = randn(exo_new.init.num_nodes)
 
-  write_values(exo_new, Nodal, 1, 1, "displ_x", u_x)
-  write_values(exo_new, Nodal, 1, 1, "displ_y", u_y)
-  @test read_values(exo_new, Nodal, 1, 1, "displ_x") == u_x
-  @test read_values(exo_new, Nodal, 1, 1, "displ_y") == u_y
+  write_values(exo_new, NodalVariable, 1, 1, 1, u_x)
+  write_values(exo_new, NodalVariable, 1, 1, 2, u_y)
+  @test read_values(exo_new, NodalVariable, 1, 1, 1) == u_x
+  @test read_values(exo_new, NodalVariable, 1, 1, 2) == u_y
 
-  @test_throws Exodus.VariableIDException read_values(exo_new, Nodal, 1, 1, 4)
-  @test_throws Exodus.VariableNameException read_values(exo_new, Nodal, 1, 1, "fake_variable")
+  u_x = randn(exo_new.init.num_nodes)
+  u_y = randn(exo_new.init.num_nodes)
+
+  write_values(exo_new, NodalVariable, 1, 1, "displ_x", u_x)
+  write_values(exo_new, NodalVariable, 1, 1, "displ_y", u_y)
+  @test read_values(exo_new, NodalVariable, 1, 1, "displ_x") == u_x
+  @test read_values(exo_new, NodalVariable, 1, 1, "displ_y") == u_y
+
+  @test_throws Exodus.VariableIDException read_values(exo_new, NodalVariable, 1, 1, 4)
+  @test_throws Exodus.VariableNameException read_values(exo_new, NodalVariable, 1, 1, "fake_variable")
 
   # nodesets
   for nset in nsets
@@ -406,7 +406,7 @@
   @test read_time(exo_new, 2) == 1.
 
   # variable throw error
-  @test_throws Exodus.VariableNameException read_values(exo_new, Nodal, 1, 1, "fake_variable")
+  @test_throws Exodus.VariableNameException read_values(exo_new, NodalVariable, 1, 1, "fake_variable")
 
   close(exo_new)
 
