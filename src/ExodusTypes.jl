@@ -63,49 +63,49 @@ function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
   return M, I, B, F
 end
 
-function map_int_type(int_status::UInt32)
-  if int_status == 0x00000000
-    return Cint
-  elseif int_status == EX_MAPS_INT64_API
-    return Clonglong
-  elseif int_status == EX_ALL_INT64_API
-    return Clonglong
-  else
-    return Cint# hack for now
-  end
-end
+# function map_int_type(int_status::UInt32)
+#   if int_status == 0x00000000
+#     return Cint
+#   elseif int_status == EX_MAPS_INT64_API
+#     return Clonglong
+#   elseif int_status == EX_ALL_INT64_API
+#     return Clonglong
+#   else
+#     return Cint# hack for now
+#   end
+# end
 
-function id_int_type(int_status::UInt32)
-  if int_status == 0x00000000
-    return Cint
-  elseif int_status == EX_IDS_INT64_API
-    return Clonglong
-  elseif int_status == EX_ALL_INT64_API
-    return Clonglong
-  else
-    return Cint# hack for now
-  end
-end
+# function id_int_type(int_status::UInt32)
+#   if int_status == 0x00000000
+#     return Cint
+#   elseif int_status == EX_IDS_INT64_API
+#     return Clonglong
+#   elseif int_status == EX_ALL_INT64_API
+#     return Clonglong
+#   else
+#     return Cint# hack for now
+#   end
+# end
 
-function bulk_int_type(int_status::UInt32)
-  if int_status == 0x00000000
-    return Cint
-  elseif int_status == EX_BULK_INT64_API
-    return Clonglong
-  elseif int_status == EX_ALL_INT64_API
-    return Clonglong
-  else
-    return Cint# hack for now
-  end
-end
+# function bulk_int_type(int_status::UInt32)
+#   if int_status == 0x00000000
+#     return Cint
+#   elseif int_status == EX_BULK_INT64_API
+#     return Clonglong
+#   elseif int_status == EX_ALL_INT64_API
+#     return Clonglong
+#   else
+#     return Cint# hack for now
+#   end
+# end
 
-function float_type(float_size::Int32)
-  if float_size == 4
-    return Cfloat
-  elseif float_size == 8
-    return Cdouble
-  end
-end
+# function float_type(float_size::Int32)
+#   if float_size == 4
+#     return Cfloat
+#   elseif float_size == 8
+#     return Cdouble
+#   end
+# end
 
 
 struct Initialization{B}
@@ -133,7 +133,6 @@ end
 
 """
 """
-# function Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
 function Initialization(exo::Cint, ::Type{B}) where B
   num_dim       = Ref{B}(0)
   num_nodes     = Ref{B}(0)
@@ -162,12 +161,12 @@ end
 Base.show(io::IO, init::Initialization) =
 print(
   io, "Initialization:\n",
-      "\tNumber of dim       = ", init.num_dim, "\n",
-      "\tNumber of nodes     = ", init.num_nodes, "\n",
-      "\tNumber of elem      = ", init.num_elems, "\n",
-      "\tNumber of blocks    = ", init.num_elem_blks, "\n",
-      "\tNumber of node sets = ", init.num_node_sets, "\n",
-      "\tNumber of side sets = ", init.num_side_sets, "\n"
+      "  Number of dim       = ", init.num_dim, "\n",
+      "  Number of nodes     = ", init.num_nodes, "\n",
+      "  Number of elem      = ", init.num_elems, "\n",
+      "  Number of blocks    = ", init.num_elem_blks, "\n",
+      "  Number of node sets = ", init.num_node_sets, "\n",
+      "  Number of side sets = ", init.num_side_sets, "\n"
 )
 
 """
@@ -186,9 +185,16 @@ function write_initialization!(exoid::Cint, init::Initialization)
 end
 
 
-@with_kw struct ExodusDatabase{M, I, B, F}
+# sets and blocks
+abstract type AbstractExodusType end
+abstract type AbstractSet{I, B} <: AbstractExodusType end
+abstract type AbstractVariable <: AbstractExodusType end
+
+
+@with_kw_noshow struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
+  file_name::String
   init::Initialization{B}
   # name to id dict for reducing allocations from access by name
   block_name_dict::Dict{String, I} = Dict{String, I}()
@@ -216,8 +222,68 @@ end
 
 """
 """
+struct Block{I, B} <: AbstractSet{I, B}
+  id::I
+  num_elem::Clonglong
+  num_nodes_per_elem::Clonglong
+  elem_type::String # TODO maybe just make an index
+  conn::Matrix{B}
+end
+
+"""
+"""
+struct NodeSet{I, B} <: AbstractSet{I, B}
+  id::I
+  nodes::Vector{B}
+end
+
+"""
+"""
+struct SideSet{I, B} <: AbstractSet{I, B}
+  id::I
+  elements::Vector{B}
+  sides::Vector{B}
+end
+
+"""
+"""
+struct Element <: AbstractVariable
+end
+
+"""
+"""
+struct Global <: AbstractVariable
+end
+
+"""
+"""
+struct Nodal <: AbstractVariable
+end
+
+"""
+"""
+struct NodeSetVariable <: AbstractVariable
+end
+
+"""
+"""
+struct SideSetVariable <: AbstractVariable
+end
+
+set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
+set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
+
+var_name_dict(exo::ExodusDatabase, ::Type{Element})         = exo.element_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Global})          = exo.global_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{Nodal})           = exo.nodal_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
+
+"""
+"""
 function ExodusDatabase(
-  exo::Cint, mode::String,
+  exo::Cint, mode::String, file_name::String,
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F};
   use_cache_arrays::Bool = false
 ) where {M, I, B, F}
@@ -225,7 +291,7 @@ function ExodusDatabase(
   # get init
   init = Initialization(exo, B)
   return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, init=init, 
+    exo=exo, mode=mode, file_name=file_name, init=init;
     use_cache_arrays=use_cache_arrays
   )
 end
@@ -260,71 +326,30 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
   end
 
-  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
-  float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
-
-  M = map_int_type(int64_status)
-  I = id_int_type(int64_status)
-  B = bulk_int_type(int64_status)
-  F = float_type(float_size)
+  M, I, B, F = int_and_float_modes(exo)
 
   if use_cache_arrays
     println("WARNING: Arrays returned from methods in this mode will change")
-    println("WARNING: with subsequent method calls so use wisely!!!")
+    println("WARNING: with subsequent method calls so use wisely!!!\n\n")
   end
 
-  exo_db = ExodusDatabase(exo, mode, M, I, B, F; use_cache_arrays=use_cache_arrays)
+  exo_db = ExodusDatabase(exo, mode, file_name, M, I, B, F; use_cache_arrays=use_cache_arrays)
 
   # set up set dicts
-  block_ids   = read_ids(exo_db, Block)
-  block_names = read_names(exo_db, Block)
-
-  @assert length(block_ids) == length(block_names)
-
-  for (n, name) in enumerate(block_names)
-    exo_db.block_name_dict[name] = block_ids[n]
+  for type in [Block, NodeSet, SideSet]
+    ids   = read_ids(exo_db, type)
+    names = read_names(exo_db, type)
+    for (n, name) in enumerate(names)
+      set_name_dict(exo_db, type)[name] = ids[n]
+    end
   end
 
-  nset_ids   = read_ids(exo_db, NodeSet)
-  nset_names = read_names(exo_db, NodeSet)
-
-  @assert length(nset_ids) == length(nset_names)
-
-  for (n, name) in enumerate(nset_names)
-    exo_db.nset_name_dict[name] = nset_ids[n]
-  end
-
-  sset_ids   = read_ids(exo_db, SideSet)
-  sset_names = read_names(exo_db, SideSet)
-
-  for (n, name) in enumerate(sset_names)
-    exo_db.sset_name_dict[name] = sset_ids[n]
-  end
-
-  # setup variable name dicts
-  element_var_names = read_names(exo_db, Element)
-  for (n, name) in enumerate(element_var_names)
-    exo_db.element_var_name_dict[name] = n
-  end
-
-  global_var_names = read_names(exo_db, Global)
-  for (n, name) in enumerate(global_var_names)
-    exo_db.global_var_name_dict[name] = n
-  end
-
-  nodal_var_names = read_names(exo_db, Nodal)
-  for (n, name) in enumerate(nodal_var_names)
-    exo_db.nodal_var_name_dict[name] = n
-  end
-
-  nset_var_names = read_names(exo_db, NodeSetVariable)
-  for (n, name) in enumerate(nset_var_names)
-    exo_db.nset_var_name_dict[name] = n
-  end
-
-  sset_var_names = read_names(exo_db, SideSetVariable)
-  for (n, name) in enumerate(sset_var_names)
-    exo_db.sset_var_name_dict[name] = n
+  for type in [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+    ids   = 1:read_number_of_variables(exo_db, type)
+    names = read_names(exo_db, type)
+    for (n, name) in enumerate(names)
+      var_name_dict(exo_db, type)[name] = ids[n]
+    end
   end
 
   return exo_db
@@ -376,8 +401,49 @@ function ExodusDatabase(
 
   # finally return the ExodusDatabase
   return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, init=init, use_cache_arrays=use_cache_arrays
+    exo=exo, mode=mode, file_name=file_name, init=init;
+     use_cache_arrays=use_cache_arrays
   )
+end
+
+function Base.show(io::IO, exo::ExodusDatabase) 
+  print(
+    io,
+    "ExodusDatabase:\n",
+    "  File name                   = $(exo.file_name)\n",
+    "  Mode                        = $(exo.mode)\n",
+    "  Use cache arrays (advanced) = $(exo.use_cache_arrays)\n",
+    "\n",
+    "$(exo.init)\n"
+  )
+
+  perm = 4
+  for type in [Block, NodeSet, SideSet]
+    if keys(set_name_dict(exo, type)) |> length > 0
+      print(io, "$(type):\n")
+      for (n, name) in enumerate(keys(set_name_dict(exo, type)) |> collect |> sort)
+        print(io, rpad("  $name", MAX_STR_LENGTH))
+        if (n % perm == 0) && (n != length(keys(set_name_dict(exo, type))))
+          print(io, "\n")
+        end
+      end
+      print(io, "\n\n")
+    end
+  end
+
+  perm = 4
+  for type in [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+    if keys(var_name_dict(exo, type)) |> length > 0
+      print(io, "$(type):\n")
+      for (n, name) in enumerate(keys(var_name_dict(exo, type)) |> collect |> sort)
+        print(io, rpad("  $name", MAX_STR_LENGTH))
+        if (n % perm == 0) && (n != length(keys(var_name_dict(exo, type))))
+          print(io, "\n")
+        end
+      end
+      print(io, "\n\n")
+    end
+  end
 end
 
 """
@@ -418,6 +484,7 @@ get_mode(exo::ExodusDatabase)      = getfield(exo, :mode)
 get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
+
 
 # helper method
 Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = Initialization(exo.exo, B)
@@ -506,25 +573,10 @@ function Base.show(io::IO, e::VariableNameException)
   end
 end
 
-# sets and blocks
-abstract type AbstractExodusType end
-abstract type AbstractSet{I, B} <: AbstractExodusType end
-abstract type AbstractVariable <: AbstractExodusType end
-
 id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
 name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
 id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
 name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
-
-"""
-"""
-struct Block{I, B} <: AbstractSet{I, B}
-  id::I
-  num_elem::Clonglong
-  num_nodes_per_elem::Clonglong
-  elem_type::String # TODO maybe just make an index
-  conn::Matrix{B}
-end
 
 """
 Init method for block container.
@@ -561,14 +613,6 @@ print(io, "Block:\n",
       "\tNum elem           = ", block.num_elem, "\n",
       "\tNum nodes per elem = ", block.num_nodes_per_elem, "\n",
       "\tElem type          = ", block.elem_type, "\n")
-
-
-"""
-"""
-struct NodeSet{I, B} <: AbstractSet{I, B}
-  id::I
-  nodes::Vector{B}
-end
 
 """
 """
@@ -611,14 +655,6 @@ print(
 
 """
 """
-struct SideSet{I, B} <: AbstractSet{I, B}
-  id::I
-  elements::Vector{B}
-  sides::Vector{B}
-end
-
-"""
-"""
 function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
   if !(id in read_ids(exo, SideSet))
     id_error(exo, SideSet, id)
@@ -658,31 +694,6 @@ print(
   "\tNumber of sides    = ", length(sset.sides),    "\n"
 )
 
-"""
-"""
-struct Element <: AbstractVariable
-end
-
-"""
-"""
-struct Global <: AbstractVariable
-end
-
-"""
-"""
-struct Nodal <: AbstractVariable
-end
-
-"""
-"""
-struct NodeSetVariable <: AbstractVariable
-end
-
-"""
-"""
-struct SideSetVariable <: AbstractVariable
-end
-
 entity_type(::Type{S}) where S <: Block           = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: Element         = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: Global          = EX_GLOBAL
@@ -695,16 +706,6 @@ entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 set_equivalent(::Type{S}) where S <: Element         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet
-
-set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
-set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
-set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
-
-var_name_dict(exo::ExodusDatabase, ::Type{Element})         = exo.element_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{Global})          = exo.global_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{Nodal})           = exo.nodal_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
 
 function set_var_name_index(exo::ExodusDatabase, ::Type{Element}, index::Integer, name::String) 
   exo.element_var_name_dict[name] = index

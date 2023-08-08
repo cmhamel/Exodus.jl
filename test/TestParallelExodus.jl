@@ -7,3 +7,7 @@
 #   end
 # end
 # # 
+
+# @testset ExtendedTestSet "ParallelExodusDatabase" begin
+#   exo = Exodus.ParallelExodusDatabase("mesh/square_meshes/mesh_test.g", 4)
+# end
