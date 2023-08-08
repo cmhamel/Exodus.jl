@@ -247,17 +247,17 @@ end
 
 """
 """
-struct Element <: AbstractVariable
+struct ElementVariable <: AbstractVariable
 end
 
 """
 """
-struct Global <: AbstractVariable
+struct GlobalVariable <: AbstractVariable
 end
 
 """
 """
-struct Nodal <: AbstractVariable
+struct NodalVariable <: AbstractVariable
 end
 
 """
@@ -274,9 +274,9 @@ set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
 set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
 set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
 
-var_name_dict(exo::ExodusDatabase, ::Type{Element})         = exo.element_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{Global})          = exo.global_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{Nodal})           = exo.nodal_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{ElementVariable})         = exo.element_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{GlobalVariable})          = exo.global_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{NodalVariable})           = exo.nodal_var_name_dict
 var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
 var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
 
@@ -344,7 +344,7 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
     end
   end
 
-  for type in [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
     ids   = 1:read_number_of_variables(exo_db, type)
     names = read_names(exo_db, type)
     for (n, name) in enumerate(names)
@@ -432,7 +432,7 @@ function Base.show(io::IO, exo::ExodusDatabase)
   end
 
   perm = 4
-  for type in [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
     if keys(var_name_dict(exo, type)) |> length > 0
       print(io, "$(type):\n")
       for (n, name) in enumerate(keys(var_name_dict(exo, type)) |> collect |> sort)
@@ -695,27 +695,27 @@ print(
 )
 
 entity_type(::Type{S}) where S <: Block           = EX_ELEM_BLOCK
-entity_type(::Type{S}) where S <: Element         = EX_ELEM_BLOCK
-entity_type(::Type{S}) where S <: Global          = EX_GLOBAL
-entity_type(::Type{S}) where S <: Nodal           = EX_NODAL
+entity_type(::Type{S}) where S <: ElementVariable         = EX_ELEM_BLOCK
+entity_type(::Type{S}) where S <: GlobalVariable          = EX_GLOBAL
+entity_type(::Type{S}) where S <: NodalVariable           = EX_NODAL
 entity_type(::Type{S}) where S <: NodeSet         = EX_NODE_SET
 entity_type(::Type{S}) where S <: NodeSetVariable = EX_NODE_SET
 entity_type(::Type{S}) where S <: SideSet         = EX_SIDE_SET
 entity_type(::Type{S}) where S <: SideSetVariable = EX_SIDE_SET
 
-set_equivalent(::Type{S}) where S <: Element         = Block
+set_equivalent(::Type{S}) where S <: ElementVariable         = Block
 set_equivalent(::Type{S}) where S <: NodeSetVariable = NodeSet
 set_equivalent(::Type{S}) where S <: SideSetVariable = SideSet
 
-function set_var_name_index(exo::ExodusDatabase, ::Type{Element}, index::Integer, name::String) 
+function set_var_name_index(exo::ExodusDatabase, ::Type{ElementVariable}, index::Integer, name::String) 
   exo.element_var_name_dict[name] = index
 end
 
-function set_var_name_index(exo::ExodusDatabase, ::Type{Global}, index::Integer, name::String) 
+function set_var_name_index(exo::ExodusDatabase, ::Type{GlobalVariable}, index::Integer, name::String) 
   exo.global_var_name_dict[name] = index
 end
 
-function set_var_name_index(exo::ExodusDatabase, ::Type{Nodal}, index::Integer, name::String) 
+function set_var_name_index(exo::ExodusDatabase, ::Type{NodalVariable}, index::Integer, name::String) 
   exo.nodal_var_name_dict[name] = index
 end
 

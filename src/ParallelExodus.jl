@@ -86,8 +86,8 @@ print(
   io, "CommunicationMapParameters:\n",
       "\tNode communication map ids               = ", cmap_params.node_cmap_ids, "\n",
       "\tNode communication map node counts       = ", cmap_params.node_cmap_node_cnts, "\n",
-      "\tElement communication map ids            = ", cmap_params.elem_cmap_ids, "\n",
-      "\tElement communication map element counts = ", cmap_params.elem_cmap_elem_cnts, "\n"
+      "\tElementVariable communication map ids            = ", cmap_params.elem_cmap_ids, "\n",
+      "\tElementVariable communication map element counts = ", cmap_params.elem_cmap_elem_cnts, "\n"
 )
 
 function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F}, lb_params::LoadBalanceParameters{B}, processor::Itype) where {M, I, B, F, Itype <: Integer}
@@ -218,7 +218,7 @@ function Base.show(io::IO, exo::ParallelExodusDatabase{M, I, B, F, N}) where {M,
   #   "$(exo.nem)"
   # )
   perm = 3
-  for type in [Element, Global, Nodal, NodeSetVariable, SideSetVariable]
+  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
     print(io, "$(type):\n")
     for (n, name) in enumerate(keys(var_name_dict(exo.exos[1], type)))
       print(io, rpad("  $name", MAX_STR_LENGTH))
@@ -261,13 +261,13 @@ function NodeCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, node_m
   return NodeCommunicationMap{B}(node_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
-struct ElementCommunicationMap{B}
+struct ElementVariableCommunicationMap{B}
   elem_ids::Vector{B}
   side_ids::Vector{B}
   proc_ids::Vector{B}
 end
 
-function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
+function ElementVariableCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
   index = findall(x -> x == elem_map_id, exo.cmap_params[processor].elem_cmap_ids)
   if length(index) == 0
     error(ErrorException("Invalid element map id"))
@@ -283,8 +283,8 @@ function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, ele
     elem_ids::Ptr{B}, side_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ElementCommunicationMap -> libexodus.ex_get_elem_cmap")
-  return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
+  exodus_error_check(error_code, "Exodus.ElementVariableCommunicationMap -> libexodus.ex_get_elem_cmap")
+  return ElementVariableCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
 struct ProcessorNodeMaps{B}
@@ -307,12 +307,12 @@ function ProcessorNodeMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor
   return ProcessorNodeMaps{B}(node_map_internal, node_map_border, node_map_external)
 end
 
-struct ProcessorElementMaps{B}
+struct ProcessorElementVariableMaps{B}
   elem_map_internal::Vector{B}
   elem_map_border::Vector{B}
 end
 
-function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
+function ProcessorElementVariableMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
   elem_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_elems)
   elem_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_elems)
 
@@ -321,6 +321,6 @@ function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, proces
     elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
-  return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
+  exodus_error_check(error_code, "Exodus.ProcessorElementVariableMaps -> libexodus.ex_get_processor_elem_maps")
+  return ProcessorElementVariableMaps{B}(elem_map_internal, elem_map_border)
 end

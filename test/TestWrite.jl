@@ -141,31 +141,31 @@ end
   # need at least one timestep to output variables
   write_time(exo, 1, 0.0)
   # write number of variables and their names
-  write_number_of_variables(exo, Nodal, 2)
-  write_names(exo, Nodal, ["v_nodal_1", "v_nodal_2"])
-  write_number_of_variables(exo, Element, 2)
-  write_names(exo, Element, ["v_elem_1", "v_elem_2"])
+  write_number_of_variables(exo, NodalVariable, 2)
+  write_names(exo, NodalVariable, ["v_nodal_1", "v_nodal_2"])
+  write_number_of_variables(exo, ElementVariable, 2)
+  write_names(exo, ElementVariable, ["v_elem_1", "v_elem_2"])
   # write variable values the 1 is for the time step
-  write_values(exo, Nodal, 1, 1, "v_nodal_1", v_nodal_1)
-  write_values(exo, Nodal, 1, 1, "v_nodal_2", v_nodal_2)
+  write_values(exo, NodalVariable, 1, 1, "v_nodal_1", v_nodal_1)
+  write_values(exo, NodalVariable, 1, 1, "v_nodal_2", v_nodal_2)
   # the first 1 is for the time step 
   # and the second 1 is for the block number
-  write_values(exo, Element, 1, 1, "v_elem_1", v_elem_1)
-  write_values(exo, Element, 1, 1, "v_elem_2", v_elem_2)
+  write_values(exo, ElementVariable, 1, 1, "v_elem_1", v_elem_1)
+  write_values(exo, ElementVariable, 1, 1, "v_elem_2", v_elem_2)
 
   # now confirm you wrote things correctly
-  n_nodal_vars = read_number_of_variables(exo, Nodal)
-  n_elem_vars  = read_number_of_variables(exo, Element)
+  n_nodal_vars = read_number_of_variables(exo, NodalVariable)
+  n_elem_vars  = read_number_of_variables(exo, ElementVariable)
   @test n_nodal_vars == 2
   @test n_elem_vars == 2
-  nodal_var_names = read_names(exo, Nodal)
-  elem_var_names  = read_names(exo, Element)
+  nodal_var_names = read_names(exo, NodalVariable)
+  elem_var_names  = read_names(exo, ElementVariable)
   @test nodal_var_names == ["v_nodal_1", "v_nodal_2"]
   @test elem_var_names == ["v_elem_1", "v_elem_2"]
-  v_nodal_1_read = read_values(exo, Nodal, 1, 1, "v_nodal_1")
-  v_nodal_2_read = read_values(exo, Nodal, 1, 1, "v_nodal_2")
-  v_elem_1_read  = read_values(exo, Element, 1, 1, "v_elem_1")
-  v_elem_2_read  = read_values(exo, Element, 1, 1, "v_elem_2")
+  v_nodal_1_read = read_values(exo, NodalVariable, 1, 1, "v_nodal_1")
+  v_nodal_2_read = read_values(exo, NodalVariable, 1, 1, "v_nodal_2")
+  v_elem_1_read  = read_values(exo, ElementVariable, 1, 1, "v_elem_1")
+  v_elem_2_read  = read_values(exo, ElementVariable, 1, 1, "v_elem_2")
   @test v_nodal_1_read ≈ v_nodal_1
   @test v_nodal_2_read ≈ v_nodal_2
   @test v_elem_1_read ≈ v_elem_1
