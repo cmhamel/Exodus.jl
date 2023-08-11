@@ -378,7 +378,7 @@ write_values(
   exo::ExodusDatabase, t::Type{NodalVariable},
   timestep::Integer, var_name::String,
   var_values::Vector{<:AbstractFloat}
-) = write_values(exo, t, timestep, 1, var_name_index(exo, V, var_name), var_values)
+) = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), var_values)
 
 """
 """
