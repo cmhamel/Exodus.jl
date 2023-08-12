@@ -63,51 +63,6 @@ function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
   return M, I, B, F
 end
 
-# function map_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_MAPS_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function id_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_IDS_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function bulk_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_BULK_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function float_type(float_size::Int32)
-#   if float_size == 4
-#     return Cfloat
-#   elseif float_size == 8
-#     return Cdouble
-#   end
-# end
-
-
 struct Initialization{B}
   num_dim::B
   num_nodes::B
