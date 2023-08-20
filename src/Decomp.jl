@@ -87,6 +87,10 @@ end
 function decomp(file_name::String, n_procs::I) where I <: Integer
   # some file management up front
   # WARNING by default it removes old files
+  if Sys.iswindows()
+    exodus_windows_error()
+  end
+  
   file_name_abs = abspath(file_name)
   Base.rm(file_name_abs * ".nem", force=true)
   Base.rm(file_name_abs * ".pex", force=true)

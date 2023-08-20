@@ -14,6 +14,10 @@ macro exodiff(ex_1, ex_2)
 end
 
 function exodiff(ex_1::String, ex_2::String)
+  if Sys.iswindows()
+    exodus_windows_error()
+  end
+
   ex_1, ex_2 = abspath(ex_1), abspath(ex_2)
   exodiff_output = @capture_out @capture_err exodiff_exe() do exe
     run(`$exe $ex_1 $ex_2`, wait=true)

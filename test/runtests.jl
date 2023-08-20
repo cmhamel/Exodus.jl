@@ -132,6 +132,15 @@ end
   close(exo)
 end
 
+# test widnows errors
+if Sys.iswindows()
+  @exodus_unit_test_set "Windows errors for parallel support" begin
+    @test_throws Exodus.ExodusWindowsError decomp("./mesh/square_meshes/mesh_test.g", 4)
+    @test_throws Exodus.ExodusWindowsError epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
+    @test_throws Exodus.ExodusWindowsError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+  end
+end
+
 @includetests ARGS
 
 # Aqua testing

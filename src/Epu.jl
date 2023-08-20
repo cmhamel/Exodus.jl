@@ -16,6 +16,10 @@ end
 """
 """
 function epu(file_name::String)
+  if Sys.iswindows()
+    exodus_windows_error()
+  end
+
   file_name = abspath(file_name::String)
   epu_out = @capture_out @capture_err epu_exe() do exe
     run(`$exe -auto $file_name`, wait=true)
