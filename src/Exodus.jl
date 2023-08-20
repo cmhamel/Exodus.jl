@@ -61,6 +61,7 @@ export write_values
 export decomp
 export epu
 export @epu
+export exodiff
 export @exodiff
 
 # dependencies
