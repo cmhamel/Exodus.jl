@@ -48,65 +48,16 @@ function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
     M, I, B = Cint, Cint, Clonglong
   elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
     M, I, B = Clonglong, Clonglong, Clonglong
-  else
-    mode_error("Bad int64_status, probably 64 int bit mesh, not supported right now $int64_status")
   end
 
   if float_size == 4
     F = Cfloat
   elseif float_size == 8
     F = Cdouble
-  else
-    mode_error("Bad float mode: float_size == $(float_size)")
   end
 
   return M, I, B, F
 end
-
-# function map_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_MAPS_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function id_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_IDS_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function bulk_int_type(int_status::UInt32)
-#   if int_status == 0x00000000
-#     return Cint
-#   elseif int_status == EX_BULK_INT64_API
-#     return Clonglong
-#   elseif int_status == EX_ALL_INT64_API
-#     return Clonglong
-#   else
-#     return Cint# hack for now
-#   end
-# end
-
-# function float_type(float_size::Int32)
-#   if float_size == 4
-#     return Cfloat
-#   elseif float_size == 8
-#     return Cdouble
-#   end
-# end
-
 
 struct Initialization{B}
   num_dim::B
@@ -495,7 +446,7 @@ struct ModeException <: Exception
   mode::String
 end
 Base.show(io::IO, e::ModeException) = 
-print(io, "Bad read/write mode: $(e.mode)", "\nAvailablae modes are \"r\"")
+print(io, "Bad read/write mode: $(e.mode)", "\nAvailable modes are \"r\", \"rw\", and \"w\"")
 
 mode_error(mode::String) = throw(ModeException(mode))
 

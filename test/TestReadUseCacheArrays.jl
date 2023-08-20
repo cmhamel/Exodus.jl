@@ -7,8 +7,8 @@ mesh_file_name_3D = "./mesh/cube_meshes/mesh_test.g"
 number_of_nodes_3D = 729
 number_of_elements_3D = 512
 
-@exodus_unit_test_set "Test Read ExodusDatabase - 2D Mesh" begin
-  exo = ExodusDatabase(mesh_file_name_2D, "r")
+@exodus_unit_test_set "Test Read ExodusDatabase - 2D Mesh Using Cache Arrays" begin
+  exo = ExodusDatabase(mesh_file_name_2D, "r"; use_cache_arrays=true)
 
   # blocks
   @test read_ids(exo, Block) == [1]
@@ -48,7 +48,7 @@ number_of_elements_3D = 512
   @test block_id_map == 1:Block(exo, 1).num_elem |> collect
   
   # coordinate values
-  coords = read_coordinates(exo)
+  coords = read_coordinates(exo) |> copy
   @test size(coords) == (2, number_of_nodes_2D)
 
   # parital coordiantes values
@@ -56,13 +56,13 @@ number_of_elements_3D = 512
   @test coords[:, 10:110 - 1] ≈ partial_coords
 
   partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, 1)
-  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
 
   partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, "x")
-  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
 
   # coordinate names
@@ -82,7 +82,7 @@ number_of_elements_3D = 512
   @test length(elem_map) == exo.init.num_elems 
 
   # nodesets
-  nset_ids = read_ids(exo, NodeSet)
+  nset_ids = read_ids(exo, NodeSet) |> copy
   @test nset_ids == [1, 2, 3 ,4]
 
   for (id, nset_id) in enumerate(nset_ids)
@@ -112,7 +112,7 @@ number_of_elements_3D = 512
   @test qa[1, 4] == "19:34:08"   # may change
 
   # sidesets
-  sset_ids = read_ids(exo, SideSet)
+  sset_ids = read_ids(exo, SideSet) |> copy
   @test sset_ids == [1, 2, 3, 4]
 
   for (id, sset_id) in enumerate(sset_ids)
@@ -120,7 +120,6 @@ number_of_elements_3D = 512
     @test sset.id == id
     @test length(sset.elements) == number_of_node_set_nodes_2D - 1
     @test length(sset.sides)    == number_of_node_set_nodes_2D - 1
-    read_side_set_node_list(exo, sset_id)
   end
 
   sset_names = read_names(exo, SideSet)
@@ -139,11 +138,11 @@ number_of_elements_3D = 512
   close(exo)
 end
 
-@exodus_unit_test_set "Test Read ExodusDatabase - 3D Mesh" begin
-  exo = ExodusDatabase(mesh_file_name_3D, "r")
+@exodus_unit_test_set "Test Read ExodusDatabase - 3D Mesh Using Cache Arrays" begin
+  exo = ExodusDatabase(mesh_file_name_3D, "r"; use_cache_arrays=true)
 
   # coordinate values
-  coords = read_coordinates(exo)
+  coords = read_coordinates(exo) |> copy
   @test size(coords) == (3, number_of_nodes_3D)
 
   # partial coordinate values
@@ -151,17 +150,17 @@ end
   @test coords[:, 10:110 - 1] ≈ partial_coords
 
   partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, 1)
-  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
-  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, 3)
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, 2)
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, 3)
   @test coords[3, 10:110 - 1] ≈ partial_coords_z
 
   partial_coords_x = Exodus.read_partial_coordinates_component(exo, 10, 100, "x")
-  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
-  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, "z")
   @test coords[1, 10:110 - 1] ≈ partial_coords_x
+  partial_coords_y = Exodus.read_partial_coordinates_component(exo, 10, 100, "y")
   @test coords[2, 10:110 - 1] ≈ partial_coords_y
+  partial_coords_z = Exodus.read_partial_coordinates_component(exo, 10, 100, "z")
   @test coords[3, 10:110 - 1] ≈ partial_coords_z
 
   # coordinate names
@@ -183,8 +182,8 @@ end
   close(exo)
 end
 
-@exodus_unit_test_set "Test Read ExodusDatabase - multiple blocks" begin
-  exo = ExodusDatabase("mesh/multi_block/multi_block_mesh.g", "r")
+@exodus_unit_test_set "Test Read ExodusDatabase - multiple blockssing Cache Arrays" begin
+  exo = ExodusDatabase("mesh/multi_block/multi_block_mesh.g", "r"; use_cache_arrays=true)
   @test read_ids(exo, Block) == [1, 2]
   @test read_ids(exo, NodeSet) == [1, 2, 3, 4, 5]
   @test read_ids(exo, SideSet) == [1, 2, 3, 4, 5]
@@ -195,7 +194,6 @@ end
   conns = collect_block_connectivities(exo)
   block_1 = Block(exo, 1)
   block_2 = Block(exo, 2)
-  @test_throws Exodus.SetNameException Block(exo, "block_3")
   @test conns[:, 1:block_1.num_elem]   == block_1.conn
   @test conns[:, block_1.num_elem + 1:end] == block_2.conn
 
@@ -204,6 +202,7 @@ end
   block_2 = Block(exo, 2)
   @test conns[:, 1:block_1.num_elem]   == block_1.conn
   @test conns[:, block_1.num_elem + 1:end] == block_2.conn
-
+  
+  @show exo
   close(exo)
 end

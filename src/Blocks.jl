@@ -178,9 +178,13 @@ end
 """
 TODO reduce allocations and check for type instabilities
 """
-function collect_block_connectivities(exo::ExodusDatabase)
-  block_ids = read_ids(exo, Block)
+function collect_block_connectivities(exo::ExodusDatabase, block_ids::Vector{<:Integer})
   blocks = Block.((exo,), block_ids)
   conns = [block.conn for block in blocks]
   return mapreduce(permutedims, vcat, conns)' |> collect
 end
+
+"""
+"""
+collect_block_connectivities(exo::ExodusDatabase) = 
+collect_block_connectivities(exo, read_ids(exo, Block))

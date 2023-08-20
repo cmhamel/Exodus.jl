@@ -5,14 +5,16 @@ module Exodus
 
 # exported types
 export Block
+# export ElementCommunicationMap
 export ElementVariable
 export ExodusDatabase
 export GlobalVariable
 export Initialization
 export NodalVariable
+# export NodeCommunicationMap
 export NodeSet
 export NodeSetVariable
-export ParallelExodusDatabase
+# export ParallelExodusDatabase
 export SideSet
 export SideSetVariable
 
@@ -38,6 +40,7 @@ export read_number_of_variables
 export read_number_of_time_steps
 export read_set
 export read_sets
+export read_side_set_node_list
 export read_time
 export read_times
 export read_values

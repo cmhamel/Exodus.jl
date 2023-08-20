@@ -98,6 +98,10 @@ end
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
   @test_throws Exodus.ExodusError Exodus.exodus_error_check(-1, "JohnSmithMethod")
+  e = Exodus.ExodusError(-1, "JohnSmithMethod")
+  @show e
+  e = Exodus.ExodusWindowsError()
+  @show e
 end
 
 # exodiff tests
@@ -130,10 +134,145 @@ end
     @show e
   end
 
+  e = Exodus.ModeException("w")
+  @show e
   close(exo)
+
+  # init = Initialization(Int32)
+  init = Initialization(Int32(2), Int32(4), Int32(1), 
+                        Int32(1), Int32(0), Int32(0))
+  exo = ExodusDatabase("./test_exceptions.e", "w", init,
+                       Int32, Int32, Int32, Float64)
+  write_number_of_variables(exo, NodalVariable, 3)
+  write_names(exo, NodalVariable, ["u", "v", "w"])
+  e = Exodus.VariableIDException(exo, NodalVariable, 4)
+  @show e
+  e = Exodus.VariableNameException(exo, NodalVariable, "x")
+  @show e
+  close(exo)
+  rm("./test_exceptions.e", force=true)
 end
 
-# test widnows errors
+@exodus_unit_test_set "Clobber mode" begin
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int32, Float32)
+
+  close(exo)
+
+  exo = ExodusDatabase("test_temp.e", "w")
+  close(exo)
+  rm("test_temp.e", force=true)
+end
+
+@exodus_unit_test_set "Modes" begin
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int32
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int64, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int64
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int32
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int64, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int64
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  #
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int32, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int32
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int64, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int64
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int32, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int32
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int64, Int64, Float32;
+                       use_cache_arrays=true) # this one different just to cover this behavior once
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int64
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "non")
+
+  init = Initialization(Int32)
+  @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "r", init,
+                                                   Int32, Int32, Int32, Float32)
+end
+
+# set max name length
+@exodus_unit_test_set "Set Exodus Max Name Length" begin
+  exo = ExodusDatabase("test_set_exodus_max_name_length.e", "w")
+  Exodus.set_exodus_max_name_length(exo.exo, Cint(20))
+  close(exo)
+  rm("test_set_exodus_max_name_length.e", force=true)
+end
+
+# test windows errors
 if Sys.iswindows()
   @exodus_unit_test_set "Windows errors for parallel support" begin
     @test_throws Exodus.ExodusWindowsError decomp("./mesh/square_meshes/mesh_test.g", 4)

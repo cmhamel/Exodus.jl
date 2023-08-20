@@ -10,3 +10,4 @@ exodiff.log
 **/temp_mesh.g
 docs/build
 test/epu_mesh_test.g
+Manifest.toml
