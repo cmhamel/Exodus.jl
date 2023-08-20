@@ -34,6 +34,7 @@ number_of_elements_3D = 512
   block = read_block(exo, 1)
   block = read_block(exo, "block_1")
   blocks = read_blocks(exo, read_ids(exo, Block))
+  blocks = read_blocks(exo, 1)
 
   conn = Exodus.read_block_connectivity(exo, 1, block.num_nodes_per_elem * block.num_elem)
   conn = copy(conn)
@@ -178,5 +179,29 @@ end
   nset_ids = read_ids(exo, NodeSet)
   @test nset_ids == [1, 2, 3, 4, 5, 6]
 
+  close(exo)
+end
+
+@exodus_unit_test_set "Test Read ExodusDatabase - multiple blocks" begin
+  exo = ExodusDatabase("mesh/multi_block/multi_block_mesh.g", "r")
+  @test read_ids(exo, Block) == [1, 2]
+  @test read_ids(exo, NodeSet) == [1, 2, 3, 4, 5]
+  @test read_ids(exo, SideSet) == [1, 2, 3, 4, 5]
+  @test read_names(exo, Block) == ["block_1", "block_2"]
+  @test read_names(exo, NodeSet) == ["nset_1", "nset_2", "nset_3", "nset_4", "nset_5"]
+  @test read_names(exo, SideSet) == ["sset_1", "sset_2", "sset_3", "sset_4", "sset_5"]
+  
+  conns = collect_block_connectivities(exo)
+  block_1 = Block(exo, 1)
+  block_2 = Block(exo, 2)
+  @test conns[:, 1:block_1.num_elem]   == block_1.conn
+  @test conns[:, block_1.num_elem + 1:end] == block_2.conn
+
+  conns = collect_block_connectivities(exo, read_ids(exo, Block))
+  block_1 = Block(exo, 1)
+  block_2 = Block(exo, 2)
+  @test conns[:, 1:block_1.num_elem]   == block_1.conn
+  @test conns[:, block_1.num_elem + 1:end] == block_2.conn
+  
   close(exo)
 end

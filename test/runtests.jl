@@ -98,6 +98,10 @@ end
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
   @test_throws Exodus.ExodusError Exodus.exodus_error_check(-1, "JohnSmithMethod")
+  e = Exodus.ExodusError(-1, "JohnSmithMethod")
+  @show e
+  e = Exodus.ExodusWindowsError()
+  @show e
 end
 
 # exodiff tests
@@ -133,7 +137,15 @@ end
   close(exo)
 end
 
-# test widnows errors
+# set max name length
+@exodus_unit_test_set "Set Exodus Max Name Length" begin
+  exo = ExodusDatabase("test_set_max_name_length.e", "w")
+  Exodus.test_set_max_name_length(exo.exo, Cint(20))
+  close(exo)
+  rm("test_set_max_name_length.e", force=true)
+end
+
+# test windows errors
 if Sys.iswindows()
   @exodus_unit_test_set "Windows errors for parallel support" begin
     @test_throws Exodus.ExodusWindowsError decomp("./mesh/square_meshes/mesh_test.g", 4)
