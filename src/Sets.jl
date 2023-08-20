@@ -233,7 +233,7 @@ function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer,
   elseif S <: NodeSet
     exo.nset_name_dict[name] = set_id
   elseif S <: SideSet
-    exo.sset_name[name] = set_id
+    exo.sset_name_dict[name] = set_id
   end
 
   error_code = @ccall libexodus.ex_put_name(
