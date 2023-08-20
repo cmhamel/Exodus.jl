@@ -5,6 +5,12 @@ else
     decomp("mesh/square_meshes/mesh_test.g", 4)
     exo = Exodus.ParallelExodusDatabase("mesh/square_meshes/mesh_test.g", 4)
     @show exo
+    for lb_params in exo.lb_params
+      @show lb_params
+    end
+    for cmap_params in exo.cmap_params
+      @show cmap_params
+    end
     coords = read_coordinates(exo)
 
     block_ids = read_ids(exo, Block)
