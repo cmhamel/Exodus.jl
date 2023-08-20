@@ -27,7 +27,7 @@ end
 struct ExodusWindowsError <: Exception
 end
 
-Base.show(io::IO, e::ExodusWindowsError) = 
-println("This feature is not supported on Windows.")
+Base.show(io::IO, ::ExodusWindowsError) = 
+println(io, "This feature is not supported on Windows.")
 
-exodus_windows_error() = throw(ExodusWindowsError)
+exodus_windows_error() = throw(ExodusWindowsError())
