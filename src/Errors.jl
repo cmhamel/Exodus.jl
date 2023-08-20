@@ -8,7 +8,7 @@ end
 """
 """
 Base.show(io::IO, e::ExodusError) = 
-println(io, "Error from exodusII library in method $(e.method_name) with code $(e.error_code)")
+println(io, "Error from exodusII library in method $(e.error_msg) with code $(e.error_code)")
 
 """
 Generic error handling method.

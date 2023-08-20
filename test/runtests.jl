@@ -29,43 +29,71 @@ end
 end
 
 # decomp tests
-@exodus_unit_test_set "decomp - 2d" begin
-  @decomp "./mesh/square_meshes/mesh_test.g" 16
-  for n in 0:15
-    rm("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
-  end
-  rm("./mesh/square_meshes/mesh_test.g.nem", force=true)
-  rm("./mesh/square_meshes/mesh_test.g.pex", force=true)
-  rm("./mesh/square_meshes/decomp.log", force=true)
-end
+if Sys.iswindows()
+  println("Skipping decomp tests on Windows...")
+else
+  @exodus_unit_test_set "decomp - 2d" begin
+    decomp("./mesh/square_meshes/mesh_test.g", 16)
 
-@exodus_unit_test_set "decomp - 3d" begin
-  @decomp "./mesh/cube_meshes/mesh_test.g" 16
-  for n in 0:15
-    rm("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
-  end
-  rm("./mesh/cube_meshes/mesh_test.g.nem", force=true)
-  rm("./mesh/cube_meshes/mesh_test.g.pex", force=true)
-  rm("./mesh/cube_meshes/decomp.log", force=true)
-end
+    # check if successful
+    for n in 0:15
+      @test isfile("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"))
+    end
+    @test isfile("./mesh/square_meshes/mesh_test.g.nem")
+    @test isfile("./mesh/square_meshes/mesh_test.g.pex")
+    @test isfile("./mesh/square_meshes/decomp.log")
 
-@exodus_unit_test_set "decomp methods" begin
-  decomp("./mesh/square_meshes/mesh_test.g", 16)
-  for n in 0:15
-    rm("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
+    for n in 0:15
+      rm("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
+    end
+    rm("./mesh/square_meshes/mesh_test.g.nem", force=true)
+    rm("./mesh/square_meshes/mesh_test.g.pex", force=true)
+    rm("./mesh/square_meshes/decomp.log", force=true)
   end
-  rm("./mesh/square_meshes/mesh_test.g.nem", force=true)
-  rm("./mesh/square_meshes/mesh_test.g.pex", force=true)
-  rm("./mesh/square_meshes/decomp.log", force=true)
-end
 
+  @exodus_unit_test_set "decomp - 3d" begin
+    decomp("./mesh/cube_meshes/mesh_test.g", 16)
+  
+    # check if successful
+    for n in 0:15
+      @test isfile("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"))
+    end
+    @test isfile("./mesh/cube_meshes/mesh_test.g.nem")
+    @test isfile("./mesh/cube_meshes/mesh_test.g.pex")
+    @test isfile("./mesh/cube_meshes/decomp.log")
+
+
+    for n in 0:15
+      rm("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
+    end
+    rm("./mesh/cube_meshes/mesh_test.g.nem", force=true)
+    rm("./mesh/cube_meshes/mesh_test.g.pex", force=true)
+    rm("./mesh/cube_meshes/decomp.log", force=true)
+  end
+
+  @exodus_unit_test_set "decomp methods" begin
+    decomp("./mesh/square_meshes/mesh_test.g", 16)
+    for n in 0:15
+      rm("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
+    end
+    rm("./mesh/square_meshes/mesh_test.g.nem", force=true)
+    rm("./mesh/square_meshes/mesh_test.g.pex", force=true)
+    rm("./mesh/square_meshes/decomp.log", force=true)
+  end
+end
 # epu test
-#@exodus_unit_test_set "EPU test" begin
-#  if !Sys.iswindows()
-#    @epu "./mesh/square_meshes/epu_mesh_test.g"
-#    @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
-#  end
-#end 
+if Sys.iswindows()
+  println("Skipping epu tests on Windows...")
+else
+  @exodus_unit_test_set "EPU test" begin
+  #  epu("./mesh/square_meshes/epu_mesh_test.g")
+    # @epu "./mesh/square_meshes/epu_mesh_test.g.4.0"
+    epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
+    # @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
+    exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+    rm("epu_mesh_test.g", force=true)
+  end
+end 
 
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
@@ -73,10 +101,10 @@ end
 end
 
 # exodiff tests
-@exodus_unit_test_set "exodiff" begin
-  if Sys.iswindows()
-    @show "skipping exodiff tests for windows"
-  else
+if Sys.iswindows()
+  println("skipping exodiff tests for Windows...")
+else
+  @exodus_unit_test_set "exodiff" begin
     @exodiff "./example_output/output.gold" "./example_output/output.gold"
     rm("./exodiff.log", force=true)
   end
