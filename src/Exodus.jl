@@ -60,9 +60,7 @@ export write_values
 # since some are still very much in development
 export decomp
 export epu
-export @epu
 export exodiff
-export @exodiff
 
 # dependencies
 using DocStringExtensions

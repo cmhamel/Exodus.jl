@@ -21,3 +21,13 @@ function exodus_error_check(error_code::T, method_name::String) where {T <: Inte
     throw(ExodusError(error_code, method_name))
   end
 end
+
+"""
+"""
+struct ExodusWindowsError <: Exception
+end
+
+Base.show(io::IO, ::ExodusWindowsError) = 
+println(io, "This feature is not supported on Windows.")
+
+exodus_windows_error() = throw(ExodusWindowsError())
