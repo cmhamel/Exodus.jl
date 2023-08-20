@@ -140,7 +140,7 @@ end
 # set max name length
 @exodus_unit_test_set "Set Exodus Max Name Length" begin
   exo = ExodusDatabase("test_set_max_name_length.e", "w")
-  Exodus.test_set_max_name_length(exo.exo, Cint(20))
+  Exodus.set_max_name_length(exo.exo, Cint(20))
   close(exo)
   rm("test_set_max_name_length.e", force=true)
 end
