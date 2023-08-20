@@ -59,8 +59,7 @@ export write_values
 # exported parallel methods - note not all are exported on purpose
 # since some are still very much in development
 export decomp
-# export @decomp
-export @epu
+export epu
 export @exodiff
 
 # dependencies

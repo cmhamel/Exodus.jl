@@ -29,7 +29,9 @@ end
 end
 
 # decomp tests
-if !(Sys.iswindows())
+if Sys.iswindows()
+  println("Skipping decomp tests on Windows...")
+else
   @exodus_unit_test_set "decomp - 2d" begin
     decomp("./mesh/square_meshes/mesh_test.g", 16)
 
@@ -80,12 +82,15 @@ if !(Sys.iswindows())
   end
 end
 # epu test
-#@exodus_unit_test_set "EPU test" begin
-#  if !Sys.iswindows()
-#    @epu "./mesh/square_meshes/epu_mesh_test.g"
-#    @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
-#  end
-#end 
+@exodus_unit_test_set "EPU test" begin
+ if Sys.iswindows()
+  println("Skipping epu tests on Windows...")
+ else
+   epu("./mesh/square_meshes/epu_mesh_test.g")
+   @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
+   rm("epu_mesh_test.g", force=true)
+ end
+end 
 
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
@@ -95,7 +100,7 @@ end
 # exodiff tests
 @exodus_unit_test_set "exodiff" begin
   if Sys.iswindows()
-    @show "skipping exodiff tests for windows"
+    println("skipping exodiff tests for Windows...")
   else
     @exodiff "./example_output/output.gold" "./example_output/output.gold"
     rm("./exodiff.log", force=true)
