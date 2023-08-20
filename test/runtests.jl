@@ -137,6 +137,20 @@ end
   e = Exodus.ModeException("w")
   @show e
   close(exo)
+
+  # init = Initialization(Int32)
+  init = Initialization(Int32(2), Int32(4), Int32(1), 
+                        Int32(1), Int32(0), Int32(0))
+  exo = ExodusDatabase("./test_exceptions.e", "w", init,
+                       Int32, Int32, Int32, Float64)
+  write_number_of_variables(exo, NodalVariable, 3)
+  write_names(exo, NodalVariable, ["u", "v", "w"])
+  e = Exodus.VariableIDException(exo, NodalVariable, 4)
+  @show e
+  e = Exodus.VariableNameException(exo, NodalVariable, "x")
+  @show e
+  close(exo)
+  rm("./test_exceptions.e", force=true)
 end
 
 @exodus_unit_test_set "Clobber mode" begin

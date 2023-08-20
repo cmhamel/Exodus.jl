@@ -446,7 +446,7 @@ struct ModeException <: Exception
   mode::String
 end
 Base.show(io::IO, e::ModeException) = 
-print(io, "Bad read/write mode: $(e.mode)", "\nAvailablae modes are \"r\"")
+print(io, "Bad read/write mode: $(e.mode)", "\nAvailable modes are \"r\", \"rw\", and \"w\"")
 
 mode_error(mode::String) = throw(ModeException(mode))
 
