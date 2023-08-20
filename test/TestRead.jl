@@ -120,6 +120,7 @@ number_of_elements_3D = 512
     @test sset.id == id
     @test length(sset.elements) == number_of_node_set_nodes_2D - 1
     @test length(sset.sides)    == number_of_node_set_nodes_2D - 1
+    read_side_set_node_list(exo, sset_id)
   end
 
   sset_names = read_names(exo, SideSet)
@@ -194,6 +195,7 @@ end
   conns = collect_block_connectivities(exo)
   block_1 = Block(exo, 1)
   block_2 = Block(exo, 2)
+  @test_throws Exodus.SetNameException Block(exo, "block_3")
   @test conns[:, 1:block_1.num_elem]   == block_1.conn
   @test conns[:, block_1.num_elem + 1:end] == block_2.conn
 
@@ -202,6 +204,6 @@ end
   block_2 = Block(exo, 2)
   @test conns[:, 1:block_1.num_elem]   == block_1.conn
   @test conns[:, block_1.num_elem + 1:end] == block_2.conn
-  
+
   close(exo)
 end

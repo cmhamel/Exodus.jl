@@ -203,5 +203,6 @@ end
   @test conns[:, 1:block_1.num_elem]   == block_1.conn
   @test conns[:, block_1.num_elem + 1:end] == block_2.conn
   
+  @show exo
   close(exo)
 end

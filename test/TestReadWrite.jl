@@ -115,7 +115,6 @@
   write_values(exo_new, ElementVariable, 1, 1, "stress_yy", stress_yy)
   write_values(exo_new, ElementVariable, 1, 1, "stress_xy", stress_xy)
 
-  
   stress_xx_read = read_values(exo_new, ElementVariable, 1, 1, "stress_xx")
   stress_yy_read = read_values(exo_new, ElementVariable, 1, 1, "stress_yy")
   stress_xy_read = read_values(exo_new, ElementVariable, 1, 1, "stress_xy")

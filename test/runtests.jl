@@ -134,6 +134,8 @@ end
     @show e
   end
 
+  e = Exodus.ModeException("w")
+  @show e
   close(exo)
 end
 
@@ -231,7 +233,8 @@ end
 
   init = Initialization(Int64)
   exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int64, Int64, Int64, Float32)
+                       Int64, Int64, Int64, Float32;
+                       use_cache_arrays=true) # this one different just to cover this behavior once
   M, I, B, F = Exodus.int_and_float_modes(exo.exo)
   @test M == Int64
   @test I == Int64
@@ -242,6 +245,9 @@ end
 
   @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "non")
 
+  init = Initialization(Int32)
+  @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "r", init,
+                                                   Int32, Int32, Int32, Float32)
 end
 
 # set max name length
