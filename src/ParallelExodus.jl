@@ -146,26 +146,28 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
   # exos        = Vector{ExodusDatabase}(undef, n_procs)
   nem         = ExodusDatabase(nem_file, "r"; use_cache_arrays=use_cache_arrays)
   mode        = "r" # TODO hardcoded for now
-  int64_status = @ccall libexodus.ex_int64_status(get_file_id(nem)::Cint)::UInt32
-  float_size   = @ccall libexodus.ex_inquire_int(get_file_id(nem)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
-  M = map_int_type(int64_status)
-  I = id_int_type(int64_status)
-  B = bulk_int_type(int64_status)
-  F = float_type(float_size)
+  # int64_status = @ccall libexodus.ex_int64_status(get_file_id(nem)::Cint)::UInt32
+  # float_size   = @ccall libexodus.ex_inquire_int(get_file_id(nem)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  # M = map_int_type(int64_status)
+  # I = id_int_type(int64_status)
+  # B = bulk_int_type(int64_status)
+  # F = float_type(float_size)
+  M, I, B, F = int_and_float_modes(get_file_id(nem))
   init_global = InitializationGlobal(nem) # just to make it in this scope
   lb_params   = Vector{LoadBalanceParameters{B}}(undef, n_procs)
   cmap_params = Vector{CommunicationMapParameters{B}}(undef, n_procs)
 
   # temp
   exo = ExodusDatabase(exo_files[1], "r"; use_cache_arrays=use_cache_arrays)
-  int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
-  float_size   = @ccall libexodus.ex_inquire_int(get_file_id(exo)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  # int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
+  # float_size   = @ccall libexodus.ex_inquire_int(get_file_id(exo)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  M, I, B, F = int_and_float_modes(get_file_id(exo))
   close(exo)
   # end temp
-  M = map_int_type(int64_status)
-  I = id_int_type(int64_status)
-  B = bulk_int_type(int64_status)
-  F = float_type(float_size)
+  # M = map_int_type(int64_status)
+  # I = id_int_type(int64_status)
+  # B = bulk_int_type(int64_status)
+  # F = float_type(float_size)
 
   exos = Vector{ExodusDatabase{M, I, B, F}}(undef, n_procs)
 
