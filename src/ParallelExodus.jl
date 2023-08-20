@@ -102,8 +102,8 @@ print(
   io, "CommunicationMapParameters:\n",
       "\tNode communication map ids               = ", cmap_params.node_cmap_ids, "\n",
       "\tNode communication map node counts       = ", cmap_params.node_cmap_node_cnts, "\n",
-      "\tElementVariable communication map ids            = ", cmap_params.elem_cmap_ids, "\n",
-      "\tElementVariable communication map element counts = ", cmap_params.elem_cmap_elem_cnts, "\n"
+      "\tElement communication map ids            = ", cmap_params.elem_cmap_ids, "\n",
+      "\tElement communication map element counts = ", cmap_params.elem_cmap_elem_cnts, "\n"
 )
 
 """
@@ -194,22 +194,6 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
     file_name, exos, nem, mode, init_global, lb_params, cmap_params
   )
 end
-
-# function Base.show(io::IO, exo::ParallelExodusDatabase)
-#   # first print nem file
-#   print(io, "Mode: $(exo.mode)\n\n")
-#   print(io, "Nemesis file:\n", exo.nem, "\n\n")
-#   print(io, "Global initialization:\n", exo.init_global, "\n\n")
-#   n_procs = length(exo.exos)
-#   for proc in 1:n_procs
-#     print(
-#       io, "Processor $proc:\n",
-#           exo.exos[proc], "\n\n",
-#           exo.lb_params[proc], "\n",
-#           exo.cmap_params[proc], "\n"
-#     )
-#   end
-# end
 
 """
 """
@@ -305,7 +289,7 @@ function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, ele
     elem_ids::Ptr{B}, side_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ElementVariableCommunicationMap -> libexodus.ex_get_elem_cmap")
+  exodus_error_check(error_code, "Exodus.ElementCommunicationMap -> libexodus.ex_get_elem_cmap")
   return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
@@ -351,7 +335,7 @@ function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, proces
     elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ProcessorElementVariableMaps -> libexodus.ex_get_processor_elem_maps")
+  exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
   return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end
 

@@ -5,16 +5,16 @@ module Exodus
 
 # exported types
 export Block
-export ElementCommunicationMap
+# export ElementCommunicationMap
 export ElementVariable
 export ExodusDatabase
 export GlobalVariable
 export Initialization
 export NodalVariable
-export NodeCommunicationMap
+# export NodeCommunicationMap
 export NodeSet
 export NodeSetVariable
-export ParallelExodusDatabase
+# export ParallelExodusDatabase
 export SideSet
 export SideSetVariable
 
