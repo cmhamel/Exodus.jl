@@ -435,4 +435,4 @@ read_values(
   exo::ParallelExodusDatabase, type::Type{V}, 
   time_step::Integer, set_name::String, var_name::String
 ) where V <: AbstractVariable = 
-read_values(exo.exo, (type,), (time_step,), (set_name,), (var_name,))
+read_values.(exo.exo, (type,), (time_step,), (set_name,), (var_name,))
