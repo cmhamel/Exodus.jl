@@ -38,7 +38,7 @@ macro decomp(ex, n_procs)
     run(`$exe $pex_file`, wait=true)
   end
   @show nem_spread_out
-  
+
   # now write log file
   open(log_file, "w") do file
     write(file, nem_slice_out)
@@ -98,6 +98,10 @@ function decomp(file_name::String, n_procs::I) where I <: Integer
   nem_slice_out = nem_slice(file_name_abs, n_procs)
   # now nem spread
   nem_spread_out = nem_spread(file_name_abs, n_procs)
+
+  @show nem_slice_out
+  @show nem_spread_out
+  
   # now write log file
   log_file = joinpath(dirname(file_name_abs), "decomp.log")
   open(log_file, "w") do file
