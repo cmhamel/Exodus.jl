@@ -69,7 +69,7 @@ end
 
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
-  @test_throws ErrorException Exodus.exodus_error_check(-1, "JohnSmithMethod")
+  @test_throws Exodus.ExodusError Exodus.exodus_error_check(-1, "JohnSmithMethod")
 end
 
 # exodiff tests
