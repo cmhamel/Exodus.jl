@@ -33,6 +33,9 @@ end
   # @decomp "./mesh/square_meshes/mesh_test.g" 16
   decomp("./mesh/square_meshes/mesh_test.g", 16)
   
+  display(readdir("./"))
+  display(readdir("./mesh/square_meshes/"))
+
   # check if successful
   for n in 0:15
     @test isfile("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"))
@@ -53,6 +56,7 @@ end
   # @decomp "./mesh/cube_meshes/mesh_test.g" 16
   decomp("./mesh/cube_meshes/mesh_test.g", 16)
 
+ 
   # check if successful
   for n in 0:15
     @test isfile("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"))

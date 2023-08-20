@@ -18,6 +18,7 @@ macro decomp(ex, n_procs)
     run(`$exe -e -S -l inertial -c -o $nem_file -m mesh=$n_procs $ex`, wait=true)
   end
 
+  @show nem_slice_out
   # now need to write pex file for nem_spread
   open(pex_file, "w") do file
     write(file, "Input FEM file                  = $ex\n")
@@ -36,7 +37,8 @@ macro decomp(ex, n_procs)
   nem_spread_out = @capture_out @capture_err nem_spread_exe() do exe
     run(`$exe $pex_file`, wait=true)
   end
-
+  @show nem_spread_out
+  
   # now write log file
   open(log_file, "w") do file
     write(file, nem_slice_out)
