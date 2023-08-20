@@ -1,7 +1,7 @@
 if Sys.iswindows()
   println("Skipping ParallelExodusDatabase tests on Windows...")
 else
-  @testset ExtendedTestSet "ParallelExodusDatabase" begin
+  @exodus_unit_test_set "ParallelExodusDatabase" begin
     decomp("mesh/square_meshes/mesh_test.g", 4)
     exo = Exodus.ParallelExodusDatabase("mesh/square_meshes/mesh_test.g", 4)
     @show exo

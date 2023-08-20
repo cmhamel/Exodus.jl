@@ -137,6 +137,18 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Clobber mode" begin
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int32, Float32)
+
+  close(exo)
+
+  exo = ExodusDatabase("test_temp.e", "w")
+  close(exo)
+  rm("test_temp.e", force=true)
+end
+
 @exodus_unit_test_set "Modes" begin
   init = Initialization(Int32)
   exo = ExodusDatabase("test_temp.e", "w", init,
@@ -229,7 +241,7 @@ end
   rm("test_temp.e", force=true)
 
   @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "non")
-  
+
 end
 
 # set max name length
