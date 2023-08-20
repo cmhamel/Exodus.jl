@@ -105,7 +105,8 @@ if Sys.iswindows()
   println("skipping exodiff tests for Windows...")
 else
   @exodus_unit_test_set "exodiff" begin
-    @exodiff "./example_output/output.gold" "./example_output/output.gold"
+    # @exodiff "./example_output/output.gold" "./example_output/output.gold"
+    exodiff("./example_output/output.gold", "./example_output/output.gold")
     rm("./exodiff.log", force=true)
   end
 end
