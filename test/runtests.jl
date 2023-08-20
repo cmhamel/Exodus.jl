@@ -30,7 +30,17 @@ end
 
 # decomp tests
 @exodus_unit_test_set "decomp - 2d" begin
-  @decomp "./mesh/square_meshes/mesh_test.g" 16
+  # @decomp "./mesh/square_meshes/mesh_test.g" 16
+  decomp("./mesh/square_meshes/mesh_test.g", 16)
+  
+  # check if successful
+  for n in 0:15
+    @test isfile("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"))
+  end
+  @test isfile("./mesh/square_meshes/mesh_test.g.nem")
+  @test isfile("./mesh/square_meshes/mesh_test.g.pex")
+  @test isfile("./mesh/square_meshes/decomp.log")
+
   for n in 0:15
     rm("./mesh/square_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
   end
@@ -40,7 +50,18 @@ end
 end
 
 @exodus_unit_test_set "decomp - 3d" begin
-  @decomp "./mesh/cube_meshes/mesh_test.g" 16
+  # @decomp "./mesh/cube_meshes/mesh_test.g" 16
+  decomp("./mesh/cube_meshes/mesh_test.g", 16)
+
+  # check if successful
+  for n in 0:15
+    @test isfile("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"))
+  end
+  @test isfile("./mesh/cube_meshes/mesh_test.g.nem")
+  @test isfile("./mesh/cube_meshes/mesh_test.g.pex")
+  @test isfile("./mesh/cube_meshes/decomp.log")
+
+
   for n in 0:15
     rm("./mesh/cube_meshes/mesh_test.g.16." * lpad(n, 2, "0"), force=true)
   end
