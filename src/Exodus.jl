@@ -12,6 +12,7 @@ export Initialization
 export NodalVariable
 export NodeSet
 export NodeSetVariable
+export ParallelExodusDatabase
 export SideSet
 export SideSetVariable
 

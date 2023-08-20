@@ -1,3 +1,5 @@
+"""
+"""
 function read_init_info(exo::ExodusDatabase)
   num_proc      = Ref{Cint}(0)
   num_proc_in_f = Ref{Cint}(0)
@@ -11,6 +13,8 @@ function read_init_info(exo::ExodusDatabase)
   return num_proc[], num_proc_in_f[], unsafe_string(pointer(ftype))
 end
 
+"""
+"""
 function InitializationGlobal(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
   num_nodes     = Ref{B}(0)
   num_elem      = Ref{B}(0)
@@ -28,6 +32,8 @@ function InitializationGlobal(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F
   )
 end
 
+"""
+"""
 struct LoadBalanceParameters{B}
   num_int_nodes::B
   num_bor_nodes::B
@@ -38,6 +44,9 @@ struct LoadBalanceParameters{B}
   num_elem_cmaps::B
   processor::Cint
 end
+
+"""
+"""
 Base.show(io::IO, init::LoadBalanceParameters) =
 print(
   io, "Initialization:\n",
@@ -51,6 +60,8 @@ print(
       "\tProcessor                            = ", init.processor, "\n"
 )
 
+"""
+"""
 function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F}, processor::Itype) where {M, I, B, F, Itype <: Integer}
   num_int_nodes  = Ref{B}(0)
   num_bor_nodes  = Ref{B}(0)
@@ -75,12 +86,17 @@ function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F}, processor::Itype
   )
 end
 
+"""
+"""
 struct CommunicationMapParameters{B}
   node_cmap_ids::Vector{B} # this appears to be 0-based
   node_cmap_node_cnts::Vector{B}
   elem_cmap_ids::Vector{B} # this appears to be 0-based
   elem_cmap_elem_cnts::Vector{B}
 end
+
+"""
+"""
 Base.show(io::IO, cmap_params::CommunicationMapParameters) = 
 print(
   io, "CommunicationMapParameters:\n",
@@ -90,6 +106,8 @@ print(
       "\tElementVariable communication map element counts = ", cmap_params.elem_cmap_elem_cnts, "\n"
 )
 
+"""
+"""
 function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F}, lb_params::LoadBalanceParameters{B}, processor::Itype) where {M, I, B, F, Itype <: Integer}
   node_cmap_ids       = Vector{B}(undef, lb_params.num_node_cmaps)
   node_cmap_node_cnts = Vector{B}(undef, lb_params.num_node_cmaps)
@@ -109,6 +127,8 @@ function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F}, lb_params::
     # this is so it's in a julia indexing
 end
 
+"""
+"""
 struct ParallelExodusDatabase{M, I, B, F, N}
   base_file_name::String
   exos::Vector{ExodusDatabase{M, I, B, F}}
@@ -119,9 +139,10 @@ struct ParallelExodusDatabase{M, I, B, F, N}
   cmap_params::Vector{CommunicationMapParameters{B}}
 end
 
+"""
+"""
 function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arrays::Bool = false) where Itype <: Integer
-  # first decomp, this will be the lazy constructor
-  decomp(file_name, n_procs)
+  
   exo_files = Vector{String}(undef, n_procs)
   # grab the nem file
   if n_procs < 10
@@ -146,12 +167,6 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
   # exos        = Vector{ExodusDatabase}(undef, n_procs)
   nem         = ExodusDatabase(nem_file, "r"; use_cache_arrays=use_cache_arrays)
   mode        = "r" # TODO hardcoded for now
-  # int64_status = @ccall libexodus.ex_int64_status(get_file_id(nem)::Cint)::UInt32
-  # float_size   = @ccall libexodus.ex_inquire_int(get_file_id(nem)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
-  # M = map_int_type(int64_status)
-  # I = id_int_type(int64_status)
-  # B = bulk_int_type(int64_status)
-  # F = float_type(float_size)
   M, I, B, F = int_and_float_modes(get_file_id(nem))
   init_global = InitializationGlobal(nem) # just to make it in this scope
   lb_params   = Vector{LoadBalanceParameters{B}}(undef, n_procs)
@@ -159,15 +174,8 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
 
   # temp
   exo = ExodusDatabase(exo_files[1], "r"; use_cache_arrays=use_cache_arrays)
-  # int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
-  # float_size   = @ccall libexodus.ex_inquire_int(get_file_id(exo)::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
   M, I, B, F = int_and_float_modes(get_file_id(exo))
   close(exo)
-  # end temp
-  # M = map_int_type(int64_status)
-  # I = id_int_type(int64_status)
-  # B = bulk_int_type(int64_status)
-  # F = float_type(float_size)
 
   exos = Vector{ExodusDatabase{M, I, B, F}}(undef, n_procs)
 
@@ -203,6 +211,8 @@ end
 #   end
 # end
 
+"""
+"""
 function Base.show(io::IO, exo::ParallelExodusDatabase{M, I, B, F, N}) where {M, I, B, F, N}
   print(
     io,
@@ -232,6 +242,8 @@ function Base.show(io::IO, exo::ParallelExodusDatabase{M, I, B, F, N}) where {M,
   end
 end
 
+"""
+"""
 function Base.close(p::ParallelExodusDatabase)
   for exo in p.exos
     close(exo)
@@ -239,11 +251,15 @@ function Base.close(p::ParallelExodusDatabase)
   close(p.nem)
 end
 
+"""
+"""
 struct NodeCommunicationMap{B}
   node_ids::Vector{B}
   proc_ids::Vector{B}
 end
 
+"""
+"""
 function NodeCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, node_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
   index = findall(x -> x == node_map_id, exo.cmap_params[processor].node_cmap_ids)
   if length(index) == 0
@@ -263,12 +279,16 @@ function NodeCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, node_m
   return NodeCommunicationMap{B}(node_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
+"""
+"""
 struct ElementVariableCommunicationMap{B}
   elem_ids::Vector{B}
   side_ids::Vector{B}
   proc_ids::Vector{B}
 end
 
+"""
+"""
 function ElementVariableCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
   index = findall(x -> x == elem_map_id, exo.cmap_params[processor].elem_cmap_ids)
   if length(index) == 0
@@ -289,12 +309,16 @@ function ElementVariableCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F,
   return ElementVariableCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
+"""
+"""
 struct ProcessorNodeMaps{B}
   node_map_internal::Vector{B}
   node_map_border::Vector{B}
   node_map_external::Vector{B}
 end
 
+"""
+"""
 function ProcessorNodeMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
   node_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_nodes)
   node_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_nodes)
@@ -309,11 +333,15 @@ function ProcessorNodeMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor
   return ProcessorNodeMaps{B}(node_map_internal, node_map_border, node_map_external)
 end
 
+"""
+"""
 struct ProcessorElementVariableMaps{B}
   elem_map_internal::Vector{B}
   elem_map_border::Vector{B}
 end
 
+"""
+"""
 function ProcessorElementVariableMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
   elem_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_elems)
   elem_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_elems)
@@ -326,3 +354,85 @@ function ProcessorElementVariableMaps(exo::ParallelExodusDatabase{M, I, B, F, N}
   exodus_error_check(error_code, "Exodus.ProcessorElementVariableMaps -> libexodus.ex_get_processor_elem_maps")
   return ProcessorElementVariableMaps{B}(elem_map_internal, elem_map_border)
 end
+
+
+# WARNING: these commands are meant for threaded julia
+# as a way to do pre-processing on a presonal machine.
+# These are not meant for large number of procs or distributed.
+
+"""
+"""
+# function read_coordinates(exo::ParallelExodusDatabase{M, I, B, F, N}) where {M, I, B, F, N}
+#   return read_coordinates.(exo.exos)
+# end
+
+"""
+"""
+read_coordinates(exo::ParallelExodusDatabase) = 
+read_coordinates.(exo.exos)
+
+"""
+"""
+read_ids(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractSet = 
+read_ids.(exo.exos, (type,))
+
+"""
+"""
+read_names(exo::ParallelExodusDatabase, type::Type{T}) where T <: Union{AbstractSet, AbstractVariable} = 
+read_names.(exo.exos, (type,))
+
+"""
+"""
+read_set(exo::ParallelExodusDatabase, type::Type{T}, id::I) where {T, I} = 
+read_set.(exo.exos, (type,), (id,))
+
+"""
+"""
+read_sets(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractSet = 
+read_sets.(exo.exos, (type,))
+
+"""
+"""
+read_number_of_variables(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractVariable = 
+read_number_of_variables.(exo.exos, (type,))
+
+"""
+"""
+read_values(exo::ParallelExodusDatabase, type::Type{T}, time_step::Int, id::Int, var_index::Int) where T <: AbstractSet = 
+read_values.(exo.exos, (type,), (time_step,), (id,), (var_index,))
+
+
+"""
+Wrapper method for global variables around the main read_values method
+read_values(exo::ParallelExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, (t,), (timestep,), (1,), (1,))
+
+Example:
+read_values(exo, GlobalVariable, 1)
+"""
+read_values(exo::ParallelExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = 
+read_values.(exo.exos, (t,), (timestep,), (1,), (1,))
+
+"""
+Wrapper method for nodal variables
+"""
+read_values(exo::ParallelExodusDatabase, t::Type{NodalVariable}, timestep::Integer, index::Integer) = 
+read_values.(exo.exos, (t,), (timestep,), (1,), (index,))
+
+"""
+"""
+read_values(exo::ParallelExodusDatabase, type::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractVariable = 
+read_values.(exo.exos, (type,), (time_step,), (id,), (var_name,))
+
+"""
+Wrapper method for nodal variables
+"""
+read_values(exo::ParallelExodusDatabase, t::Type{NodalVariable}, timestep::Integer, name::String) = 
+read_values.(exo.exos, (t,), (timestep,), (1,), (name,))
+
+"""
+"""
+read_values(
+  exo::ParallelExodusDatabase, type::Type{V}, 
+  time_step::Integer, set_name::String, var_name::String
+) where V <: AbstractVariable = 
+read_values(exo.exo, (type,), (time_step,), (set_name,), (var_name,))
