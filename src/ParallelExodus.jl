@@ -281,7 +281,7 @@ end
 
 """
 """
-struct ElementVariableCommunicationMap{B}
+struct ElementCommunicationMap{B}
   elem_ids::Vector{B}
   side_ids::Vector{B}
   proc_ids::Vector{B}
@@ -289,7 +289,7 @@ end
 
 """
 """
-function ElementVariableCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
+function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
   index = findall(x -> x == elem_map_id, exo.cmap_params[processor].elem_cmap_ids)
   if length(index) == 0
     error(ErrorException("Invalid element map id"))
@@ -306,7 +306,7 @@ function ElementVariableCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F,
     processor::Cint
   )::Cint
   exodus_error_check(error_code, "Exodus.ElementVariableCommunicationMap -> libexodus.ex_get_elem_cmap")
-  return ElementVariableCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
+  return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
 """
@@ -335,14 +335,14 @@ end
 
 """
 """
-struct ProcessorElementVariableMaps{B}
+struct ProcessorElementMaps{B}
   elem_map_internal::Vector{B}
   elem_map_border::Vector{B}
 end
 
 """
 """
-function ProcessorElementVariableMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
+function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
   elem_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_elems)
   elem_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_elems)
 
@@ -352,7 +352,7 @@ function ProcessorElementVariableMaps(exo::ParallelExodusDatabase{M, I, B, F, N}
     processor::Cint
   )::Cint
   exodus_error_check(error_code, "Exodus.ProcessorElementVariableMaps -> libexodus.ex_get_processor_elem_maps")
-  return ProcessorElementVariableMaps{B}(elem_map_internal, elem_map_border)
+  return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end
 
 

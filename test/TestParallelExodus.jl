@@ -32,6 +32,18 @@ else
     nsets  = read_sets(exo, NodeSet)
     ssets  = read_sets(exo, SideSet)
 
+    for (n, cmap_params) in enumerate(exo.cmap_params)
+      elem_cmap_ids = cmap_params.elem_cmap_ids
+      for elem_cmap_id in elem_cmap_ids
+        elem_map = ElementCommunicationMap(exo, elem_cmap_id, Cint(n))
+      end
+
+      node_cmap_ids = cmap_params.node_cmap_ids
+      for node_cmap_id in node_cmap_ids
+        node_map = NodeCommunicationMap(exo, node_cmap_id, Cint(n))  
+      end
+    end
+
     close(exo)
 
     for n in 1:4
