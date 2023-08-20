@@ -137,6 +137,101 @@ end
   close(exo)
 end
 
+@exodus_unit_test_set "Modes" begin
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int32
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int64, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int64
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int32, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int32
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int32, Int64, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int32
+  @test I == Int64
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  #
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int32, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int32
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int32)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int64, Int32, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int64
+  @test B == Int32
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int32, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int32
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  init = Initialization(Int64)
+  exo = ExodusDatabase("test_temp.e", "w", init,
+                       Int64, Int64, Int64, Float32)
+  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  @test M == Int64
+  @test I == Int64
+  @test B == Int64
+  @test F == Float32
+  close(exo)
+  rm("test_temp.e", force=true)
+
+  @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "non")
+  
+end
+
 # set max name length
 @exodus_unit_test_set "Set Exodus Max Name Length" begin
   exo = ExodusDatabase("test_set_exodus_max_name_length.e", "w")

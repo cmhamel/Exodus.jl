@@ -408,6 +408,8 @@
   # variable throw error
   @test_throws Exodus.VariableNameException read_values(exo_new, NodalVariable, 1, 1, "fake_variable")
 
+  @show exo_new
+
   close(exo_new)
 
   Base.Filesystem.rm("./test_output_2D_Mesh.e")
