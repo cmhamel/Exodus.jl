@@ -6,9 +6,19 @@ version = "0.7.2"
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
+Exodus_with_MPI_jll = "12b52ce4-8aed-52a6-8a09-292a189bbd75"
+MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
+NetCDF_with_MPI_jll = "5b1b6c8d-59a7-5666-ae1d-9e6a246183d5"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PnetCDF_jll = "42036edf-1cf4-552f-a99e-b7155f12a1cd"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+
+[weakdeps]
+MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+
+[extensions]
+ExodusMPIExt = ["MPI"]
 
 [compat]
 DocStringExtensions = "0.9"
@@ -20,8 +30,9 @@ julia = "1"
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"
 
 [targets]
-test = ["Aqua", "Test", "JET", "TestSetExtensions"]
+test = ["Aqua", "JET", "MPI", "Test", "TestSetExtensions"]

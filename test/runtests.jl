@@ -1,8 +1,10 @@
 using Aqua
 using Base
 using Exodus
+# using ExodusMPIExt
 using Exodus_jll
 # using JET
+# using MPI
 using Test
 using TestSetExtensions
 
@@ -281,7 +283,15 @@ if Sys.iswindows()
   end
 end
 
-@includetests ARGS
+
+
+# @includetests ARGS
+include("TestIO.jl")
+include("TestParallelExodus.jl")
+include("TestRead.jl")
+include("TestReadUseCacheArrays.jl")
+include("TestReadWrite.jl")
+include("TestWrite.jl")
 
 # Aqua testing
 Aqua.test_all(Exodus)
