@@ -26,6 +26,15 @@ end
   Exodus_jll.exodiff_exe() do exe
     run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
   end
+
+  rm("./copy_test.e")
+
+  copy_mesh("./mesh/square_meshes/mesh_test.g", "./copy_test.e")
+  Exodus_jll.exodiff_exe() do exe
+    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
+  end
+
+  rm("./copy_test.e")
 end
 
 # decomp tests

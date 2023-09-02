@@ -21,6 +21,7 @@ export SideSetVariable
 # exported io/misc methods
 export close
 export copy
+export copy_mesh
 export length
 
 # exported read methods
