@@ -280,8 +280,7 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
   M, I, B, F = int_and_float_modes(exo)
 
   if use_cache_arrays
-    println("WARNING: Arrays returned from methods in this mode will change")
-    println("WARNING: with subsequent method calls so use wisely!!!\n\n")
+    @warn "Arrays returned from methods in this mode will change with subsequent method calls so use wisely!!!"
   end
 
   exo_db = ExodusDatabase(exo, mode, file_name, M, I, B, F; use_cache_arrays=use_cache_arrays)
@@ -346,8 +345,7 @@ function ExodusDatabase(
   write_initialization!(exo, init)
 
   if use_cache_arrays
-    println("WARNING: Arrays returned from methods in this mode will change")
-    println("WARNING: with subsequent method calls so use wisely!!!")
+    @warn "Arrays returned from methods in this mode will change with subsequent method calls so use wisely!!!"
   end
 
   # finally return the ExodusDatabase

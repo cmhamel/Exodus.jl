@@ -290,7 +290,6 @@ function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name
   
   set_var_name_index(exo, V, var_index, var_name)
 
-  # if V <: 
   temp = Vector{UInt8}(var_name)
   error_code = @ccall libexodus.ex_put_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
@@ -300,7 +299,15 @@ end
 
 """
 """
-function write_names(exo::ExodusDatabase, ::Type{V}, var_names::Vector{String}) where V <: AbstractVariable
+function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{String}) where V <: AbstractVariable
+  if read_number_of_variables(exo, type) == 0
+    write_number_of_variables(exo, type, length(var_names))
+  else
+    if !(read_number_of_variables(exo, type) == length(var_names))
+      name_error(exo, type, "Number of variables already set.")
+    end
+  end
+
   for (n, name) in enumerate(var_names)
     set_var_name_index(exo, V, n, name)
   end
