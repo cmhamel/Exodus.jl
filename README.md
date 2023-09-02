@@ -2,8 +2,6 @@
 [![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.html)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl) 
-
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://cmhamel.github.io/Exodus.jl/stable/) 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cmhamel.github.io/Exodus.jl/dev/) 
 
 
@@ -50,21 +48,13 @@ close(exo) # cleanup
 # Write Example where the mesh is first copied
 ```julia
 using Exodus
-exo_old = ExodusDatabase("./mesh/square_meshes/mesh_test_0.0078125.g", "r")
-copy(exo_old, "./temp_element_variables.e")
-close(exo_old)
+copy_mesh("./mesh.g", "r")
 exo = ExodusDatabase("./temp_element_variables.e", "rw")
 
 write_time(exo, 1, 0.0)
-write_number_of_variables(exo, NodalVariable, 2)
-write_number_of_variables(exo, ElementVariable, 3)
 
-write_name(exo, NodalVariable, 1, "displ_x")
-write_name(exo, NodalVariable, 2, "displ_y")
-
-write_name(exo, ElementVariable, 1, "stress_xx")
-write_name(exo, ElementVariable, 2, "stress_yy")
-write_name(exo, ElementVariable, 3, "stress_xy")
+write_names(exo, NodalVariable, ["displ_x", "displ_y"])
+write_names(exo, ElementVariable, ["stress_xx", "stress_yy", "stress_xy"])
 
 write_values(exo, NodalVariable, 1, 1, randn(...))
 ... # and so on.
@@ -128,9 +118,7 @@ write_block(exo, 1, "QUAD4", conn)
 # need at least one timestep to output variables
 write_time(exo, 1, 0.0)
 # write number of variables and their names
-write_number_of_variables(exo, NodalVariable, 2)
 write_names(exo, NodalVariable, ["v_nodal_1", "v_nodal_2"])
-write_number_of_variables(exo, ElementVariable, 2)
 write_names(exo, ElementVariable, ["v_elem_1", "v_elem_2"])
 # write variable values the 1 is for the time step
 write_values(exo, NodalVariable, 1, "v_nodal_1", v_nodal_1)
