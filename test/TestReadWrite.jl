@@ -173,9 +173,8 @@
   @test global_vars[5] ≈ 50.0
 
   # nodal variables
-  write_number_of_variables(exo_new, NodalVariable, 2)
-  @test read_number_of_variables(exo_new, NodalVariable) == 2
-
+  # write_number_of_variables(exo_new, NodalVariable, 2)
+  # @test read_number_of_variables(exo_new, NodalVariable) == 2
   write_names(exo_new, NodalVariable, ["displ_x_temp", "displ_y_temp"])
   @test read_names(exo_new, NodalVariable) == ["displ_x_temp", "displ_y_temp"]
 
@@ -422,11 +421,8 @@ end
   coord_names_old = Exodus.read_coordinate_names(exo_old)
   close(exo_old)
 
-  # init
-  exo_new = ExodusDatabase(
-    "./test_output_3D_Mesh.e", "w", init_old,
-    M, I, B, F
-  )
+  copy_mesh(mesh_file_name_3D, "./test_output_3D_Mesh.e")
+  exo_new = ExodusDatabase("./test_output_3D_Mesh.e", "rw")
   @test init_old == exo_new.init
 
   # coordinate values
@@ -442,6 +438,10 @@ end
   @test coord_names_new[2] == "y"
   @test coord_names_new[3] == "z"
 
+  write_names(exo_new, NodalVariable, ["u"])
+  @test read_number_of_variables(exo_new, NodalVariable) == 1
+  @test read_names(exo_new, NodalVariable) == ["u"]
+  @test_throws Exodus.VariableNameException write_names(exo_new, NodalVariable, ["u", "v"])
   close(exo_new)
 
   Base.Filesystem.rm("./test_output_3D_Mesh.e")
