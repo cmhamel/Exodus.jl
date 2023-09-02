@@ -425,6 +425,14 @@ function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
   exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
 end
 
+"""
+Simpler copy method to only copy a mesh for output later on
+"""
+function copy_mesh(file_name::String, new_file_name::String)
+  exo = ExodusDatabase(file_name, "r")
+  copy(exo, new_file_name)
+  close(exo)
+end
 
 get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M
 get_id_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = I
