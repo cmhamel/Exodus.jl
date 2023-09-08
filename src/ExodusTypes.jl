@@ -542,7 +542,7 @@ function Block(exo::ExodusDatabase, block_id::Integer)
   block_id = convert(get_id_int_type(exo), block_id) # for convenience interfacing
   element_type, num_elem, num_nodes, _, _, _ =
   read_block_parameters(exo, block_id)
-  conn = read_block_connectivity(exo, 1, num_nodes * num_elem)
+  conn = read_block_connectivity(exo, block_id, num_nodes * num_elem)
 
   conn_out = Matrix{get_bulk_int_type(exo)}(undef, num_nodes, num_elem)
   for e in axes(conn_out, 2)

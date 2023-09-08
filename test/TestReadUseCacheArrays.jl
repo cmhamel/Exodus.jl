@@ -191,18 +191,18 @@ end
   @test read_names(exo, NodeSet) == ["nset_1", "nset_2", "nset_3", "nset_4", "nset_5"]
   @test read_names(exo, SideSet) == ["sset_1", "sset_2", "sset_3", "sset_4", "sset_5"]
   
-  conns = collect_block_connectivities(exo)
+  conns = collect_element_connectivities(exo)
   block_1 = Block(exo, 1)
   block_2 = Block(exo, 2)
-  @test conns[:, 1:block_1.num_elem]   == block_1.conn
-  @test conns[:, block_1.num_elem + 1:end] == block_2.conn
-
-  conns = collect_block_connectivities(exo, read_ids(exo, Block))
-  block_1 = Block(exo, 1)
-  block_2 = Block(exo, 2)
-  @test conns[:, 1:block_1.num_elem]   == block_1.conn
-  @test conns[:, block_1.num_elem + 1:end] == block_2.conn
   
+  for e in axes(block_1.conn, 2)
+    @test conns[e] == block_1.conn[:, e]
+  end
+
+  for e in axes(block_2.conn, 2)
+    @test conns[size(block_1.conn, 2) + e] == block_2.conn[:, e]
+  end
+
   @show exo
   close(exo)
 end

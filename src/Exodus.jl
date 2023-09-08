@@ -25,7 +25,9 @@ export copy_mesh
 export length
 
 # exported read methods
-export collect_block_connectivities
+export collect_element_connectivities
+export collect_element_to_element_connectivities
+export collect_node_to_element_connectivities
 export read_block
 export read_blocks
 export read_block_id_map
@@ -115,6 +117,8 @@ include("Decomp.jl")
 include("Epu.jl")
 include("ExoDiff.jl")
 include("ParallelExodus.jl")
+
+include("Helpers.jl")
 
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
