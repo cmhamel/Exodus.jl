@@ -71,7 +71,6 @@ export exodiff
 # dependencies
 using DocStringExtensions
 using Exodus_jll
-# using ParallelExodus_jll
 using Parameters
 using Suppressor
 
