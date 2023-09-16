@@ -178,22 +178,26 @@ struct Block{I, B} <: AbstractSet{I, B}
   num_elem::Clonglong
   num_nodes_per_elem::Clonglong
   elem_type::String # TODO maybe just make an index
-  conn::Matrix{B}
+  # conn::Matrix{B}
+  conn::M where M <: AbstractMatrix{B}
 end
 
 """
 """
 struct NodeSet{I, B} <: AbstractSet{I, B}
   id::I
-  nodes::Vector{B}
+  # nodes::Vector{B}
+  nodes::V where V <: AbstractVector{B}
 end
 
 """
 """
 struct SideSet{I, B} <: AbstractSet{I, B}
   id::I
-  elements::Vector{B}
-  sides::Vector{B}
+  # elements::Vector{B}
+  # sides::Vector{B}
+  elements::V1 where V1 <: AbstractVector{B}
+  sides::V2 where V2 <: AbstractVector{B}
 end
 
 """
