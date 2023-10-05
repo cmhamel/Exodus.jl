@@ -91,18 +91,15 @@ else
   end
 end
 # epu test
-# if Sys.iswindows()
-#   println("Skipping epu tests on Windows...")
-# else
-#   @exodus_unit_test_set "EPU test" begin
-#   #  epu("./mesh/square_meshes/epu_mesh_test.g")
-#     # @epu "./mesh/square_meshes/epu_mesh_test.g.4.0"
-#     epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-#     # @exodiff "epu_mesh_test.g" "./mesh/square_meshes/mesh_test.g"
-#     exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
-#     rm("epu_mesh_test.g", force=true)
-#   end
-# end 
+if Sys.iswindows()
+  println("Skipping epu tests on Windows...")
+else
+  @exodus_unit_test_set "EPU test" begin
+    epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
+    exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+    rm("epu_mesh_test.g", force=true)
+  end
+end 
 
 # simple test of error handling capability
 @exodus_unit_test_set "Test Errors working" begin
@@ -118,13 +115,13 @@ if Sys.iswindows()
   println("skipping exodiff tests for Windows...")
 else
   @exodus_unit_test_set "exodiff" begin
-    exodiff("./example_output/output.gold", "./example_output/output.gold")
+    exodiff("./example_output/output.gold", "./example_output/output.gold") == true
     rm("./exodiff.log", force=true)
   end
 
   @exodus_unit_test_set "exodiff" begin
     exodiff("./example_output/output.gold", "./example_output/output.gold";
-            command_file="./example_output/command_file.cmd")
+            command_file="./example_output/command_file.cmd") == true
     rm("./exodiff.log", force=true)
   end
 end
