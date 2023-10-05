@@ -1,5 +1,17 @@
 """
 """
+struct ExodiffException <: Exception
+  cmd::Cmd
+end
+
+Base.show(io::IO, e::ExodiffException) = 
+print(io, "\n\nError running exodiff.\ncmd = $(e.cmd)\n\n")
+
+exodiff_error(cmd::Cmd) = throw(ExodiffException(cmd))
+
+"""
+Return true if the two files pass the exodiff test. Otherwise it returns false
+"""
 function exodiff(
   ex_1::String, 
   ex_2::String;
@@ -21,14 +33,38 @@ function exodiff(
   push!(exo_cmd, abspath(ex_2))
 
   # finally run the command
-  exodiff_output = @capture_out @capture_err exodiff_exe() do exe
+  errors_found = false
+  exodiff_exe() do exe
     pushfirst!(exo_cmd, "$exe")
     cmd = Cmd(exo_cmd)
-    run(cmd, wait=true)
+
+    redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
+      try
+        run(cmd, wait=true)
+      catch
+        errors_found = true
+      end
+    end
   end
 
-  # write to a log file
-  open("exodiff.log", "w") do file
-    write(file, exodiff_output)
+  # now handle errors
+  return_bool = false
+  if errors_found
+    open("exodiff_stderr.log") do f 
+      words = read(f, String) |> lowercase
+
+      # look for no such file error
+      if contains(words, "no such file")
+        println("\n\nFile not found error in exodiff\n\n")
+        exodiff_error(Cmd(exo_cmd))
+      end
+    end
+    
+    return_bool = false
+  else
+    return_bool = true
   end
+
+  rm("exodiff_stderr.log", force=true)
+  return return_bool
 end
