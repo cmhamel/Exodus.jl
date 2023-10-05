@@ -119,10 +119,21 @@ else
     rm("./exodiff.log", force=true)
   end
 
-  @exodus_unit_test_set "exodiff" begin
+  @exodus_unit_test_set "exodiff with command file" begin
     exodiff("./example_output/output.gold", "./example_output/output.gold";
             command_file="./example_output/command_file.cmd") == true
     rm("./exodiff.log", force=true)
+  end
+
+  @exodus_unit_test_set "exodiff failure" begin
+    exodiff("./example_output/output.gold", "./example_output/global_vars_test.gold")
+    rm("./exodiff.log", force=true)
+  end
+
+  @exodus_unit_test_set "exodiff file not found" begin
+    @test_throws Exodus.ExodiffException exodiff("./example_output/output.gold", "bad_file.gold")
+    rm("./exodiff.log", force=true)
+    rm("./exodiff_stderr.log", force=true)
   end
 end
 
