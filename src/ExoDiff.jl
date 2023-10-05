@@ -10,6 +10,15 @@ print(io, "\n\nError running exodiff.\ncmd = $(e.cmd)\n\n")
 exodiff_error(cmd::Cmd) = throw(ExodiffException(cmd))
 
 """
+Prints exodiff help message
+"""
+function exodiff()
+  exodiff_exe() do exe
+    run(`$exe --help`)
+  end
+end
+
+"""
 Return true if the two files pass the exodiff test. Otherwise it returns false
 """
 function exodiff(

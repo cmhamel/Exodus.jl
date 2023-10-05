@@ -94,6 +94,10 @@ end
 if Sys.iswindows()
   println("Skipping epu tests on Windows...")
 else
+  @exodus_unit_test_set "epu help" begin
+    epu()
+  end
+
   @exodus_unit_test_set "EPU test" begin
     epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
     exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
@@ -114,15 +118,48 @@ end
 if Sys.iswindows()
   println("skipping exodiff tests for Windows...")
 else
+  @exodus_unit_test_set "exodiff help" begin
+    exodiff()
+  end
+
   @exodus_unit_test_set "exodiff" begin
     exodiff("./example_output/output.gold", "./example_output/output.gold") == true
     rm("./exodiff.log", force=true)
   end
 
-  @exodus_unit_test_set "exodiff" begin
+  @exodus_unit_test_set "exodiff with command file" begin
     exodiff("./example_output/output.gold", "./example_output/output.gold";
             command_file="./example_output/command_file.cmd") == true
     rm("./exodiff.log", force=true)
+  end
+
+  @exodus_unit_test_set "exodiff failure" begin
+    exodiff("./example_output/output.gold", "./example_output/global_vars_test.gold")
+    rm("./exodiff.log", force=true)
+  end
+
+  @exodus_unit_test_set "exodiff file not found" begin
+    @test_throws Exodus.ExodiffException exodiff("./example_output/output.gold", "bad_file.gold")
+    rm("./exodiff.log", force=true)
+    rm("./exodiff_stderr.log", force=true)
+  end
+end
+
+@exodus_unit_test_set "decomp -> epu -> exodiff" begin
+  if Sys.iswindows()
+    println("skipping exodiff tests for Windows...")
+  else
+    cp("mesh/cube_meshes/mesh_test.g", "temp_mesh.g")
+    decomp("temp_mesh.g", 8)
+
+    rm("temp_mesh.g", force=true)
+    epu("temp_mesh.g")
+    foreach(rm, filter(x -> contains(x, "temp_mesh.g."), readdir()))
+    exodiff("temp_mesh.g", "mesh/cube_meshes/mesh_test.g")
+    rm("decomp.log", force=true)
+    rm("epu.log", force=true)
+    rm("exodiff.log", force=true)
+    rm("temp_mesh.g", force=true)
   end
 end
 
