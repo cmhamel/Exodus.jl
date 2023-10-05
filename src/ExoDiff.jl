@@ -4,9 +4,13 @@ struct ExodiffException <: Exception
   cmd::Cmd
 end
 
+"""
+"""
 Base.show(io::IO, e::ExodiffException) = 
 print(io, "\n\nError running exodiff.\ncmd = $(e.cmd)\n\n")
 
+"""
+"""
 exodiff_error(cmd::Cmd) = throw(ExodiffException(cmd))
 
 """
