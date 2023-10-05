@@ -1,4 +1,5 @@
 [![Build Status](https://github.com/cmhamel/Exodus.jl/workflows/CI/badge.svg)](https://github.com/cmhamel/Exodus.jl/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/cmhamel/Exodus.jl/workflows/CI_nightly/badge.svg)](https://github.com/cmhamel/Exodus.jl/actions?query=workflow%3ACI_nightly)
 [![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/E/Exodus.html)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl) 
