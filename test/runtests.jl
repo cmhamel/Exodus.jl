@@ -137,6 +137,20 @@ else
   end
 end
 
+@exodus_unit_test_set "decomp -> epu -> exodiff" begin
+  cp("mesh/cube_meshes/mesh_test.g", "temp_mesh.g")
+  decomp("temp_mesh.g", 8)
+
+  rm("temp_mesh.g", force=true)
+  epu("temp_mesh.g")
+  foreach(rm, filter(x -> contains(x, "temp_mesh.g."), readdir()))
+  exodiff("temp_mesh.g", "mesh/cube_meshes/mesh_test.g")
+  rm("decomp.log", force=true)
+  rm("epu.log", force=true)
+  rm("exodiff.log", force=true)
+  rm("temp_mesh.g", force=true)
+end
+
 @exodus_unit_test_set "Exception testing" begin
   exo = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
 
