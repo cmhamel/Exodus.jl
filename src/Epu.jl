@@ -1,4 +1,20 @@
 """
+"""
+struct EPUException <: Exception
+  cmd::Cmd
+end
+
+"""
+"""
+Base.show(io::IO, e::EPUException) = 
+print(io, "\n\nError running epu.\ncmd = $(e.cmd)\n\n")
+
+"""
+"""
+epu_error(cmd::Cmd) = throw(EPUException(cmd))
+
+
+"""
 Prints epu help message
 """
 function epu()
@@ -14,12 +30,25 @@ function epu(file_name::String)
     exodus_windows_error()
   end
 
-  file_name = abspath(file_name::String)
-  epu_out = @capture_out @capture_err epu_exe() do exe
-    run(`$exe -auto $file_name`, wait=true)
+  epu_cmd = String["-auto", "$(abspath(file_name))"]
+  
+  errors_found = false
+  epu_exe() do exe
+    pushfirst!(epu_cmd, "$exe")
+    cmd = Cmd(epu_cmd)
+
+    redirect_stdio(stdout="epu.log", stderr="epu_stderr.log") do 
+      try
+        run(cmd, wait=true)
+      catch
+        errors_found = true
+      end
+    end
+
+    if errors_found
+      println("error in epu")
+    end
   end
-  folder = abspath(dirname(file_name))
-  open(joinpath(folder, "epu.log"), "w") do file
-    write(file, epu_out)
-  end
+  
+  rm("epu_stderr.log", force=true)
 end
