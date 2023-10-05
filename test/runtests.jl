@@ -94,6 +94,10 @@ end
 if Sys.iswindows()
   println("Skipping epu tests on Windows...")
 else
+  @exodus_unit_test_set "epu help" begin
+    epu()
+  end
+
   @exodus_unit_test_set "EPU test" begin
     epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
     exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
@@ -114,6 +118,10 @@ end
 if Sys.iswindows()
   println("skipping exodiff tests for Windows...")
 else
+  @exodus_unit_test_set "exodiff help" begin
+    exodiff()
+  end
+
   @exodus_unit_test_set "exodiff" begin
     exodiff("./example_output/output.gold", "./example_output/output.gold") == true
     rm("./exodiff.log", force=true)
