@@ -4,9 +4,7 @@ history*.jou
 *.g.*
 *.e
 *.e.*
-decomp.log
-epu.log
-exodiff.log
+*.log
 **/temp_mesh.g
 docs/build
 test/epu_mesh_test.g
