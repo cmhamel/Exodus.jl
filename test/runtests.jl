@@ -2,7 +2,7 @@ using Aqua
 using Base
 using Exodus
 using Exodus_jll
-# using JET
+using JET
 using Test
 using TestSetExtensions
 
@@ -301,12 +301,4 @@ end
 Aqua.test_all(Exodus)
 
 # JET testing
-# test_package("Exodus"; 
-#              target_defined_modules=true)
-#             #  ignored_modules=(Parameters,),
-#             #  analyze_from_definitions=true)
-
-# above not working falling back to manual opt and call testing
-# test_opt(read_coordinates; target_defined_modules=true, ignored_modules=(Base,))
-# test_opt(read_coordinate_names)
-# test_opt(re)
+report_package("Exodus")
