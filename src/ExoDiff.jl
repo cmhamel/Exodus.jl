@@ -30,9 +30,11 @@ function exodiff(
   ex_2::String;
   command_file = nothing
 )
-  if Sys.iswindows()
-    exodus_windows_error()
-  end
+  # if Sys.iswindows()
+  #   exodus_windows_error()
+  # end
+  @assert !Sys.iswindows()
+  # @assert is
 
   exo_cmd = String[]
 
