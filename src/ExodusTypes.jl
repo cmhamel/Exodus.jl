@@ -138,7 +138,8 @@ end
 
 # sets and blocks
 abstract type AbstractExodusType end
-abstract type AbstractSet{I, B} <: AbstractExodusType end
+abstract type AbstractSet{I, A} <: AbstractExodusType end
+# abstract type AbstractExodusSet{ID, ARRAY <: AbstractArray} <: AbstractExodusType end
 abstract type AbstractVariable <: AbstractExodusType end
 
 
@@ -173,31 +174,54 @@ end
 
 """
 """
-struct Block{I, B} <: AbstractSet{I, B}
+# struct Block{I, B} <: AbstractSet{I, B}
+#   id::I
+#   num_elem::Clonglong
+#   num_nodes_per_elem::Clonglong
+#   elem_type::String # TODO maybe just make an index
+#   # conn::Matrix{B}
+#   conn::M where M <: AbstractMatrix{B}
+# end
+
+struct Block{I, A <: AbstractMatrix} <: AbstractSet{I, A}
   id::I
   num_elem::Clonglong
   num_nodes_per_elem::Clonglong
   elem_type::String # TODO maybe just make an index
-  # conn::Matrix{B}
-  conn::M where M <: AbstractMatrix{B}
+  conn::A
 end
 
 """
 """
-struct NodeSet{I, B} <: AbstractSet{I, B}
-  id::I
-  # nodes::Vector{B}
-  nodes::V where V <: AbstractVector{B}
-end
+# struct NodeSet{I, B} <: AbstractSet{I, B}
+#   id::I
+#   # nodes::Vector{B}
+#   nodes::V where V <: AbstractVector{B}
+# end
 
 """
 """
-struct SideSet{I, B} <: AbstractSet{I, B}
+struct NodeSet{I, A <: AbstractVector} <: AbstractSet{I, A}
   id::I
-  # elements::Vector{B}
-  # sides::Vector{B}
-  elements::V1 where V1 <: AbstractVector{B}
-  sides::V2 where V2 <: AbstractVector{B}
+  nodes::A
+end
+
+# """
+# """
+# struct SideSet{I, B} #<: AbstractSet{I, B}
+#   id::I
+#   # elements::Vector{B}
+#   # sides::Vector{B}
+#   elements::V1 where V1 <: AbstractVector{B}
+#   sides::V2 where V2 <: AbstractVector{B}
+# end
+
+"""
+"""
+struct SideSet{I, A <: AbstractVector} <: AbstractSet{I, A}
+  id::I
+  elements::A
+  sides::A
 end
 
 """
@@ -553,7 +577,8 @@ function Block(exo::ExodusDatabase, block_id::Integer)
     conn_out[:, e] = @views conn[(e - 1) * num_nodes + 1:e * num_nodes]
   end
 
-  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
+  # return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
+  return Block{get_id_int_type(exo), typeof(conn_out)}(block_id, num_elem, num_nodes, element_type, conn_out)
 end
 
 """
@@ -585,7 +610,9 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
 
   nodes = copy(nodes) # need to copy here to be safe
 
-  return NodeSet{I, B}(id, nodes)
+  # return NodeSet{I, B}(id, nodes)
+  # return NodeSet{I, typeof(nodes)}(id, nodes)
+  return NodeSet(id, nodes)
 end
 
 """
@@ -625,7 +652,8 @@ function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
   elements = copy(elements)
   sides   = copy(sides)
 
-  return SideSet{I, B}(id, elements, sides)
+  # return SideSet{I, B}(id, elements, sides)
+  return SideSet{I, typeof(elements)}(id, elements, sides)
 end
 
 """

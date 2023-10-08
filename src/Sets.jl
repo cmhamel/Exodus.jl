@@ -185,7 +185,14 @@ function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, 
   exo.cache_B_3 .= set_ids
   set_ids = exo.cache_B_3
 
-  sets = Vector{S{I, B}}(undef, length(set_ids))
+  if S <: Block
+    N = 2
+  else
+    N = 1
+  end
+
+  # sets = Vector{S{I, B}}(undef, length(set_ids))
+  sets = Vector{S{I, Array{B, N}}}(undef, length(set_ids))
   read_sets!(sets, exo, set_ids)
   return sets
 end
