@@ -357,12 +357,12 @@ read_coordinates.(exo.exos)
 
 """
 """
-read_ids(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractSet = 
+read_ids(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusSet = 
 read_ids.(exo.exos, (type,))
 
 """
 """
-read_names(exo::ParallelExodusDatabase, type::Type{T}) where T <: Union{AbstractSet, AbstractVariable} = 
+read_names(exo::ParallelExodusDatabase, type::Type{T}) where T <: Union{AbstractExodusSet, AbstractExodusVariable} = 
 read_names.(exo.exos, (type,))
 
 """
@@ -372,17 +372,17 @@ read_set.(exo.exos, (type,), (id,))
 
 """
 """
-read_sets(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractSet = 
+read_sets(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusSet = 
 read_sets.(exo.exos, (type,))
 
 """
 """
-read_number_of_variables(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractVariable = 
+read_number_of_variables(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusVariable = 
 read_number_of_variables.(exo.exos, (type,))
 
 """
 """
-read_values(exo::ParallelExodusDatabase, type::Type{T}, time_step::Int, id::Int, var_index::Int) where T <: AbstractSet = 
+read_values(exo::ParallelExodusDatabase, type::Type{T}, time_step::Int, id::Int, var_index::Int) where T <: AbstractExodusSet = 
 read_values.(exo.exos, (type,), (time_step,), (id,), (var_index,))
 
 
@@ -404,7 +404,7 @@ read_values.(exo.exos, (t,), (timestep,), (1,), (index,))
 
 """
 """
-read_values(exo::ParallelExodusDatabase, type::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractVariable = 
+read_values(exo::ParallelExodusDatabase, type::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractExodusVariable = 
 read_values.(exo.exos, (type,), (time_step,), (id,), (var_name,))
 
 """
@@ -418,5 +418,5 @@ read_values.(exo.exos, (t,), (timestep,), (1,), (name,))
 read_values(
   exo::ParallelExodusDatabase, type::Type{V}, 
   time_step::Integer, set_name::String, var_name::String
-) where V <: AbstractVariable = 
+) where V <: AbstractExodusVariable = 
 read_values.(exo.exo, (type,), (time_step,), (set_name,), (var_name,))

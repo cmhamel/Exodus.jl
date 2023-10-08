@@ -1,4 +1,4 @@
-function collect_element_connectivities!(conns::Vector{Vector{B}}, blocks::Vector{Block{I, B}}) where {I, B}
+function collect_element_connectivities!(conns::Vector{Vector{B}}, blocks::Vector{Block{I, Matrix{B}}}) where {I, B}
 	n = 1
 	for block in blocks
 		for e in axes(block.conn, 2)

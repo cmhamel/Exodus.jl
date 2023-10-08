@@ -138,8 +138,8 @@ end
 
 # sets and blocks
 abstract type AbstractExodusType end
-abstract type AbstractSet{I, B} <: AbstractExodusType end
-abstract type AbstractVariable <: AbstractExodusType end
+abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
+abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
 @with_kw_noshow struct ExodusDatabase{M, I, B, F}
@@ -173,56 +173,52 @@ end
 
 """
 """
-struct Block{I, B} <: AbstractSet{I, B}
+struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
   id::I
   num_elem::Clonglong
   num_nodes_per_elem::Clonglong
   elem_type::String # TODO maybe just make an index
-  # conn::Matrix{B}
-  conn::M where M <: AbstractMatrix{B}
+  conn::A
 end
 
 """
 """
-struct NodeSet{I, B} <: AbstractSet{I, B}
+struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
-  # nodes::Vector{B}
-  nodes::V where V <: AbstractVector{B}
+  nodes::A
 end
 
 """
 """
-struct SideSet{I, B} <: AbstractSet{I, B}
+struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
-  # elements::Vector{B}
-  # sides::Vector{B}
-  elements::V1 where V1 <: AbstractVector{B}
-  sides::V2 where V2 <: AbstractVector{B}
+  elements::A
+  sides::A
 end
 
 """
 """
-struct ElementVariable <: AbstractVariable
+struct ElementVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct GlobalVariable <: AbstractVariable
+struct GlobalVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct NodalVariable <: AbstractVariable
+struct NodalVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct NodeSetVariable <: AbstractVariable
+struct NodeSetVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct SideSetVariable <: AbstractVariable
+struct SideSetVariable <: AbstractExodusVariable
 end
 
 set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
@@ -534,10 +530,10 @@ function Base.show(io::IO, e::VariableNameException)
   end
 end
 
-id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
-name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
-id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
-name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractExodusSet = throw(SetIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractExodusSet = throw(SetNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractExodusVariable = throw(VariableIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractExodusVariable = throw(VariableNameException(exo, t, name))
 
 """
 Init method for block container.
@@ -553,7 +549,8 @@ function Block(exo::ExodusDatabase, block_id::Integer)
     conn_out[:, e] = @views conn[(e - 1) * num_nodes + 1:e * num_nodes]
   end
 
-  return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
+  # return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
+  return Block{get_id_int_type(exo), typeof(conn_out)}(block_id, num_elem, num_nodes, element_type, conn_out)
 end
 
 """
@@ -585,7 +582,9 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
 
   nodes = copy(nodes) # need to copy here to be safe
 
-  return NodeSet{I, B}(id, nodes)
+  # return NodeSet{I, B}(id, nodes)
+  # return NodeSet{I, typeof(nodes)}(id, nodes)
+  return NodeSet(id, nodes)
 end
 
 """
@@ -625,7 +624,8 @@ function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
   elements = copy(elements)
   sides   = copy(sides)
 
-  return SideSet{I, B}(id, elements, sides)
+  # return SideSet{I, B}(id, elements, sides)
+  return SideSet{I, typeof(elements)}(id, elements, sides)
 end
 
 """
@@ -688,14 +688,14 @@ function set_var_name_index(exo::ExodusDatabase, ::Type{SideSetVariable}, index:
   exo.sset_var_name_dict[name] = index
 end
 
-function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractSet
+function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractExodusSet
   if !(set_name in keys(set_name_dict(exo, V)))
     name_error(exo, V, set_name)
   end
   return set_name_dict(exo, V)[set_name]
 end
 
-function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractVariable
+function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractExodusVariable
   if !(var_name in keys(var_name_dict(exo, V)))
     name_error(exo, V, var_name)
   end
