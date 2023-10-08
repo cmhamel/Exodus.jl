@@ -17,7 +17,7 @@ julia> read_number_of_variables(exo, NodeSetVariable)
 julia> read_number_of_variables(exo, SideSetVariable)
 6
 """
-function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
+function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVariable
   num_vars = Ref{Cint}(0)
   error_code = @ccall libexodus.ex_get_variable_param(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Ptr{Cint}
@@ -48,7 +48,7 @@ julia> read_name(exo, SideSetVariable, 1)
 """
 function read_name(
   exo::ExodusDatabase, ::Type{V}, var_index::Integer
-) where V <: AbstractVariable
+) where V <: AbstractExodusVariable
   var_name = exo.cache_uint8
   resize!(var_name, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(
@@ -88,7 +88,7 @@ julia> read_name(exo, NodeSetVariable)
 julia> read_name(exo, SideSetVariable)
 "pressure"
 """
-function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
+function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVariable
   num_vars = read_number_of_variables(exo, V)
   ids      = 1:num_vars
   names = exo.cache_strings
@@ -104,7 +104,7 @@ function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
   return names
 end
 
-# function read_names_old(exo::ExodusDatabase, ::Type{V}) where V <: AbstractVariable
+# function read_names_old(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVariable
 #   num_vars = read_number_of_variables(exo, V)
 #   var_names = Vector{Vector{UInt8}}(undef, num_vars)
 #   for n in 1:length(var_names)
@@ -128,7 +128,7 @@ General method to read variable values.
 function read_values(
   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
-) where {M, I, B, F, V <: AbstractVariable}
+) where {M, I, B, F, V <: AbstractExodusVariable}
 
   # check_for_id(exo, V, var_index)
   # if !(id in 1:read_number_of_variables(exo, V))
@@ -232,7 +232,7 @@ end
 #   ::Type{V},
 #   time_step::Integer, id::Integer, var_index::Integer, 
 #   start_node::Integer, num_nodes::Integer, 
-# ) where {M, I, B, F, V <: AbstractVariable}
+# ) where {M, I, B, F, V <: AbstractExodusVariable}
 
 #   values = Vector{F}(undef, num_nodes)
 #   error_code = @ccall libexodus.ex_get_partial_var(
@@ -252,7 +252,7 @@ end
 #   ::Type{V},
 #   time_step::Integer, id::Integer, var_name::String, 
 #   start_node::Integer, num_nodes::Integer,
-# # ) where V <: AbstractVariable
+# # ) where V <: AbstractExodusVariable
 # ) where V <: Union{ElementVariable, NodalVariable, NodeSetVariable, SideSetVariable}
 #   var_name_index = findall(x -> x == var_name, read_names(exo, V))
 #   if length(var_name_index) < 1
@@ -276,7 +276,7 @@ julia> write_number_of_variables(exo, NodeSetVariable, 3)
 
 julia> write_number_of_variables(exo, SideSetVariable, 6)
 """
-function write_number_of_variables(exo::ExodusDatabase, ::Type{V}, num_vars::Integer) where V <: AbstractVariable
+function write_number_of_variables(exo::ExodusDatabase, ::Type{V}, num_vars::Integer) where V <: AbstractExodusVariable
   error_code = @ccall libexodus.ex_put_variable_param(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Cint
   )::Cint
@@ -285,7 +285,7 @@ end
 
 """
 """
-function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name::String) where V <: AbstractVariable
+function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name::String) where V <: AbstractExodusVariable
   # TODO probably need a railguard on var_index
   
   set_var_name_index(exo, V, var_index, var_name)
@@ -299,7 +299,7 @@ end
 
 """
 """
-function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{String}) where V <: AbstractVariable
+function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{String}) where V <: AbstractExodusVariable
   if read_number_of_variables(exo, type) == 0
     write_number_of_variables(exo, type, length(var_names))
   else
@@ -326,7 +326,7 @@ function write_values(
   ::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
   var_values::Vector{<:AbstractFloat},
-) where V <: AbstractVariable
+) where V <: AbstractExodusVariable
 
   num_nodes = size(var_values, 1)
   error_code = @ccall libexodus.ex_put_var(
@@ -373,7 +373,7 @@ function write_values(
   ::Type{V},
   timestep::Integer, id::Integer, var_name::String, 
   var_value::Vector{<:AbstractFloat}
-) where V <: AbstractVariable
+) where V <: AbstractExodusVariable
 
   write_values(exo, V, timestep, id, var_name_index(exo, V, var_name), var_value)
 end
@@ -394,7 +394,7 @@ function write_values(
   ::Type{V},
   time_step::Integer, set_name::String, var_name::String,
   var_value::Vector{<:AbstractFloat}
-) where V <: AbstractVariable
+) where V <: AbstractExodusVariable
 
   write_values(exo, V, time_step, 
                set_name_index(exo, set_equivalent(V), set_name), 

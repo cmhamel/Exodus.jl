@@ -1,4 +1,4 @@
-function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F, S <: AbstractSet}
+function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
   if S <: Block
     num_entries = exo.init.num_elem_blks
   elseif S <: NodeSet
@@ -23,7 +23,7 @@ end
 
 """
 """
-function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractSet
+function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractExodusSet
   name = exo.cache_uint8
   resize!(name, MAX_STR_LENGTH)
 
@@ -37,7 +37,7 @@ end
 
 # """
 # """
-# function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractSet
+# function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractExodusSet
 #   names = [Vector{UInt8}(undef, MAX_STR_LENGTH) for _ in 1:length(read_ids(exo, S))]
 #   error_code = @ccall libexodus.ex_get_names(
 #     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, names::Ptr{Ptr{UInt8}}
@@ -50,7 +50,7 @@ end
 
 """
 """
-function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractSet
+function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractExodusSet
   ids   = read_ids(exo, S)
   names = exo.cache_strings
   resize!(names, length(ids))
@@ -67,7 +67,7 @@ end
 
 """
 """
-function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, ::Type{S}) where {M, I, B, F, S <: AbstractSet}
+function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, ::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
   num_entries = Ref{I}(0)
   num_df = Ref{I}(0)
   error_code = @ccall libexodus.ex_get_set_param(
@@ -155,13 +155,13 @@ end
 
 """
 """
-function read_set(exo::ExodusDatabase, type::Type{S}, set_id::I) where {S <: AbstractSet, I}
+function read_set(exo::ExodusDatabase, type::Type{S}, set_id::I) where {S <: AbstractExodusSet, I}
   return type(exo, set_id)
 end
 
 """
 """
-function read_sets!(sets::Vector{T}, exo::ExodusDatabase, ids::Vector{I}) where {T <: AbstractSet, I}
+function read_sets!(sets::Vector{T}, exo::ExodusDatabase, ids::Vector{I}) where {T <: AbstractExodusSet, I}
   if T <: Block
     type = Block
   elseif T <: NodeSet
@@ -177,7 +177,7 @@ end
 
 """
 """
-function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, B, F, S <: AbstractSet}
+function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
   set_ids = read_ids(exo, type)
 
   # hack for now so we don't overwrite
@@ -201,7 +201,7 @@ end
 WARNING:
 currently doesn't support distance factors
 """
-function write_set_parameters(exo::ExodusDatabase{M, I, B, F}, set::T) where {M, I, B, F, T <: AbstractSet}
+function write_set_parameters(exo::ExodusDatabase{M, I, B, F}, set::T) where {M, I, B, F, T <: AbstractExodusSet}
   num_dist_fact_in_set = 0 # TODO not using distance 
   error_code = @ccall libexodus.ex_put_set_param(
     get_file_id(exo)::Cint, entity_type(T)::ex_entity_type, set.id::Clonglong, # should be ex_entity_id
@@ -214,7 +214,7 @@ end
 Typing ensures we don't write a set with non-matching types
 to the exodus file.
 """
-function write_set(exo::ExodusDatabase{M, I, B, F}, set::T) where {T <: AbstractSet, M, I, B, F}
+function write_set(exo::ExodusDatabase{M, I, B, F}, set::T) where {T <: AbstractExodusSet, M, I, B, F}
   write_set_parameters(exo, set)
   error_code = @ccall libexodus.ex_put_set(
     get_file_id(exo)::Cint, entity_type(T)::ex_entity_type, set.id::Clonglong, # should be ex_entity_id
@@ -225,7 +225,7 @@ end
 
 """
 """
-function write_sets(exo::ExodusDatabase, sets::Vector{T}) where T <: AbstractSet
+function write_sets(exo::ExodusDatabase, sets::Vector{T}) where T <: AbstractExodusSet
   for set in sets
     write_set(exo, set)
   end
@@ -233,7 +233,7 @@ end
 
 """
 """
-function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer, name::String) where {M, I, B, F, S <: AbstractSet}
+function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer, name::String) where {M, I, B, F, S <: AbstractExodusSet}
   
   if S <: Block
     exo.block_name_dict[name] = set_id
@@ -252,7 +252,7 @@ end
 
 """
 """
-function write_name(exo::ExodusDatabase{M, I, B, F}, set::S, name::String) where {M, I, B, F, S <: AbstractSet}
+function write_name(exo::ExodusDatabase{M, I, B, F}, set::S, name::String) where {M, I, B, F, S <: AbstractExodusSet}
   if S <: Block
     exo.block_name_dict[name] = set.id
   elseif S <: NodeSet
@@ -271,7 +271,7 @@ end
 """
 WARNING: this methods likely does not have good safe guards
 """
-function write_names(exo::ExodusDatabase, ::Type{S}, names::Vector{String}) where S <: AbstractSet
+function write_names(exo::ExodusDatabase, ::Type{S}, names::Vector{String}) where S <: AbstractExodusSet
   error_code = @ccall libexodus.ex_put_names(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, names::Ptr{Ptr{UInt8}}
   )::Cint

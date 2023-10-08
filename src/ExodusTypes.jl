@@ -138,9 +138,8 @@ end
 
 # sets and blocks
 abstract type AbstractExodusType end
-abstract type AbstractSet{I, A} <: AbstractExodusType end
-# abstract type AbstractExodusSet{ID, ARRAY <: AbstractArray} <: AbstractExodusType end
-abstract type AbstractVariable <: AbstractExodusType end
+abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
+abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
 @with_kw_noshow struct ExodusDatabase{M, I, B, F}
@@ -174,16 +173,7 @@ end
 
 """
 """
-# struct Block{I, B} <: AbstractSet{I, B}
-#   id::I
-#   num_elem::Clonglong
-#   num_nodes_per_elem::Clonglong
-#   elem_type::String # TODO maybe just make an index
-#   # conn::Matrix{B}
-#   conn::M where M <: AbstractMatrix{B}
-# end
-
-struct Block{I, A <: AbstractMatrix} <: AbstractSet{I, A}
+struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
   id::I
   num_elem::Clonglong
   num_nodes_per_elem::Clonglong
@@ -193,32 +183,14 @@ end
 
 """
 """
-# struct NodeSet{I, B} <: AbstractSet{I, B}
-#   id::I
-#   # nodes::Vector{B}
-#   nodes::V where V <: AbstractVector{B}
-# end
-
-"""
-"""
-struct NodeSet{I, A <: AbstractVector} <: AbstractSet{I, A}
+struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
   nodes::A
 end
 
-# """
-# """
-# struct SideSet{I, B} #<: AbstractSet{I, B}
-#   id::I
-#   # elements::Vector{B}
-#   # sides::Vector{B}
-#   elements::V1 where V1 <: AbstractVector{B}
-#   sides::V2 where V2 <: AbstractVector{B}
-# end
-
 """
 """
-struct SideSet{I, A <: AbstractVector} <: AbstractSet{I, A}
+struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
   elements::A
   sides::A
@@ -226,27 +198,27 @@ end
 
 """
 """
-struct ElementVariable <: AbstractVariable
+struct ElementVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct GlobalVariable <: AbstractVariable
+struct GlobalVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct NodalVariable <: AbstractVariable
+struct NodalVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct NodeSetVariable <: AbstractVariable
+struct NodeSetVariable <: AbstractExodusVariable
 end
 
 """
 """
-struct SideSetVariable <: AbstractVariable
+struct SideSetVariable <: AbstractExodusVariable
 end
 
 set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
@@ -558,10 +530,10 @@ function Base.show(io::IO, e::VariableNameException)
   end
 end
 
-id_error(exo, ::Type{t}, id) where t <: AbstractSet = throw(SetIDException(exo, t, id))
-name_error(exo, ::Type{t}, name) where t <: AbstractSet = throw(SetNameException(exo, t, name))
-id_error(exo, ::Type{t}, id) where t <: AbstractVariable = throw(VariableIDException(exo, t, id))
-name_error(exo, ::Type{t}, name) where t <: AbstractVariable = throw(VariableNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractExodusSet = throw(SetIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractExodusSet = throw(SetNameException(exo, t, name))
+id_error(exo, ::Type{t}, id) where t <: AbstractExodusVariable = throw(VariableIDException(exo, t, id))
+name_error(exo, ::Type{t}, name) where t <: AbstractExodusVariable = throw(VariableNameException(exo, t, name))
 
 """
 Init method for block container.
@@ -716,14 +688,14 @@ function set_var_name_index(exo::ExodusDatabase, ::Type{SideSetVariable}, index:
   exo.sset_var_name_dict[name] = index
 end
 
-function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractSet
+function set_name_index(exo::ExodusDatabase, ::Type{V}, set_name::String) where V <: AbstractExodusSet
   if !(set_name in keys(set_name_dict(exo, V)))
     name_error(exo, V, set_name)
   end
   return set_name_dict(exo, V)[set_name]
 end
 
-function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractVariable
+function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where V <: AbstractExodusVariable
   if !(var_name in keys(var_name_dict(exo, V)))
     name_error(exo, V, var_name)
   end
