@@ -9,3 +9,4 @@ history*.jou
 docs/build
 test/epu_mesh_test.g
 Manifest.toml
+docs/Manifest.toml

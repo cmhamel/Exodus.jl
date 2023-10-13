@@ -118,6 +118,8 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
   end
 end
 
+"""
+"""
 function decomp(file_name::String, n_procs::I) where I <: Integer
   @assert !Sys.iswindows() "This method is not supported on Windows"
   @assert isfile(file_name) "File $file_name not found in decomp. Can't proceed."

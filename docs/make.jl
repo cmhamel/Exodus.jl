@@ -1,5 +1,6 @@
 using Exodus
 using Documenter
+using Unitful
 
 DocMeta.setdocmeta!(Exodus, :DocTestSetup, :(using Exodus); recursive=true)
 
@@ -13,9 +14,12 @@ makedocs(;
         canonical="https://cmhamel.github.io/Exodus.jl/stable",
         edit_link="master",
         assets=String[],
+        size_threshold=nothing
     ),
     pages=[
-        "Home" => "index.md",
+        "Exodus"           => "index.md",
+        "Exodus Types"     => "types.md",
+        "ExodusUnitfulExt" => "unitful_ext.md"
     ],
 )
 
