@@ -5,6 +5,7 @@ using Exodus_jll
 using JET
 using Test
 using TestSetExtensions
+using Unitful
 
 # macro for testing
 macro exodus_unit_test_set(test_name::String, ex)
