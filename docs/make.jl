@@ -23,7 +23,8 @@ makedocs(;
     ],
 )
 
-deploydocs(;
-    repo="github.com/cmhamel/Exodus.jl",
-    devbranch="master",
-)
+# deploydocs(;
+#     repo="github.com/cmhamel/Exodus.jl",
+#     devbranch="master",
+# )
+# deploydocs()
