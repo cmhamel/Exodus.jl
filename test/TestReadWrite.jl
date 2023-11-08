@@ -446,3 +446,131 @@ end
 
   Base.Filesystem.rm("./test_output_3D_Mesh.e")
 end
+
+@exodus_unit_test_set "Test Read/Write ExodusDatabase - 3D id maps" begin
+  exo_old = ExodusDatabase(abspath(mesh_file_name_3D), "r")
+  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
+  copy_mesh(mesh_file_name_3D, "./test_output_3D_id_maps_Mesh.e")
+  exo_new = ExodusDatabase("./test_output_3D_id_maps_Mesh.e", "rw")
+
+  node_map = read_id_map(exo_old, NodeMap)
+
+  new_node_map = node_map .+ M(10000)
+  write_id_map(exo_new, NodeMap, new_node_map)
+
+  @test read_id_map(exo_new, NodeMap) == new_node_map
+
+  elem_map = read_id_map(exo_old, ElementMap)
+
+  new_elem_map = elem_map .+ M(10000)
+  write_id_map(exo_new, ElementMap, new_elem_map)
+
+  @test read_id_map(exo_new, ElementMap) == new_elem_map
+
+  close(exo_old)
+  close(exo_new)
+
+  Base.Filesystem.rm("./test_output_3D_id_maps_Mesh.e")
+end
+
+@exodus_unit_test_set "EPU test for issue #156" begin
+
+  if !Sys.iswindows()
+    # data to write
+    coords1 = [
+      1.0 0.5 0.5 1.0 0.0 0.0 0.5 1.0 0.0
+      1.0 1.0 0.5 0.5 1.0 0.5 0.0 0.0 0.0
+    ]
+    coords2 = [
+      2.0 1.5 1.5 2.0 1.0 1.0 1.5 2.0 1.0
+      1.0 1.0 0.5 0.5 1.0 0.5 0.0 0.0 0.0
+    ]
+
+    conn = [
+      1 2 4 3
+      2 5 3 6
+      3 6 7 9
+      4 3 8 7
+    ]
+
+    node_map_1 = Int32[1, 2, 3, 4, 5, 6, 7, 8, 9]
+    node_map_2 = node_map_1 .+ Int32(1000)
+    elem_map_1 = Int32[1, 2, 3, 4]
+    elem_map_2 = Int32[1000, 1001, 1002, 1003]
+
+    # make some hack variables to write
+    v_nodal_1 = rand(9)
+    v_nodal_2 = rand(9)
+
+    v_elem_1 = rand(4)
+    v_elem_2 = rand(4)
+
+    # set the types
+    maps_int_type = Int32
+    ids_int_type = Int32
+    bulk_int_type = Int32
+    float_type = Float64
+
+    # initialization parameters
+    num_dim, num_nodes = size(coords1)
+    num_elems = size(conn, 2)
+    num_elem_blks = 1
+    num_side_sets = 0
+    num_node_sets = 0
+
+    # make init
+    init = Initialization{bulk_int_type}(
+      num_dim, num_nodes, num_elems,
+      num_elem_blks, num_side_sets, num_node_sets
+    )
+
+    # finally make empty exo database
+    exo1 = ExodusDatabase(
+      "test_write.e.2.0", "w", init,
+      maps_int_type, ids_int_type, bulk_int_type, float_type
+    )
+    exo2 = ExodusDatabase(
+      "test_write.e.2.1", "w", init,
+      maps_int_type, ids_int_type, bulk_int_type, float_type
+    )
+
+    # how to write coordinates
+    write_coordinates(exo1, coords1)
+    write_coordinates(exo2, coords2)
+    # how to write a block
+    write_block(exo1, 1, "QUAD4", conn)
+    write_block(exo2, 1, "QUAD4", conn)
+    # write element id map
+    write_id_map(exo1, NodeMap, node_map_1)
+    write_id_map(exo2, NodeMap, node_map_2)
+    write_id_map(exo1, ElementMap, elem_map_1)
+    write_id_map(exo2, ElementMap, elem_map_2)
+    # need at least one timestep to output variables
+    write_time(exo1, 1, 0.0)
+    write_time(exo2, 1, 0.0)
+    # write number of variables and their names
+    write_names(exo1, NodalVariable, ["v_nodal_1"])
+    write_names(exo2, NodalVariable, ["v_nodal_1"])
+    write_names(exo1, ElementVariable, ["v_elem_1"])
+    write_names(exo2, ElementVariable, ["v_elem_1"])
+    # write variable values the 1 is for the time step
+    write_values(exo1, NodalVariable, 1, "v_nodal_1", v_nodal_1)
+    write_values(exo2, NodalVariable, 1, "v_nodal_1", v_nodal_1)
+    # the first 1 is for the time step 
+    # and the second 1 is for the block number
+    write_values(exo1, ElementVariable, 1, 1, "v_elem_1", v_elem_1)
+    write_values(exo2, ElementVariable, 1, 1, "v_elem_1", v_elem_1)
+    # don't forget to close the exodusdatabase, it can get corrupted otherwise if you're writing
+    close(exo1)
+    close(exo2)
+
+    epu("test_write.e.2.0")
+
+    # cleanup
+    rm("test_write.e", force=true)
+    rm("test_write.e.2.0", force=true)
+    rm("test_write.e.2.1", force=true)
+    rm("epu.log")
+    rm("epu_err.log")
+  end
+end

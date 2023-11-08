@@ -5,13 +5,17 @@ module Exodus
 
 # exported types
 export Block
+export EdgeMap
 # export ElementCommunicationMap
+export ElementMap
 export ElementVariable
 export ExodusDatabase
+export FaceMap
 export GlobalVariable
 export Initialization
 export NodalVariable
 # export NodeCommunicationMap
+export NodeMap
 export NodeSet
 export NodeSetVariable
 # export ParallelExodusDatabase
@@ -33,6 +37,7 @@ export read_blocks
 export read_block_id_map
 export read_coordinates
 export read_element_type
+export read_id_map
 export read_ids
 export read_info
 export read_map
@@ -52,6 +57,7 @@ export read_values
 export write_block
 export write_blocks
 export write_coordinates
+export write_id_map
 export write_info
 export write_name
 export write_names

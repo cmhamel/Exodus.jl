@@ -138,6 +138,7 @@ end
 
 # sets and blocks
 abstract type AbstractExodusType end
+abstract type AbstractExodusMap <: AbstractExodusType end
 abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
@@ -170,6 +171,21 @@ abstract type AbstractExodusVariable <: AbstractExodusType end
   cache_uint8::Vector{UInt8} = UInt8[]
   cache_strings::Vector{String} = String[]
 end
+
+# Maps
+struct NodeMap <: AbstractExodusMap
+end
+
+struct ElementMap <: AbstractExodusMap
+end
+
+struct FaceMap <: AbstractExodusMap
+end
+
+struct EdgeMap <: AbstractExodusMap
+end
+
+# TODO add face and edge maps
 
 """
 """
@@ -655,6 +671,10 @@ print(
   "  Number of sides    = ", length(sset.sides),    "\n"
 )
 
+entity_type(::Type{S}) where S <: NodeMap         = EX_NODE_MAP
+entity_type(::Type{S}) where S <: ElementMap      = EX_ELEM_MAP
+entity_type(::Type{S}) where S <: FaceMap         = EX_FACE_MAP
+entity_type(::Type{S}) where S <: EdgeMap         = EX_EDGE_MAP
 entity_type(::Type{S}) where S <: Block           = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: ElementVariable = EX_ELEM_BLOCK
 entity_type(::Type{S}) where S <: GlobalVariable  = EX_GLOBAL
