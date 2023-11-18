@@ -67,7 +67,11 @@ end
 
 """
 """
-function read_set_parameters(exo::ExodusDatabase{M, I, B, F}, set_id::Integer, ::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
+function read_set_parameters(
+  exo::ExodusDatabase{M, I, B, F}, 
+  set_id::Integer, 
+  ::Type{S}
+) where {M, I, B, F, S <: Union{NodeSet, SideSet}} # TODO there's other sets this method can support
   num_entries = Ref{I}(0)
   num_df = Ref{I}(0)
   error_code = @ccall libexodus.ex_get_set_param(
