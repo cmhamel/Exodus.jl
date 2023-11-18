@@ -1,7 +1,7 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.10.0"
+version = "0.10.1"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -19,11 +19,16 @@ ExodusAdaptExt = "Adapt"
 ExodusUnitfulExt = "Unitful"
 
 [compat]
+Adapt = "3"
+Aqua = "0.8"
 DocStringExtensions = "0.9"
 Exodus_jll = "8.19.1"
+JET = "0.8"
 Parameters = "0.12"
 Pkg = "1"
 Suppressor = "0.2"
+Test = "1"
+TestSetExtensions = "2"
 Unitful = "1"
 julia = "1"
 
