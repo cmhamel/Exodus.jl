@@ -173,15 +173,23 @@ abstract type AbstractExodusVariable <: AbstractExodusType end
 end
 
 # Maps
+"""
+"""
 struct NodeMap <: AbstractExodusMap
 end
 
+"""
+"""
 struct ElementMap <: AbstractExodusMap
 end
 
+"""
+"""
 struct FaceMap <: AbstractExodusMap
 end
 
+"""
+"""
 struct EdgeMap <: AbstractExodusMap
 end
 
