@@ -49,8 +49,7 @@ julia> read_name(exo, SideSetVariable, 1)
 function read_name(
   exo::ExodusDatabase, ::Type{V}, var_index::Integer
 ) where V <: AbstractExodusVariable
-  var_name = exo.cache_uint8
-  resize!(var_name, MAX_STR_LENGTH)
+  var_name = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
   )::Cint
@@ -91,36 +90,13 @@ julia> read_name(exo, SideSetVariable)
 function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVariable
   num_vars = read_number_of_variables(exo, V)
   ids      = 1:num_vars
-  names = exo.cache_strings
-  resize!(names, num_vars)
-
-  if !exo.use_cache_arrays
-    names = copy(names)
-  end
+  names = Vector{String}(undef, num_vars)
 
   for n in axes(names, 1)
     names[n] = read_name(exo, V, ids[n])
   end
   return names
 end
-
-# function read_names_old(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVariable
-#   num_vars = read_number_of_variables(exo, V)
-#   var_names = Vector{Vector{UInt8}}(undef, num_vars)
-#   for n in 1:length(var_names)
-#     var_names[n] = Vector{UInt8}(undef, MAX_STR_LENGTH)
-#   end
-#   error_code = @ccall libexodus.ex_get_variable_names(
-#     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Cint, var_names::Ptr{Ptr{UInt8}}
-#   )::Cint
-#   exodus_error_check(error_code, "Exodus.read_variable_names -> libexodus.ex_get_names")
-
-#   new_var_names = Vector{String}(undef, num_vars)
-#   for n in 1:length(var_names)
-#     new_var_names[n] = unsafe_string(pointer(var_names[n]))
-#   end
-#   return new_var_names
-# end
 
 """
 General method to read variable values.
@@ -167,12 +143,7 @@ function read_values(
     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   end
 
-  # values = Vector{F}(undef, num_entries)
-  values = exo.cache_F_1
-  resize!(values, num_entries)
-  if !exo.use_cache_arrays
-    values = copy(values)
-  end
+  values = Vector{F}(undef, num_entries)
 
   error_code = @ccall libexodus.ex_get_var(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,

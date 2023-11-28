@@ -9,30 +9,24 @@ function read_coordinates(exo::ExodusDatabase)
   coords = Matrix{float_type}(undef, get_init(exo).num_dim, num_nodes)
 
   if get_num_dim(exo) == 1
-    x_coords = exo.cache_F_1
+    x_coords = Vector{float_type}(undef, num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
-    resize!(x_coords, num_nodes)
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
     exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
   elseif get_num_dim(exo) == 2
-    x_coords = exo.cache_F_1
-    y_coords = exo.cache_F_2
+    x_coords = Vector{float_type}(undef, num_nodes)
+    y_coords = Vector{float_type}(undef, num_nodes)
     z_coords = C_NULL
-    resize!(x_coords, num_nodes)
-    resize!(y_coords, num_nodes)
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
     exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
     coords[2, :] = y_coords
   elseif get_num_dim(exo) == 3
-    x_coords = exo.cache_F_1
-    y_coords = exo.cache_F_2
-    z_coords = exo.cache_F_3
-    resize!(x_coords, num_nodes)
-    resize!(y_coords, num_nodes)
-    resize!(z_coords, num_nodes)
+    x_coords = Vector{float_type}(undef, num_nodes)
+    y_coords = Vector{float_type}(undef, num_nodes)
+    z_coords = Vector{float_type}(undef, num_nodes)
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
     exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
@@ -53,11 +47,9 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
   start_node_num = convert(Clonglong, start_node_num)
   num_nodes      = convert(Clonglong, num_nodes)
   if num_dim == 1
-    # x_coords = Array{float_type}(undef, num_nodes)
-    x_coords = exo.cache_F_1
+    x_coords = Vector{float_type}(undef, num_nodes)
     y_coords = C_NULL
     z_coords = C_NULL
-    resize!(x_coords, num_nodes)
     error_code = @ccall libexodus.ex_get_partial_coord(
       get_file_id(exo)::Cint, start_node_num::Clonglong, num_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
@@ -65,13 +57,9 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
     exodus_error_check(error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
     coords[1, :] = x_coords
   elseif num_dim == 2
-    # x_coords = Array{float_type}(undef, num_nodes)
-    # y_coords = Array{float_type}(undef, num_nodes)
-    x_coords = exo.cache_F_1
-    y_coords = exo.cache_F_2
+    x_coords = Vector{float_type}(undef, num_nodes)
+    y_coords = Vector{float_type}(undef, num_nodes)
     z_coords = C_NULL
-    resize!(x_coords, num_nodes)
-    resize!(y_coords, num_nodes)
     error_code = @ccall libexodus.ex_get_partial_coord(
       get_file_id(exo)::Cint, start_node_num::Clonglong, num_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
@@ -80,15 +68,9 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, num_no
     coords[1, :] = x_coords
     coords[2, :] = y_coords
   elseif num_dim == 3
-    # x_coords = Array{float_type}(undef, num_nodes)
-    # y_coords = Array{float_type}(undef, num_nodes)
-    # z_coords = Array{float_type}(undef, num_nodes)
-    x_coords = exo.cache_F_1
-    y_coords = exo.cache_F_2
-    z_coords = exo.cache_F_3
-    resize!(x_coords, num_nodes)
-    resize!(y_coords, num_nodes)
-    resize!(z_coords, num_nodes)
+    x_coords = Vector{float_type}(undef, num_nodes)
+    y_coords = Vector{float_type}(undef, num_nodes)
+    z_coords = Vector{float_type}(undef, num_nodes)
     error_code = @ccall libexodus.ex_get_partial_coord(
       get_file_id(exo)::Cint, start_node_num::Clonglong, num_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
@@ -104,15 +86,11 @@ end
 """
 Method to read a specific component of a partial set of coordinates that are contiguous. 
 Returns a vector of length n_nodes
+TODO change to not use Cvoid
 """
 function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, num_nodes::I, component::I) where I <: Integer
-  # coords = Array{get_float_type(exo)}(undef, num_nodes)
-  coords = exo.cache_F_1
-  resize!(coords, num_nodes)
 
-  if !exo.use_cache_arrays
-    coords = copy(coords)
-  end
+  coords = Vector{get_float_type(exo)}(undef, num_nodes)
 
   start_node_num = convert(Clonglong, start_node_num)
   num_nodes      = convert(Clonglong, num_nodes)

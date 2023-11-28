@@ -10,7 +10,6 @@ exo = ExodusDatabase("../test/example_output/output.gold", "r")
 ExodusDatabase:
   File name                   = ../test/example_output/output.gold
   Mode                        = r
-  Use cache arrays (advanced) = false
 
 Initialization:
   Number of dim       = 2
