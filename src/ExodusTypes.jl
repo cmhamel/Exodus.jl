@@ -158,18 +158,6 @@ abstract type AbstractExodusVariable <: AbstractExodusType end
   nodal_var_name_dict::Dict{String, I} = Dict{String, I}()
   nset_var_name_dict::Dict{String, I} = Dict{String, I}()
   sset_var_name_dict::Dict{String, I} = Dict{String, I}()
-  # cache arrays and variables
-  use_cache_arrays::Bool
-  cache_M::Vector{M} = M[]
-  cache_I::Vector{I} = I[]
-  cache_B_1::Vector{B} = B[]
-  cache_B_2::Vector{B} = B[]
-  cache_B_3::Vector{B} = B[]
-  cache_F_1::Vector{F} = F[]
-  cache_F_2::Vector{F} = F[]
-  cache_F_3::Vector{F} = F[]
-  cache_uint8::Vector{UInt8} = UInt8[]
-  cache_strings::Vector{String} = String[]
 end
 
 # Maps
@@ -249,9 +237,9 @@ set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
 set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
 set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
 
-var_name_dict(exo::ExodusDatabase, ::Type{ElementVariable})         = exo.element_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{GlobalVariable})          = exo.global_var_name_dict
-var_name_dict(exo::ExodusDatabase, ::Type{NodalVariable})           = exo.nodal_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{ElementVariable}) = exo.element_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{GlobalVariable})  = exo.global_var_name_dict
+var_name_dict(exo::ExodusDatabase, ::Type{NodalVariable})   = exo.nodal_var_name_dict
 var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
 var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
 
@@ -259,21 +247,19 @@ var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_
 """
 function ExodusDatabase(
   exo::Cint, mode::String, file_name::String,
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F};
-  use_cache_arrays::Bool = false
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
 ) where {M, I, B, F}
   
   # get init
   init = Initialization(exo, B)
   return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, file_name=file_name, init=init;
-    use_cache_arrays=use_cache_arrays
+    exo=exo, mode=mode, file_name=file_name, init=init
   )
 end
 
 """
 """
-function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool = false)
+function ExodusDatabase(file_name::String, mode::String)
   if mode == "r"
     ex_mode = EX_READ
   elseif mode == "rw" || (mode == "w" && !isfile(file_name))
@@ -303,11 +289,7 @@ function ExodusDatabase(file_name::String, mode::String; use_cache_arrays::Bool 
 
   M, I, B, F = int_and_float_modes(exo)
 
-  if use_cache_arrays
-    @warn "Arrays returned from methods in this mode will change with subsequent method calls so use wisely!!!"
-  end
-
-  exo_db = ExodusDatabase(exo, mode, file_name, M, I, B, F; use_cache_arrays=use_cache_arrays)
+  exo_db = ExodusDatabase(exo, mode, file_name, M, I, B, F)
 
   # set up set dicts
   for type in [Block, NodeSet, SideSet]
@@ -331,8 +313,7 @@ end
 
 function ExodusDatabase(
   file_name::String, mode::String, init::Initialization{B},
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F};
-  use_cache_arrays = false
+  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
 ) where {M, I, B, F}
   
   if mode != "w"
@@ -368,14 +349,9 @@ function ExodusDatabase(
 
   write_initialization!(exo, init)
 
-  if use_cache_arrays
-    @warn "Arrays returned from methods in this mode will change with subsequent method calls so use wisely!!!"
-  end
-
   # finally return the ExodusDatabase
   return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, file_name=file_name, init=init;
-     use_cache_arrays=use_cache_arrays
+    exo=exo, mode=mode, file_name=file_name, init=init
   )
 end
 
@@ -385,7 +361,6 @@ function Base.show(io::IO, exo::ExodusDatabase)
     "ExodusDatabase:\n",
     "  File name                   = $(exo.file_name)\n",
     "  Mode                        = $(exo.mode)\n",
-    "  Use cache arrays (advanced) = $(exo.use_cache_arrays)\n",
     "\n",
     "$(exo.init)\n"
   )

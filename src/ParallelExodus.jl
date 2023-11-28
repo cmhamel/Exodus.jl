@@ -3,9 +3,7 @@
 function read_init_info(exo::ExodusDatabase)
   num_proc      = Ref{Cint}(0)
   num_proc_in_f = Ref{Cint}(0)
-  # ftype         = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  ftype         = exo.cache_uint8
-  resize!(ftype, MAX_STR_LENGTH)
+  ftype = Vector{UInt8}(undef, MAX_STR_LENGTH)
   error_code = @ccall libexodus.ex_get_init_info(
     get_file_id(exo)::Cint, num_proc::Ptr{Cint}, num_proc_in_f::Ptr{Cint}, ftype::Ptr{UInt8}
   )::Cint
@@ -141,7 +139,7 @@ end
 
 """
 """
-function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arrays::Bool = false) where Itype <: Integer
+function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <: Integer
   
   exo_files = Vector{String}(undef, n_procs)
   # grab the nem file
@@ -165,7 +163,7 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
 
   # more efficient ways to do below
   # exos        = Vector{ExodusDatabase}(undef, n_procs)
-  nem         = ExodusDatabase(nem_file, "r"; use_cache_arrays=use_cache_arrays)
+  nem         = ExodusDatabase(nem_file, "r")
   mode        = "r" # TODO hardcoded for now
   M, I, B, F = int_and_float_modes(get_file_id(nem))
   init_global = InitializationGlobal(nem) # just to make it in this scope
@@ -173,7 +171,7 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
   cmap_params = Vector{CommunicationMapParameters{B}}(undef, n_procs)
 
   # temp
-  exo = ExodusDatabase(exo_files[1], "r"; use_cache_arrays=use_cache_arrays)
+  exo = ExodusDatabase(exo_files[1], "r")
   M, I, B, F = int_and_float_modes(get_file_id(exo))
   close(exo)
 
@@ -183,7 +181,7 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype; use_cache_arr
   # maybe do a more rigourous error check later
   for (n, exo_file) in enumerate(exo_files)
     proc_id        = parse(Int64, split(exo_file, ".")[end])
-    exo            = ExodusDatabase(exo_file, "r"; use_cache_arrays=use_cache_arrays)
+    exo            = ExodusDatabase(exo_file, "r")
     exos[n]        = exo
     init_global    = InitializationGlobal(exo)
     lb_params[n]   = LoadBalanceParameters(exo, proc_id) 
