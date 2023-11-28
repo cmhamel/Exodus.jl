@@ -1,4 +1,5 @@
 """
+# TODO do this one later... it depends on a few things
 """
 function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
   # block = Block(exo, block_id)
@@ -22,14 +23,13 @@ end
 """
 """
 function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
-  element_type   = exo.cache_uint8
   num_elem       = Ref{B}(0)
   num_nodes      = Ref{B}(0)
   num_edges      = Ref{B}(0)
   num_faces      = Ref{B}(0)
   num_attributes = Ref{B}(0)
 
-  resize!(element_type, MAX_STR_LENGTH)
+  element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
 
   error_code = @ccall libexodus.ex_get_block(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
