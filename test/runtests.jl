@@ -332,6 +332,12 @@ end
   rm("test_set_exodus_max_name_length.e", force=true)
 end
 
+@exodus_unit_test_set "Mesh with no block, nset or sset names" begin
+  exo = ExodusDatabase("mesh/mesh_with_no_names/mesh_test.g", "r")
+  @show exo
+  close(exo)
+end
+
 # test windows errors
 if Sys.iswindows()
   # @exodus_unit_test_set "Windows errors for parallel support" begin
