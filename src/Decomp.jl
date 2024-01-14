@@ -48,23 +48,19 @@ function nem_slice(file_name::String, n_procs::I) where I <: Integer
   nem_slice_cmd = String["-e", "-S", "-l", "inertial", "-c", "-o",
                          "$(abspath(nem_file))", "-m", 
                          "mesh=$n_procs", "$file_name"]
-  errors_found = false
+
   nem_slice_exe() do exe
     pushfirst!(nem_slice_cmd, "$exe")
-    cmd = Cmd(nem_slice_cmd)
+    cmd = Base.Cmd(nem_slice_cmd)
 
     redirect_stdio(stdout=open(stdout_file, "w"), 
                    stderr=open(stderr_file, "w")) do 
       try
         run(cmd, wait=true)
       catch
-        errors_found = true
+        nem_slice_error(Base.Cmd(cmd))
       end
     end
-  end
-
-  if errors_found
-    nem_slice_error(Cmd(cmd))
   end
 end
 
@@ -101,21 +97,22 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
     write(file, "Parallel file location = root=$dir_name, subdir=.\n")
   end
 
-  errors_found = false
+  # errors_found = false
   nem_spread_exe() do exe
     redirect_stdio(stdout=open(stdout_file, "w+"), 
                    stderr=open(stderr_file, "w+")) do 
       try
         run(`$exe $pex_file`, wait=true)
       catch
-        errors_found = true
+        # errors_found = true
+        nem_spread_error(Base.Cmd(`$exe $pex_file`))
       end
     end
   end
 
-  if errors_found
-    nem_spread_error(Cmd(cmd))
-  end
+  # if errors_found
+  #   nem_spread_error(Base.Cmd(cmd))
+  # end
 end
 
 """
