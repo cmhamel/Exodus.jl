@@ -1,7 +1,10 @@
 @exodus_unit_test_set "Test Read/Write ExodusDatabase - 2D Mesh" begin
   exo_old = ExodusDatabase(abspath(mesh_file_name_2D), "r")
   
-  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
+  M = Exodus.map_int_mode(exo_old.exo)
+  I = Exodus.id_int_mode(exo_old.exo)
+  B = Exodus.bulk_int_mode(exo_old.exo)
+  F = Exodus.float_mode(exo_old.exo)
 
   init_old = Initialization(exo_old)
   block_old = Block(exo_old, 1)
@@ -415,7 +418,11 @@ end
 
 @exodus_unit_test_set "Test Read/Write ExodusDatabase - 3D Mesh" begin
   exo_old = ExodusDatabase(abspath(mesh_file_name_3D), "r")
-  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
+  M = Exodus.map_int_mode(exo_old.exo)
+  I = Exodus.id_int_mode(exo_old.exo)
+  B = Exodus.bulk_int_mode(exo_old.exo)
+  F = Exodus.float_mode(exo_old.exo)
+
   init_old = Initialization(exo_old)
   coords_old = read_coordinates(exo_old)
   coord_names_old = Exodus.read_coordinate_names(exo_old)
@@ -449,7 +456,10 @@ end
 
 @exodus_unit_test_set "Test Read/Write ExodusDatabase - 3D id maps" begin
   exo_old = ExodusDatabase(abspath(mesh_file_name_3D), "r")
-  M, I, B, F = Exodus.int_and_float_modes(exo_old.exo)
+  M = Exodus.map_int_mode(exo_old.exo)
+  I = Exodus.id_int_mode(exo_old.exo)
+  B = Exodus.bulk_int_mode(exo_old.exo)
+  F = Exodus.float_mode(exo_old.exo)
   copy_mesh(mesh_file_name_3D, "./test_output_3D_id_maps_Mesh.e")
   exo_new = ExodusDatabase("./test_output_3D_id_maps_Mesh.e", "rw")
 

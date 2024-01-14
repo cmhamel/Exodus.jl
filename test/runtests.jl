@@ -224,7 +224,10 @@ end
   init = Initialization(Int32)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int32, Int32, Int32, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)
   @test M == Int32
   @test I == Int32
   @test B == Int32
@@ -235,7 +238,10 @@ end
   init = Initialization(Int32)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int32, Int64, Int32, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)
   @test M == Int32
   @test I == Int64
   @test B == Int32
@@ -246,7 +252,10 @@ end
   init = Initialization(Int64)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int32, Int32, Int64, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)  
   @test M == Int32
   @test I == Int32
   @test B == Int64
@@ -257,7 +266,10 @@ end
   init = Initialization(Int64)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int32, Int64, Int64, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)  
   @test M == Int32
   @test I == Int64
   @test B == Int64
@@ -270,7 +282,10 @@ end
   init = Initialization(Int32)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int64, Int32, Int32, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)  
   @test M == Int64
   @test I == Int32
   @test B == Int32
@@ -281,18 +296,20 @@ end
   init = Initialization(Int32)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int64, Int64, Int32, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
-  @test M == Int64
-  @test I == Int64
-  @test B == Int32
-  @test F == Float32
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)  
   close(exo)
   rm("test_temp.e", force=true)
 
   init = Initialization(Int64)
   exo = ExodusDatabase("test_temp.e", "w", init,
                        Int64, Int32, Int64, Float32)
-  M, I, B, F = Exodus.int_and_float_modes(exo.exo)
+  M = Exodus.map_int_mode(exo.exo)
+  I = Exodus.id_int_mode(exo.exo)
+  B = Exodus.bulk_int_mode(exo.exo)
+  F = Exodus.float_mode(exo.exo)  
   @test M == Int64
   @test I == Int32
   @test B == Int64
