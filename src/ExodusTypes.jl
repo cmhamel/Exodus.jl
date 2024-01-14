@@ -25,6 +25,7 @@ function set_exodus_max_name_length(exoid::Cint, len::Cint)
   exodus_error_check(error_code, "ex_set_max_name_length")
 end
 
+# TODO cleanup below three methods
 function map_int_mode(exo::Cint)
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   if int64_status == 0x00000000
@@ -99,43 +100,6 @@ function float_mode(exo::Cint)
     F = Cdouble
   end
   return F
-end
-
-"""
-"""
-function int_and_float_modes(exo::Cint)::NTuple{4, DataType}#::Tuple{Union{Type{Int32}, Type{Int64}}, , Type, Type}
-  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
-  float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
-
-  # should be 8 options or 2^3
-  if int64_status == 0x00000000
-    M, I, B = Cint, Cint, Cint
-  elseif int64_status == EX_MAPS_INT64_API
-    M, I, B = Clonglong, Cint, Cint
-  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API
-    M, I, B = Clonglong, Clonglong, Cint
-  elseif int64_status == EX_MAPS_INT64_API | EX_BULK_INT64_API
-    M, I, B = Clonglong, Cint, Clonglong
-  elseif int64_status == EX_IDS_INT64_API
-    M, I, B = Cint, Clonglong, Cint
-  elseif int64_status == EX_IDS_INT64_API | EX_BULK_INT64_API
-    M, I, B = Cint, Clonglong, Clonglong
-  elseif int64_status == EX_BULK_INT64_API
-    M, I, B = Cint, Cint, Clonglong
-  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
-    M, I, B = Clonglong, Clonglong, Clonglong
-  end
-
-  if float_size == 4
-    F = Cfloat
-  elseif float_size == 8
-    F = Cdouble
-  end
-
-  # return NTuple{4, Type}(M, I, B, F)
-  # return ntuple((M, I, B, F), Val(4))
-  # return tuple((M, I, B, F)...)
-  return M, I, B, F
 end
 
 struct Initialization{B}
@@ -341,21 +305,36 @@ function ExodusDatabase{M, I, B, F}(
   ids = read_ids(exo_db, Block)
   names = read_names(exo_db, Block)
   for (n, name) in enumerate(names)
-    set_name_dict(exo_db, Block)[name] = ids[n]
+    if name == ""
+      temp_name = "unnamed_block_$(ids[n])"
+    else
+      temp_name = name
+    end
+    set_name_dict(exo_db, Block)[temp_name] = ids[n]
   end
 
   # nset set up
   ids = read_ids(exo_db, NodeSet)
   names = read_names(exo_db, NodeSet)
   for (n, name) in enumerate(names)
-    set_name_dict(exo_db, NodeSet)[name] = ids[n]
+    if name == ""
+      temp_name = "unnamed_nset_$(ids[n])"
+    else
+      temp_name = name
+    end
+    set_name_dict(exo_db, NodeSet)[temp_name] = ids[n]
   end
 
   # sset set up
   ids = read_ids(exo_db, SideSet)
   names = read_names(exo_db, SideSet)
   for (n, name) in enumerate(names)
-    set_name_dict(exo_db, SideSet)[name] = ids[n]
+    if name == ""
+      temp_name = "unnamed_sset_$(ids[n])"
+    else
+      temp_name = name
+    end
+    set_name_dict(exo_db, SideSet)[temp_name] = ids[n]
   end
 
   # element var set up

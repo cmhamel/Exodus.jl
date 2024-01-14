@@ -165,14 +165,21 @@ function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <
   # exos        = Vector{ExodusDatabase}(undef, n_procs)
   nem         = ExodusDatabase(nem_file, "r")
   mode        = "r" # TODO hardcoded for now
-  M, I, B, F = int_and_float_modes(get_file_id(nem))
+  M = map_int_mode(get_file_id(nem))
+  I = id_int_mode(get_file_id(nem))
+  B = bulk_int_mode(get_file_id(nem))
+  F = float_mode(get_file_id(nem))
   init_global = InitializationGlobal(nem) # just to make it in this scope
   lb_params   = Vector{LoadBalanceParameters{B}}(undef, n_procs)
   cmap_params = Vector{CommunicationMapParameters{B}}(undef, n_procs)
 
   # temp
   exo = ExodusDatabase(exo_files[1], "r")
-  M, I, B, F = int_and_float_modes(get_file_id(exo))
+  # M, I, B, F = int_and_float_modes(get_file_id(exo))
+  M = map_int_mode(get_file_id(exo))
+  I = id_int_mode(get_file_id(exo))
+  B = bulk_int_mode(get_file_id(exo))
+  F = float_mode(get_file_id(exo))
   close(exo)
 
   exos = Vector{ExodusDatabase{M, I, B, F}}(undef, n_procs)
