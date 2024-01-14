@@ -1,6 +1,7 @@
 using Aqua
 using Base
 using Exodus
+# using Exodus_jll
 using Exodus_jll
 using JET
 using Test
@@ -331,7 +332,12 @@ end
 @includetests ARGS
 
 # Aqua testing
-Aqua.test_all(Exodus)
+@testset ExtendedTestSet "Aqua.jl" begin
+  Aqua.test_all(Exodus)
+end
 
 # JET testing
-report_package("Exodus")
+# report_package("Exodus")
+@testset ExtendedTestSet "JET.jl" begin
+  test_package("Exodus"; target_defined_modules=true)
+end

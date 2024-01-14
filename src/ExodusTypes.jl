@@ -25,9 +25,85 @@ function set_exodus_max_name_length(exoid::Cint, len::Cint)
   exodus_error_check(error_code, "ex_set_max_name_length")
 end
 
+function map_int_mode(exo::Cint)
+  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  if int64_status == 0x00000000
+    M, I, B = Cint, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API
+    M, I, B = Clonglong, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API
+    M, I, B = Clonglong, Clonglong, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Cint, Clonglong
+  elseif int64_status == EX_IDS_INT64_API
+    M, I, B = Cint, Clonglong, Cint
+  elseif int64_status == EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Cint, Clonglong, Clonglong
+  elseif int64_status == EX_BULK_INT64_API
+    M, I, B = Cint, Cint, Clonglong
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Clonglong, Clonglong
+  end
+  return M
+end
+
+function id_int_mode(exo::Cint)
+  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  if int64_status == 0x00000000
+    M, I, B = Cint, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API
+    M, I, B = Clonglong, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API
+    M, I, B = Clonglong, Clonglong, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Cint, Clonglong
+  elseif int64_status == EX_IDS_INT64_API
+    M, I, B = Cint, Clonglong, Cint
+  elseif int64_status == EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Cint, Clonglong, Clonglong
+  elseif int64_status == EX_BULK_INT64_API
+    M, I, B = Cint, Cint, Clonglong
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Clonglong, Clonglong
+  end
+  return I
+end
+
+function bulk_int_mode(exo::Cint)
+  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  if int64_status == 0x00000000
+    M, I, B = Cint, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API
+    M, I, B = Clonglong, Cint, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API
+    M, I, B = Clonglong, Clonglong, Cint
+  elseif int64_status == EX_MAPS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Cint, Clonglong
+  elseif int64_status == EX_IDS_INT64_API
+    M, I, B = Cint, Clonglong, Cint
+  elseif int64_status == EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Cint, Clonglong, Clonglong
+  elseif int64_status == EX_BULK_INT64_API
+    M, I, B = Cint, Cint, Clonglong
+  elseif int64_status == EX_MAPS_INT64_API | EX_IDS_INT64_API | EX_BULK_INT64_API
+    M, I, B = Clonglong, Clonglong, Clonglong
+  end
+  return B
+end
+
+function float_mode(exo::Cint)
+  float_size = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  if float_size == 4
+    F = Cfloat
+  elseif float_size == 8
+    F = Cdouble
+  end
+  return F
+end
+
 """
 """
-function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
+function int_and_float_modes(exo::Cint)::NTuple{4, DataType}#::Tuple{Union{Type{Int32}, Type{Int64}}, , Type, Type}
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   float_size   = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
 
@@ -56,6 +132,9 @@ function int_and_float_modes(exo::Cint)::Tuple{Type, Type, Type, Type}
     F = Cdouble
   end
 
+  # return NTuple{4, Type}(M, I, B, F)
+  # return ntuple((M, I, B, F), Val(4))
+  # return tuple((M, I, B, F)...)
   return M, I, B, F
 end
 
@@ -143,21 +222,22 @@ abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
-@with_kw_noshow struct ExodusDatabase{M, I, B, F}
+# @with_kw_noshow struct ExodusDatabase{M, I, B, F}
+struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   file_name::String
   init::Initialization{B}
   # name to id dict for reducing allocations from access by name
-  block_name_dict::Dict{String, I} = Dict{String, I}()
-  nset_name_dict::Dict{String, I} = Dict{String, I}()
-  sset_name_dict::Dict{String, I} = Dict{String, I}()
+  block_name_dict::Dict{String, I}
+  nset_name_dict::Dict{String, I}
+  sset_name_dict::Dict{String, I}
   # variables names
-  element_var_name_dict::Dict{String, I} = Dict{String, I}()
-  global_var_name_dict::Dict{String, I} = Dict{String, I}()
-  nodal_var_name_dict::Dict{String, I} = Dict{String, I}()
-  nset_var_name_dict::Dict{String, I} = Dict{String, I}()
-  sset_var_name_dict::Dict{String, I} = Dict{String, I}()
+  element_var_name_dict::Dict{String, I}
+  global_var_name_dict::Dict{String, I}
+  nodal_var_name_dict::Dict{String, I}
+  nset_var_name_dict::Dict{String, I}
+  sset_var_name_dict::Dict{String, I}
 end
 
 # Maps
@@ -245,21 +325,81 @@ var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_
 
 """
 """
-function ExodusDatabase(
-  exo::Cint, mode::String, file_name::String,
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
+function ExodusDatabase{M, I, B, F}(
+  exo::Cint, mode::String, file_name::String
 ) where {M, I, B, F}
   
   # get init
   init = Initialization(exo, B)
-  return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, file_name=file_name, init=init
+  exo_db = ExodusDatabase{M, I, B, F}(
+    exo, mode, file_name, init,
+    Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
+    Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()
   )
+
+  # blocks set up
+  ids = read_ids(exo_db, Block)
+  names = read_names(exo_db, Block)
+  for (n, name) in enumerate(names)
+    set_name_dict(exo_db, Block)[name] = ids[n]
+  end
+
+  # nset set up
+  ids = read_ids(exo_db, NodeSet)
+  names = read_names(exo_db, NodeSet)
+  for (n, name) in enumerate(names)
+    set_name_dict(exo_db, NodeSet)[name] = ids[n]
+  end
+
+  # sset set up
+  ids = read_ids(exo_db, SideSet)
+  names = read_names(exo_db, SideSet)
+  for (n, name) in enumerate(names)
+    set_name_dict(exo_db, SideSet)[name] = ids[n]
+  end
+
+  # element var set up
+  ids = 1:read_number_of_variables(exo_db, ElementVariable)
+  names = read_names(exo_db, ElementVariable)
+  for (n, name) in enumerate(names)
+    var_name_dict(exo_db, ElementVariable)[name] = ids[n]
+  end
+
+  # global var set up
+  ids = 1:read_number_of_variables(exo_db, GlobalVariable)
+  names = read_names(exo_db, GlobalVariable)
+  for (n, name) in enumerate(names)
+    var_name_dict(exo_db, GlobalVariable)[name] = ids[n]
+  end
+
+  # nodal var set up
+  ids = 1:read_number_of_variables(exo_db, NodalVariable)
+  names = read_names(exo_db, NodalVariable)
+  for (n, name) in enumerate(names)
+    var_name_dict(exo_db, NodalVariable)[name] = ids[n]
+  end
+
+  # nset var set up
+  ids = 1:read_number_of_variables(exo_db, NodeSetVariable)
+  names = read_names(exo_db, NodeSetVariable)
+  for (n, name) in enumerate(names)
+    var_name_dict(exo_db, NodeSetVariable)[name] = ids[n]
+  end
+
+  # sset var set up
+  ids = 1:read_number_of_variables(exo_db, SideSetVariable)
+  names = read_names(exo_db, SideSetVariable)
+  for (n, name) in enumerate(names)
+    var_name_dict(exo_db, SideSetVariable)[name] = ids[n]
+  end
+
+  return exo_db
 end
 
 """
+Helper method for opening exodus database
 """
-function ExodusDatabase(file_name::String, mode::String)
+function open_exodus_file(file_name::String, mode)
   if mode == "r"
     ex_mode = EX_READ
   elseif mode == "rw" || (mode == "w" && !isfile(file_name))
@@ -270,7 +410,6 @@ function ExodusDatabase(file_name::String, mode::String)
     mode_error(mode)
   end
 
-  # get exodus
   if mode == "w" && !isfile(file_name)
     exo = @ccall libexodus.ex_create_int(
       file_name::Cstring, EX_WRITE::Cint, 
@@ -286,27 +425,41 @@ function ExodusDatabase(file_name::String, mode::String)
     )::Cint
     exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
   end
+  return exo
+end
 
-  M, I, B, F = int_and_float_modes(exo)
-
-  exo_db = ExodusDatabase(exo, mode, file_name, M, I, B, F)
-
-  # set up set dicts
-  for type in [Block, NodeSet, SideSet]
-    ids   = read_ids(exo_db, type)
-    names = read_names(exo_db, type)
-    for (n, name) in enumerate(names)
-      set_name_dict(exo_db, type)[name] = ids[n]
-    end
+function exodus_type_check(sym, context, type1, type2)
+  if type1 != type2
+    throw(TypeError(sym, context, type1, type2))
   end
+end
 
-  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
-    ids   = 1:read_number_of_variables(exo_db, type)
-    names = read_names(exo_db, type)
-    for (n, name) in enumerate(names)
-      var_name_dict(exo_db, type)[name] = ids[n]
-    end
-  end
+function ExodusDatabase{M, I, B, F}(file_name::String, mode::String) where {M, I, B, F}
+  exo = open_exodus_file(file_name, mode)
+  exodus_type_check(:maps, "ExodusDatabase", map_int_mode(exo), M)
+  exodus_type_check(:ids, "ExodusDatabase", id_int_mode(exo), I)
+  exodus_type_check(:bulks, "ExodusDatabase", bulk_int_mode(exo), B)
+  exodus_type_check(:floats, "ExodusDatabase", float_mode(exo), F)
+  exo_db = ExodusDatabase{M, I, B, F}(exo, mode, file_name)
+  return exo_db
+end
+
+"""
+Type unstable helper to eliminate annoying lines of code to get type stability.
+
+If you're looking for a type stable way to to open an exodus file, Simple copy past some of
+this into a barrier function
+"""
+function ExodusDatabase(file_name::String, mode::String)
+  exo = open_exodus_file(file_name, mode)
+
+  # M, I, B, F = int_and_float_modes(exo)
+  M = map_int_mode(exo)
+  I = id_int_mode(exo)
+  B = bulk_int_mode(exo)
+  F = float_mode(exo)
+
+  exo_db = ExodusDatabase{M, I, B, F}(exo, mode, file_name)
 
   return exo_db
 end
@@ -314,6 +467,13 @@ end
 function ExodusDatabase(
   file_name::String, mode::String, init::Initialization{B},
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
+) where {M, I, B, F}
+  @warn "This is deprecated. Use ExodusDatabase{M, I, B, F}(file_name, mode, init) instead. This method now wraps that."
+  return ExodusDatabase{M, I, B, F}(file_name, mode, init)
+end
+
+function ExodusDatabase{M, I, B, F}(
+  file_name::String, mode::String, init::Initialization{B}
 ) where {M, I, B, F}
   
   if mode != "w"
@@ -323,7 +483,6 @@ function ExodusDatabase(
   # trying out different float sizes
   exo = @ccall libexodus.ex_create_int(
     file_name::Cstring, EX_WRITE::Cint, 
-    # sizeof(F)::Ref{Cint}, sizeof(F)::Ref{Cint}, 
     cpu_word_size::Ref{Cint}, sizeof(F)::Ref{Cint},
     EX_API_VERS_NODOT::Cint
   )::Cint
@@ -349,9 +508,10 @@ function ExodusDatabase(
 
   write_initialization!(exo, init)
 
-  # finally return the ExodusDatabase
   return ExodusDatabase{M, I, B, F}(
-    exo=exo, mode=mode, file_name=file_name, init=init
+    exo, mode, file_name, init,
+    Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
+    Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()
   )
 end
 

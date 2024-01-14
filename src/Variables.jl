@@ -98,30 +98,71 @@ function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVar
   return names
 end
 
+# """
+# General method to read variable values.
+# """
+# function read_values_old(
+#   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+#   timestep::Integer, id::Integer, var_index::Integer, 
+# ) where {M, I, B, F, V <: AbstractExodusVariable}
+
+#   # check_for_id(exo, V, var_index)
+#   # if !(id in 1:read_number_of_variables(exo, V))
+
+#   # error check for global/nodal in case someone uses this internal method
+#   if V <: GlobalVariable
+#     if !(id == 1)
+#       id_error(exo, GlobalVariable, id)
+#     end
+#   elseif V <: NodalVariable
+#     if !(id == 1)
+#       id_error(exo, NodalVariable, id)
+#     end
+#   else
+#     if !(id in read_ids(exo, set_equivalent(V)))
+#       id_error(exo, set_equivalent(V), id)
+#     end
+#   end
+
+#   # error check on var index, maybe a better way to do this
+#   if !(var_index in 1:read_number_of_variables(exo, V))
+#     id_error(exo, V, id)
+#   end
+
+#   # get number of entries - TODO make a method elsewhere
+#   if V <: ElementVariable
+#     # TODO allocation here due to reading element type
+#     # TODO can maybe read the element map for a block?
+#     _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
+#   elseif V <: GlobalVariable
+#     num_entries = read_number_of_variables(exo, V)
+#   elseif V <: NodalVariable
+#     num_entries = exo.init.num_nodes
+#   elseif V <: NodeSetVariable || V <: SideSetVariable
+#     # check_for_id(exo, set_equivalent(V), id)
+#     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
+#   end
+
+#   values = Vector{F}(undef, num_entries)
+
+#   error_code = @ccall libexodus.ex_get_var(
+#     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
+#     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
+#   )::Cint
+#   exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+#   return values
+# end
+
 """
-General method to read variable values.
+Method to read element variables
 """
 function read_values(
   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
-) where {M, I, B, F, V <: AbstractExodusVariable}
+) where {M, I, B, F, V <: ElementVariable}
 
-  # check_for_id(exo, V, var_index)
-  # if !(id in 1:read_number_of_variables(exo, V))
-
-  # error check for global/nodal in case someone uses this internal method
-  if V <: GlobalVariable
-    if !(id == 1)
-      id_error(exo, GlobalVariable, id)
-    end
-  elseif V <: NodalVariable
-    if !(id == 1)
-      id_error(exo, NodalVariable, id)
-    end
-  else
-    if !(id in read_ids(exo, set_equivalent(V)))
-      id_error(exo, set_equivalent(V), id)
-    end
+  if !(id in read_ids(exo, set_equivalent(V)))
+    id_error(exo, set_equivalent(V), id)
   end
 
   # error check on var index, maybe a better way to do this
@@ -129,27 +170,98 @@ function read_values(
     id_error(exo, V, id)
   end
 
-  # get number of entries - TODO make a method elsewhere
-  if V <: ElementVariable
-    # TODO allocation here due to reading element type
-    # TODO can maybe read the element map for a block?
-    _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
-  elseif V <: GlobalVariable
-    num_entries = read_number_of_variables(exo, V)
-  elseif V <: NodalVariable
-    num_entries = exo.init.num_nodes
-  elseif V <: NodeSetVariable || V <: SideSetVariable
-    # check_for_id(exo, set_equivalent(V), id)
-    num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
-  end
-
+  _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
   values = Vector{F}(undef, num_entries)
 
   error_code = @ccall libexodus.ex_get_var(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_nodal_variable_values -> libexodus.ex_get_var")
+  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  return values
+end
+
+"""
+Method to read global variables
+"""
+function read_values(
+  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  timestep::Integer, id::Integer, var_index::Integer, 
+) where {M, I, B, F, V <: GlobalVariable}
+
+  if id != 1
+    id_error(exo, GlobalVariable, id)
+  end
+
+  # error check on var index, maybe a better way to do this
+  if !(var_index in 1:read_number_of_variables(exo, V))
+    id_error(exo, V, id)
+  end
+
+  num_entries = read_number_of_variables(exo, V)
+  values = Vector{F}(undef, num_entries)
+
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
+    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  return values
+end
+
+"""
+Method to read nodal variables
+"""
+function read_values(
+  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  timestep::Integer, id::Integer, var_index::Integer, 
+) where {M, I, B, F, V <: NodalVariable}
+
+  if id != 1
+    id_error(exo, NodalVariable, id)
+  end
+
+  # error check on var index, maybe a better way to do this
+  if !(var_index in 1:read_number_of_variables(exo, V))
+    id_error(exo, V, id)
+  end
+
+  num_entries = exo.init.num_nodes
+  values = Vector{F}(undef, num_entries)
+
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
+    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  return values
+end
+
+"""
+Method to read nodeset/sideset variables
+"""
+function read_values(
+  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  timestep::Integer, id::Integer, var_index::Integer, 
+) where {M, I, B, F, V <: Union{NodeSetVariable, SideSetVariable}}
+
+  if !(id in read_ids(exo, set_equivalent(V)))
+    id_error(exo, set_equivalent(V), id)
+  end
+
+  # error check on var index, maybe a better way to do this
+  if !(var_index in 1:read_number_of_variables(exo, V))
+    id_error(exo, V, id)
+  end
+
+  num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
+  values = Vector{F}(undef, num_entries)
+
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
+    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
 
