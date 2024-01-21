@@ -70,16 +70,16 @@ number_of_elements_3D = 512
   @test coord_names == ["x", "y"]
 
   # init
-  @test exo.init.num_dim       == 2
-  @test exo.init.num_nodes     == number_of_nodes_2D
-  @test exo.init.num_elems     == number_of_elements_2D
-  @test exo.init.num_elem_blks == 1
-  @test exo.init.num_node_sets == 4
-  @test exo.init.num_side_sets == 4
+  @test Exodus.num_dimensions(exo.init)     == 2
+  @test Exodus.num_nodes(exo.init)          == number_of_nodes_2D
+  @test Exodus.num_elements(exo.init)       == number_of_elements_2D
+  @test Exodus.num_element_blocks(exo.init) == 1
+  @test Exodus.num_node_sets(exo.init)      == 4
+  @test Exodus.num_side_sets(exo.init)      == 4
 
   # maps
   elem_map = read_map(exo)
-  @test length(elem_map) == exo.init.num_elems 
+  @test length(elem_map) == Exodus.num_elements(exo.init)
 
   # nodesets
   nset_ids = read_ids(exo, NodeSet)
@@ -169,12 +169,12 @@ end
   @test coord_names == ["x", "y", "z"]
 
   # init
-  @test exo.init.num_dim       == 3
-  @test exo.init.num_nodes     == number_of_nodes_3D
-  @test exo.init.num_elems     == number_of_elements_3D
-  @test exo.init.num_elem_blks == 1
-  @test exo.init.num_node_sets == 6
-  @test exo.init.num_side_sets == 6
+  @test Exodus.num_dimensions(exo.init)     == 3
+  @test Exodus.num_nodes(exo.init)          == number_of_nodes_3D
+  @test Exodus.num_elements(exo.init)       == number_of_elements_3D
+  @test Exodus.num_element_blocks(exo.init) == 1
+  @test Exodus.num_node_sets(exo.init)      == 6
+  @test Exodus.num_side_sets(exo.init)      == 6
 
   # nodesets
   nset_ids = read_ids(exo, NodeSet)

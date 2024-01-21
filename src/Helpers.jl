@@ -39,7 +39,7 @@ collect all blocks by default
 """
 function collect_node_to_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
 	conns = collect_element_connectivities(exo)
-	node_to_elem = Vector{Vector{B}}(undef, exo.init.num_nodes)
+	node_to_elem = Vector{Vector{B}}(undef, num_nodes(exo.init))
 	collect_node_to_element_connectivities!(node_to_elem, conns)
 	return node_to_elem
 end
@@ -71,7 +71,7 @@ collect all blocks by default
 function collect_element_to_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
 	conns = collect_element_connectivities(exo)
 	node_to_elem = collect_node_to_element_connectivities(exo)
-	elem_to_elem = Vector{Vector{B}}(undef, exo.init.num_elems)
+	elem_to_elem = Vector{Vector{B}}(undef, num_elements(exo.init))
 	collect_element_to_element_connectivities!(elem_to_elem, node_to_elem, conns)
 	return elem_to_elem
 end

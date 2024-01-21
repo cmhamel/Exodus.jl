@@ -186,16 +186,16 @@
   @test read_name(exo_new, NodalVariable, 1) == "displ_x"
   @test read_name(exo_new, NodalVariable, 2) == "displ_y"
 
-  u_x = randn(exo_new.init.num_nodes)
-  u_y = randn(exo_new.init.num_nodes)
+  u_x = randn(Exodus.num_nodes(exo_new.init))
+  u_y = randn(Exodus.num_nodes(exo_new.init))
 
   write_values(exo_new, NodalVariable, 1, 1, 1, u_x)
   write_values(exo_new, NodalVariable, 1, 1, 2, u_y)
   @test read_values(exo_new, NodalVariable, 1, 1, 1) == u_x
   @test read_values(exo_new, NodalVariable, 1, 1, 2) == u_y
 
-  u_x = randn(exo_new.init.num_nodes)
-  u_y = randn(exo_new.init.num_nodes)
+  u_x = randn(Exodus.num_nodes(exo_new.init))
+  u_y = randn(Exodus.num_nodes(exo_new.init))
 
   write_values(exo_new, NodalVariable, 1, 1, "displ_x", u_x)
   write_values(exo_new, NodalVariable, 1, 1, "displ_y", u_y)
@@ -522,17 +522,17 @@ end
     float_type = Float64
 
     # initialization parameters
-    num_dim, num_nodes = size(coords1)
-    num_elems = size(conn, 2)
-    num_elem_blks = 1
-    num_side_sets = 0
-    num_node_sets = 0
+    n_dim, n_nodes = size(coords1)
+    n_elems = size(conn, 2)
+    n_elem_blks = 1
+    n_side_sets = 0
+    n_node_sets = 0
 
     # make init
-    init = Initialization{bulk_int_type}(
-      num_dim, num_nodes, num_elems,
-      num_elem_blks, num_side_sets, num_node_sets
-    )
+    init = Initialization{
+      bulk_int_type(n_dim), bulk_int_type(n_nodes), bulk_int_type(n_elems),
+      bulk_int_type(n_elem_blks), bulk_int_type(n_side_sets), bulk_int_type(n_node_sets)
+    }()
 
     # finally make empty exo database
     exo1 = ExodusDatabase(

@@ -2,7 +2,7 @@
 TODO change to not use void_int
 """
 function read_map(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
-  elem_map = Vector{M}(undef, exo.init.num_elems)
+  elem_map = Vector{M}(undef, num_elements(exo.init))
   error_code = @ccall libexodus.ex_get_map(get_file_id(exo)::Cint, elem_map::Ptr{void_int})::Cint
   exodus_error_check(error_code, "Exodus.read_element_map -> libexodus.ex_get_map")
   return elem_map
@@ -15,9 +15,9 @@ function read_id_map(
 ) where {M, I, B, F, MAP <: AbstractExodusMap}
 
   if type <: NodeMap
-    num_ids = exo.init.num_nodes
+    num_ids = num_nodes(exo.init)
   elseif type <: ElementMap
-    num_ids = exo.init.num_elems
+    num_ids = num_elements(exo.init)
   end
 
   map = Vector{M}(undef, num_ids)
@@ -37,9 +37,9 @@ function write_id_map(
 ) where {M, I, B, F, MAP <: AbstractExodusMap}
 
   if type <: NodeMap
-    @assert length(map) == exo.init.num_nodes
+    @assert length(map) == num_nodes(exo.init)
   elseif type <: ElementMap
-    @assert length(map) == exo.init.num_elems
+    @assert length(map) == num_elements(exo.init)
   end
 
   error = @ccall libexodus.ex_put_id_map(

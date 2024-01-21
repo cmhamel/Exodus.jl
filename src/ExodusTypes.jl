@@ -102,27 +102,15 @@ function float_mode(exo::Cint)
   return F
 end
 
-struct Initialization{B}
-  num_dim::B
-  num_nodes::B
-  num_elems::B
-  num_elem_blks::B
-  num_node_sets::B
-  num_side_sets::B
+"""
+"""
+struct Initialization{ND, NN, NE, NEB, NNS, NSS}
 end
 
 """
-Workaround method
 """
-function Initialization(::Type{Int32})
-  return Initialization{Int32}(Int32(0), Int32(0), Int32(0), Int32(0), Int32(0), Int32(0))
-end
-
-"""
-Workaround method
-"""
-function Initialization(::Type{Int64})
-  return Initialization{Int64}(0, 0, 0, 0, 0, 0)
+function Initialization(::Type{B}) where B <: Integer
+  return Initialization{B(0), B(0), B(0), B(0), B(0), B(0)}()
 end
 
 """
@@ -146,22 +134,28 @@ function Initialization(exo::Cint, ::Type{B}) where B
 
   title = unsafe_string(pointer(title))
 
-  return Initialization{B}(num_dim[], num_nodes[], num_elems[],
-                           num_elem_blks[], num_node_sets[], num_side_sets[])
+  return Initialization{num_dim[], num_nodes[], num_elems[],
+                        num_elem_blks[], num_node_sets[], num_side_sets[]}()
 end
+
+num_dimensions(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = ND
+num_nodes(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NN
+num_elements(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NE
+num_element_blocks(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NEB
+num_node_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NNS
+num_side_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NSS
 
 """
 """
-Base.show(io::IO, init::Initialization) =
-print(
-  io, "Initialization:\n",
-      "  Number of dim       = ", init.num_dim, "\n",
-      "  Number of nodes     = ", init.num_nodes, "\n",
-      "  Number of elem      = ", init.num_elems, "\n",
-      "  Number of blocks    = ", init.num_elem_blks, "\n",
-      "  Number of node sets = ", init.num_node_sets, "\n",
-      "  Number of side sets = ", init.num_side_sets, "\n"
-)
+function Base.show(io::IO, init::Init) where Init <: Initialization
+  print(io, "Initialization:\n")
+  print(io, "  Number of dim       = ", num_dimensions(init), "\n")
+  print(io, "  Number of nodes     = ", num_nodes(init), "\n")
+  print(io, "  Number of elem      = ", num_elements(init), "\n")
+  print(io, "  Number of blocks    = ", num_element_blocks(init), "\n")
+  print(io, "  Number of node sets = ", num_node_sets(init), "\n")
+  print(io, "  Number of side sets = ", num_side_sets(init), "\n")
+end
 
 """
 Used to set up a exodus database in write mode
@@ -172,8 +166,8 @@ function write_initialization!(exoid::Cint, init::Initialization)
   title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   error_code = @ccall libexodus.ex_put_init(
     exoid::Cint, title::Ptr{UInt8},
-    init.num_dim::Clonglong, init.num_nodes::Clonglong, init.num_elems::Clonglong,
-    init.num_elem_blks::Clonglong, init.num_node_sets::Clonglong, init.num_side_sets::Clonglong
+    num_dimensions(init)::Clonglong, num_nodes(init)::Clonglong, num_elements(init)::Clonglong,
+    num_element_blocks(init)::Clonglong, num_node_sets(init)::Clonglong, num_side_sets(init)::Clonglong
   )::Cint
   exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
@@ -186,12 +180,11 @@ abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
-# @with_kw_noshow struct ExodusDatabase{M, I, B, F}
 struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   file_name::String
-  init::Initialization{B}
+  init::Initialization
   # name to id dict for reducing allocations from access by name
   block_name_dict::Dict{String, I}
   nset_name_dict::Dict{String, I}
@@ -413,6 +406,8 @@ function exodus_type_check(sym, context, type1, type2)
   end
 end
 
+"""
+"""
 function ExodusDatabase{M, I, B, F}(file_name::String, mode::String) where {M, I, B, F}
   exo = open_exodus_file(file_name, mode)
   exodus_type_check(:maps, "ExodusDatabase", map_int_mode(exo), M)
@@ -422,6 +417,11 @@ function ExodusDatabase{M, I, B, F}(file_name::String, mode::String) where {M, I
   exo_db = ExodusDatabase{M, I, B, F}(exo, mode, file_name)
   return exo_db
 end
+
+"""
+"""
+ExodusDatabase{I, F}(file_name::String, mode::String) where {I, F} = 
+ExodusDatabase{I, I, I, F}(file_name, mode)
 
 """
 Type unstable helper to eliminate annoying lines of code to get type stability.
@@ -444,16 +444,16 @@ function ExodusDatabase(file_name::String, mode::String)
 end
 
 function ExodusDatabase(
-  file_name::String, mode::String, init::Initialization{B},
+  file_name::String, mode::String, init::Init,
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
-) where {M, I, B, F}
+) where {M, I, B, F, Init <: Initialization}
   @warn "This is deprecated. Use ExodusDatabase{M, I, B, F}(file_name, mode, init) instead. This method now wraps that."
   return ExodusDatabase{M, I, B, F}(file_name, mode, init)
 end
 
 function ExodusDatabase{M, I, B, F}(
-  file_name::String, mode::String, init::Initialization{B}
-) where {M, I, B, F}
+  file_name::String, mode::String, init::Init
+) where {M, I, B, F, Init <: Initialization}
   
   if mode != "w"
     mode_error("You can only use write mode with this method!")
@@ -494,7 +494,7 @@ function ExodusDatabase{M, I, B, F}(
   )
 end
 
-function Base.show(io::IO, exo::ExodusDatabase) 
+function Base.show(io::IO, exo::E) where E <: ExodusDatabase 
   print(
     io,
     "ExodusDatabase:\n",
@@ -577,8 +577,8 @@ get_float_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = F
 get_init(exo::ExodusDatabase)      = getfield(exo, :init)
 get_mode(exo::ExodusDatabase)      = getfield(exo, :mode)
 get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
-get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
-get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
+# get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
+# get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
 
 
 # helper method
@@ -842,4 +842,17 @@ function var_name_index(exo::ExodusDatabase, ::Type{V}, var_name::String) where 
     name_error(exo, V, var_name)
   end
   return var_name_dict(exo, V)[var_name]
+end
+
+# new helper method to eliminate runtime dispatches
+function num_sets(exo::ExodusDatabase{M, I, B, F}, ::Type{Block}) where {M, I, B, F} 
+  num_element_blocks(exo.init)
+end
+
+function num_sets(exo::ExodusDatabase{M, I, B, F}, ::Type{NodeSet}) where {M, I, B, F} 
+  num_node_sets(exo.init)
+end
+
+function num_sets(exo::ExodusDatabase{M, I, B, F}, ::Type{SideSet}) where {M, I, B, F} 
+  num_side_sets(exo.init)
 end
