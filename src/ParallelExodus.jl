@@ -24,10 +24,10 @@ function InitializationGlobal(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F
     num_elem_blk::Ptr{Cint}, num_node_sets::Ptr{Cint}, num_side_sets::Ptr{Cint}
   )::Cint
   exodus_error_check(error_code, "Exodus.read_init_global -> libexodus.ex_get_init_global")
-  return Initialization(
-    exo.init.num_dim, num_nodes[], num_elem[],
+  return Initialization{
+    num_dimensions(exo.init), num_nodes[], num_elem[],
     num_elem_blk[], num_node_sets[], num_side_sets[]
-  )
+  }()
 end
 
 """
@@ -132,7 +132,8 @@ struct ParallelExodusDatabase{M, I, B, F, N}
   exos::Vector{ExodusDatabase{M, I, B, F}}
   nem::ExodusDatabase{M, I, B, Float32} # seems to be the case at least with Float32
   mode::String
-  init_global::Initialization{B}
+  # init_global::Initialization{B}
+  init_global::Initialization
   lb_params::Vector{LoadBalanceParameters{B}}
   cmap_params::Vector{CommunicationMapParameters{B}}
 end

@@ -226,7 +226,7 @@ function read_values(
     id_error(exo, V, id)
   end
 
-  num_entries = exo.init.num_nodes
+  num_entries = num_nodes(exo.init)
   values = Vector{F}(undef, num_entries)
 
   error_code = @ccall libexodus.ex_get_var(

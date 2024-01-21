@@ -15,18 +15,18 @@
 
   # initialization parameters
   # num_dim, num_nodes = size(coords)
-  num_dim       = 1
-  num_nodes     = size(coords, 1)
-  num_elems     = size(conn, 1)
-  num_elem_blks = 1
-  num_node_sets = 0
-  num_side_sets = 0
+  n_dim       = 1
+  n_nodes     = size(coords, 1)
+  n_elems     = size(conn, 1)
+  n_elem_blks = 1
+  n_node_sets = 0
+  n_side_sets = 0
 
   # create init  
-  init = Initialization(
-    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
-    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
-  )
+  init = Initialization{
+    Int32(n_dim), Int32(n_nodes), Int32(n_elems),
+    Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
+  }()
 
   # create exodus database
   exo = ExodusDatabase(
@@ -93,17 +93,17 @@ end
   float_type    = Float64
 
   # initialization parameters
-  num_dim, num_nodes = size(coords)
-  num_elems          = size(conn, 2)
-  num_elem_blks      = 1
-  num_node_sets      = 0
-  num_side_sets      = 0
+  n_dim, n_nodes = size(coords)
+  n_elems        = size(conn, 2)
+  n_elem_blks    = 1
+  n_node_sets    = 0
+  n_side_sets    = 0
 
   # create init
-  init = Initialization(
-    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
-    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
-  )
+  init = Initialization{
+    Int32(n_dim), Int32(n_nodes), Int32(n_elems),
+    Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
+  }()
 
   # create exodus database
   exo = ExodusDatabase(
@@ -195,11 +195,11 @@ end
   float_type    = Float64
 
   # initialization parameters
-  num_dim, num_nodes = 3, 8
-  num_elems          = 1
-  num_elem_blks      = 1
-  num_node_sets      = 0
-  num_side_sets      = 0
+  n_dim, n_nodes = 3, 8
+  n_elems        = 1
+  n_elem_blks    = 1
+  n_node_sets    = 0
+  n_side_sets    = 0
 
   # create exodus database
   # exo = ExodusDatabase(
@@ -209,10 +209,10 @@ end
   #   num_elem_blks, num_node_sets, num_side_sets
   # )
 
-  init = Initialization(
-    Int32(num_dim), Int32(num_nodes), Int32(num_elems),
-    Int32(num_elem_blks), Int32(num_node_sets), Int32(num_side_sets)
-  )
+  init = Initialization{
+    Int32(n_dim), Int32(n_nodes), Int32(n_elems),
+    Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
+  }()
 
   exo = ExodusDatabase(
     "test_write_3D_mesh.e", "w", init,

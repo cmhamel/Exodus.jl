@@ -1,14 +1,7 @@
 """
 """
 function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
-  if S <: Block
-    num_entries = exo.init.num_elem_blks
-  elseif S <: NodeSet
-    num_entries = exo.init.num_node_sets
-  elseif S <: SideSet
-    num_entries = exo.init.num_side_sets
-  end
-
+  num_entries = num_sets(exo, S)::B
   ids = Vector{B}(undef, num_entries)
   error_code = @ccall libexodus.ex_get_ids(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, ids::Ptr{B}
