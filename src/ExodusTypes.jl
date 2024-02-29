@@ -180,11 +180,12 @@ abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
-struct ExodusDatabase{M, I, B, F}
+struct ExodusDatabase{M, I, B, F, Init}
   exo::Cint
   mode::String
   file_name::String
-  init::Initialization
+  # init::Initialization
+  init::Init
   # name to id dict for reducing allocations from access by name
   block_name_dict::Dict{String, I}
   nset_name_dict::Dict{String, I}
@@ -288,7 +289,7 @@ function ExodusDatabase{M, I, B, F}(
   
   # get init
   init = Initialization(exo, B)
-  exo_db = ExodusDatabase{M, I, B, F}(
+  exo_db = ExodusDatabase{M, I, B, F, typeof(init)}(
     exo, mode, file_name, init,
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()
@@ -487,7 +488,7 @@ function ExodusDatabase{M, I, B, F}(
 
   write_initialization!(exo, init)
 
-  return ExodusDatabase{M, I, B, F}(
+  return ExodusDatabase{M, I, B, F, typeof(init)}(
     exo, mode, file_name, init,
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()
@@ -583,6 +584,8 @@ get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 
 # helper method
 Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = Initialization(exo.exo, B)
+
+initialization(exo::ExodusDatabase) = exo.init
 
 """
 """
