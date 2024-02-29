@@ -1,6 +1,6 @@
 @exodus_unit_test_set "Test ExodusDatabase Read Mode" begin
   exo = ExodusDatabase("./example_output/output.gold", "r")
-  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
+  # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
   @test Exodus.get_id_int_type(exo) == Int32
   @test Exodus.get_bulk_int_type(exo) == Int32
@@ -11,7 +11,7 @@ end
 @exodus_unit_test_set "Test ExodusDatabase Write Mode - Defaults" begin
   # exo = ExodusDatabase("./test_write.e")
   exo = ExodusDatabase("./test_write.e", "w")
-  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
+  # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
   @test Exodus.get_id_int_type(exo) == Int32
   @test Exodus.get_bulk_int_type(exo) == Int32
@@ -34,7 +34,7 @@ end
     "./test_write_meaningful.e", "w", init, 
     Int32, Int32, Int32, Float64
   )
-  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
+  # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
   @test Exodus.get_id_int_type(exo) == Int32
   @test Exodus.get_bulk_int_type(exo) == Int32
@@ -59,7 +59,7 @@ end
     "./test_write_meaningful.e", "w", init,
     Int32, Int32, Int32, Float64
   )
-  @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
+  # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
   @test Exodus.get_id_int_type(exo) == Int32
   @test Exodus.get_bulk_int_type(exo) == Int32
@@ -115,8 +115,11 @@ end
             B(Exodus.num_side_sets(init_old))
           }()
           exo = ExodusDatabase("./dummy_$(M)_$(I)_$(B)_$(F).e", "w", init, M, I, B, F)
-          @test typeof(exo) == ExodusDatabase{M, I, B, F}
-
+          # @test typeof(exo) == ExodusDatabase{M, I, B, F}
+          @test Exodus.get_map_int_type(exo) == M
+          @test Exodus.get_id_int_type(exo) == I
+          @test Exodus.get_bulk_int_type(exo) == B
+          @test Exodus.get_float_type(exo) == F
           close(exo)
 
           Base.Filesystem.rm("./dummy_$(M)_$(I)_$(B)_$(F).e")
