@@ -1,7 +1,11 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
+<<<<<<< Updated upstream
 version = "0.12.2"
+=======
+version = "0.13.0"
+>>>>>>> Stashed changes
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
