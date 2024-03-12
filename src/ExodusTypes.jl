@@ -546,7 +546,8 @@ end
 Used to copy an ExodusDatabase. As of right now this is the best way to create a new ExodusDatabase
 for output. Not all of the put methods have been wrapped and properly tested. This one has though.
 """
-function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
+function Base.copy(exo::E, new_file_name::String; mesh_only_flag::Bool=true) where {E <: ExodusDatabase}
+  mesh_only = mesh_only_flag |> Cint
   int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
   # TODO maybe make options an optional argument
   options = EX_CLOBBER | int64_status
@@ -555,7 +556,8 @@ function Base.copy(exo::E, new_file_name::String) where {E <: ExodusDatabase}
   )::Cint
   exodus_error_check(new_exo_id, "Exodus.copy -> libexodus.ex_create_int")
   # first make a copy
-  error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint)::Cint
+  # error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint)::Cint
+  error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint, mesh_only::Cint)::Cint
   exodus_error_check(error_code, "Exodus.copy -> libexodus.ex_copy")
   # now close the exodus file
   error_code = @ccall libexodus.ex_close(new_exo_id::Cint)::Cint
@@ -568,6 +570,12 @@ Simpler copy method to only copy a mesh for output later on
 function copy_mesh(file_name::String, new_file_name::String)
   exo = ExodusDatabase(file_name, "r")
   copy(exo, new_file_name)
+  close(exo)
+end
+
+function copy_transient(file_name::String, new_file_name::String)
+  exo = ExodusDatabase(file_name, "r")
+  copy(exo, new_file_name; mesh_only_flag=true)
   close(exo)
 end
 

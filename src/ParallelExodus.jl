@@ -13,7 +13,7 @@ end
 
 """
 """
-function InitializationGlobal(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
+function InitializationGlobal(exo::ExodusDatabase{M, I, B, F, Init}) where {M, I, B, F, Init}
   num_nodes     = Ref{B}(0)
   num_elem      = Ref{B}(0)
   num_elem_blk  = Ref{B}(0)
@@ -60,7 +60,7 @@ print(
 
 """
 """
-function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F}, processor::Itype) where {M, I, B, F, Itype <: Integer}
+function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
   num_int_nodes  = Ref{B}(0)
   num_bor_nodes  = Ref{B}(0)
   num_ext_nodes  = Ref{B}(0)
@@ -106,7 +106,7 @@ print(
 
 """
 """
-function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F}, lb_params::LoadBalanceParameters{B}, processor::Itype) where {M, I, B, F, Itype <: Integer}
+function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F, Init}, lb_params::LoadBalanceParameters{B}, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
   node_cmap_ids       = Vector{B}(undef, lb_params.num_node_cmaps)
   node_cmap_node_cnts = Vector{B}(undef, lb_params.num_node_cmaps)
   elem_cmap_ids       = Vector{B}(undef, lb_params.num_elem_cmaps)
@@ -127,145 +127,23 @@ end
 
 """
 """
-struct ParallelExodusDatabase{M, I, B, F, N}
-  base_file_name::String
-  exos::Vector{ExodusDatabase{M, I, B, F}}
-  nem::ExodusDatabase{M, I, B, Float32} # seems to be the case at least with Float32
-  mode::String
-  # init_global::Initialization{B}
-  init_global::Initialization
-  lb_params::Vector{LoadBalanceParameters{B}}
-  cmap_params::Vector{CommunicationMapParameters{B}}
-end
-
-"""
-"""
-function ParallelExodusDatabase(file_name::String, n_procs::Itype) where Itype <: Integer
-  
-  exo_files = Vector{String}(undef, n_procs)
-  # grab the nem file
-  if n_procs < 10
-    pad_size = 1
-  elseif n_procs < 100
-    pad_size = 2
-  elseif n_procs < 1000
-    pad_size = 3
-  elseif n_procs < 10000
-    pad_size = 4
-  else
-    throw(ErrorException("Holy crap that's a big mesh. We need to check if we support that!"))
-  end
-
-  for n in axes(exo_files, 1)
-    exo_files[n] = file_name * ".$(n_procs).$(lpad(n - 1, pad_size, "0"))"
-  end
-
-  nem_file = file_name * ".nem"
-
-  # more efficient ways to do below
-  # exos        = Vector{ExodusDatabase}(undef, n_procs)
-  nem         = ExodusDatabase(nem_file, "r")
-  mode        = "r" # TODO hardcoded for now
-  M = map_int_mode(get_file_id(nem))
-  I = id_int_mode(get_file_id(nem))
-  B = bulk_int_mode(get_file_id(nem))
-  F = float_mode(get_file_id(nem))
-  init_global = InitializationGlobal(nem) # just to make it in this scope
-  lb_params   = Vector{LoadBalanceParameters{B}}(undef, n_procs)
-  cmap_params = Vector{CommunicationMapParameters{B}}(undef, n_procs)
-
-  # temp
-  exo = ExodusDatabase(exo_files[1], "r")
-  # M, I, B, F = int_and_float_modes(get_file_id(exo))
-  M = map_int_mode(get_file_id(exo))
-  I = id_int_mode(get_file_id(exo))
-  B = bulk_int_mode(get_file_id(exo))
-  F = float_mode(get_file_id(exo))
-  close(exo)
-
-  exos = Vector{ExodusDatabase{M, I, B, F}}(undef, n_procs)
-
-  # TODO could be an error here assuming all are the same
-  # maybe do a more rigourous error check later
-  for (n, exo_file) in enumerate(exo_files)
-    proc_id        = parse(Int64, split(exo_file, ".")[end])
-    exo            = ExodusDatabase(exo_file, "r")
-    exos[n]        = exo
-    init_global    = InitializationGlobal(exo)
-    lb_params[n]   = LoadBalanceParameters(exo, proc_id) 
-    cmap_params[n] = CommunicationMapParameters(exo, lb_params[n], proc_id)
-  end
-
-  return ParallelExodusDatabase{M, I, B, F, n_procs}(
-    file_name, exos, nem, mode, init_global, lb_params, cmap_params
-  )
-end
-
-"""
-"""
-function Base.show(io::IO, exo::ParallelExodusDatabase{M, I, B, F, N}) where {M, I, B, F, N}
-  print(
-    io,
-    "ParallelExodusDatabase:\n",
-    "  Base file name       = $(exo.base_file_name)\n",
-    "  Mode                 = $(exo.mode)\n",
-    "  Number of processors = $N\n",
-    "\n",
-    "$(exo.init_global)\n"
-  )
-  print(io, "\n")
-  # print(
-  #   io,
-  #   "Nemesis file:\n",
-  #   "$(exo.nem)"
-  # )
-  perm = 3
-  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
-    print(io, "$(type):\n")
-    for (n, name) in enumerate(keys(var_name_dict(exo.exos[1], type)))
-      print(io, rpad("  $name", MAX_STR_LENGTH))
-      if (n % perm == 0) && (n != length(keys(var_name_dict(exo.exos[1], type))))
-        print(io, "\n")
-      end
-    end
-    print(io, "\n\n")
-  end
-end
-
-"""
-"""
-function Base.close(p::ParallelExodusDatabase)
-  for exo in p.exos
-    close(exo)
-  end
-  close(p.nem)
-end
-
-"""
-"""
 struct NodeCommunicationMap{B}
   node_ids::Vector{B}
   proc_ids::Vector{B}
 end
 
-"""
-"""
-function NodeCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, node_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
-  index = findall(x -> x == node_map_id, exo.cmap_params[processor].node_cmap_ids)
-  if length(index) == 0
-    error(ErrorException("Invalid node map id"))
-  end
-  index = index[1]
+function NodeCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, node_map_id, node_cnt, processor) where {M, I, B, F, Init}
 
-  node_ids = Vector{B}(undef, exo.cmap_params[processor].node_cmap_node_cnts[index])
-  proc_ids = Vector{B}(undef, exo.cmap_params[processor].node_cmap_node_cnts[index])
+  node_ids = Vector{B}(undef, node_cnt)
+  proc_ids = Vector{B}(undef, node_cnt)
 
   error_code = @ccall libexodus.ex_get_node_cmap(
-    get_file_id(exo.exos[processor])::Cint, (node_map_id - 1)::Clonglong, # really ex_entity_id
+    get_file_id(exo)::Cint, (node_map_id - 1)::Clonglong, # really ex_entity_id
     node_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
   exodus_error_check(error_code, "Exodus.NodeCommunicationMap -> libexodus.ex_get_node_cmap")
+
   return NodeCommunicationMap{B}(node_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
@@ -279,16 +157,11 @@ end
 
 """
 """
-function ElementCommunicationMap(exo::ParallelExodusDatabase{M, I, B, F, N}, elem_map_id::Itype, processor::Itype) where {M, I, B, F, N, Itype <: Integer}
-  index = findall(x -> x == elem_map_id, exo.cmap_params[processor].elem_cmap_ids)
-  if length(index) == 0
-    error(ErrorException("Invalid element map id"))
-  end
-  index = index[1]
+function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, elem_map_id::Itype, elem_cnt, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
 
-  elem_ids = Vector{B}(undef, exo.cmap_params[processor].elem_cmap_elem_cnts[index])
-  side_ids = Vector{B}(undef, exo.cmap_params[processor].elem_cmap_elem_cnts[index])
-  proc_ids = Vector{B}(undef, exo.cmap_params[processor].elem_cmap_elem_cnts[index])
+  elem_ids = Vector{B}(undef, elem_cnt)
+  side_ids = Vector{B}(undef, elem_cnt)
+  proc_ids = Vector{B}(undef, elem_cnt)
 
   error_code = @ccall libexodus.ex_get_elem_cmap(
     get_file_id(exo.exos[processor])::Cint, (elem_map_id - 1)::Clonglong, # really ex_entity_id
@@ -309,13 +182,15 @@ end
 
 """
 """
-function ProcessorNodeMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
-  node_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_nodes)
-  node_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_nodes)
-  node_map_external = Vector{B}(undef, exo.lb_params[processor].num_ext_nodes)
+function ProcessorNodeMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype}
+  lb_params = LoadBalanceParameters(exo, processor - 1)
+
+  node_map_internal = Vector{B}(undef, lb_params.num_int_nodes)
+  node_map_border   = Vector{B}(undef, lb_params.num_bor_nodes)
+  node_map_external = Vector{B}(undef, lb_params.num_ext_nodes)
   
   error_code = @ccall libexodus.ex_get_processor_node_maps(
-    get_file_id(exo.exos[processor])::Cint, 
+    get_file_id(exo)::Cint, 
     node_map_internal::Ptr{B}, node_map_border::Ptr{B}, node_map_external::Ptr{B},
     processor::Cint
   )::Cint
@@ -332,9 +207,11 @@ end
 
 """
 """
-function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, processor::Itype) where {M, I, B, F, N, Itype}
-  elem_map_internal = Vector{B}(undef, exo.lb_params[processor].num_int_elems)
-  elem_map_border   = Vector{B}(undef, exo.lb_params[processor].num_bor_elems)
+function ProcessorElementMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype}
+  lb_params = LoadBalanceParameters(exo, processor - 1)
+  
+  elem_map_internal = Vector{B}(undef, lb_params.num_int_elems)
+  elem_map_border   = Vector{B}(undef, lb_params.num_bor_elems)
 
   error_code = @ccall libexodus.ex_get_processor_elem_maps(
     get_file_id(exo.exos[processor])::Cint,
@@ -344,85 +221,3 @@ function ProcessorElementMaps(exo::ParallelExodusDatabase{M, I, B, F, N}, proces
   exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
   return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end
-
-
-# WARNING: these commands are meant for threaded julia
-# as a way to do pre-processing on a presonal machine.
-# These are not meant for large number of procs or distributed.
-
-"""
-"""
-# function read_coordinates(exo::ParallelExodusDatabase{M, I, B, F, N}) where {M, I, B, F, N}
-#   return read_coordinates.(exo.exos)
-# end
-
-"""
-"""
-read_coordinates(exo::ParallelExodusDatabase) = 
-read_coordinates.(exo.exos)
-
-"""
-"""
-read_ids(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusSet = 
-read_ids.(exo.exos, (type,))
-
-"""
-"""
-read_names(exo::ParallelExodusDatabase, type::Type{T}) where T <: Union{AbstractExodusSet, AbstractExodusVariable} = 
-read_names.(exo.exos, (type,))
-
-"""
-"""
-read_set(exo::ParallelExodusDatabase, type::Type{T}, id::I) where {T, I} = 
-read_set.(exo.exos, (type,), (id,))
-
-"""
-"""
-read_sets(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusSet = 
-read_sets.(exo.exos, (type,))
-
-"""
-"""
-read_number_of_variables(exo::ParallelExodusDatabase, type::Type{T}) where T <: AbstractExodusVariable = 
-read_number_of_variables.(exo.exos, (type,))
-
-"""
-"""
-read_values(exo::ParallelExodusDatabase, type::Type{T}, time_step::Int, id::Int, var_index::Int) where T <: AbstractExodusSet = 
-read_values.(exo.exos, (type,), (time_step,), (id,), (var_index,))
-
-
-"""
-Wrapper method for global variables around the main read_values method
-read_values(exo::ParallelExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, (t,), (timestep,), (1,), (1,))
-
-Example:
-read_values(exo, GlobalVariable, 1)
-"""
-read_values(exo::ParallelExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = 
-read_values.(exo.exos, (t,), (timestep,), (1,), (1,))
-
-"""
-Wrapper method for nodal variables
-"""
-read_values(exo::ParallelExodusDatabase, t::Type{NodalVariable}, timestep::Integer, index::Integer) = 
-read_values.(exo.exos, (t,), (timestep,), (1,), (index,))
-
-"""
-"""
-read_values(exo::ParallelExodusDatabase, type::Type{V}, time_step::Integer, id::Integer, var_name::String) where V <: AbstractExodusVariable = 
-read_values.(exo.exos, (type,), (time_step,), (id,), (var_name,))
-
-"""
-Wrapper method for nodal variables
-"""
-read_values(exo::ParallelExodusDatabase, t::Type{NodalVariable}, timestep::Integer, name::String) = 
-read_values.(exo.exos, (t,), (timestep,), (1,), (name,))
-
-"""
-"""
-read_values(
-  exo::ParallelExodusDatabase, type::Type{V}, 
-  time_step::Integer, set_name::String, var_name::String
-) where V <: AbstractExodusVariable = 
-read_values.(exo.exo, (type,), (time_step,), (set_name,), (var_name,))
