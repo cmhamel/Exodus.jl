@@ -1,7 +1,7 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.12.1"
+version = "0.12.2"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -10,10 +10,12 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [weakdeps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [extensions]
 ExodusAdaptExt = "Adapt"
+ExodusPartitionedArraysExt = "PartitionedArrays"
 ExodusUnitfulExt = "Unitful"
 
 [compat]
@@ -22,6 +24,7 @@ Aqua = "0.8"
 DocStringExtensions = "0.9"
 Exodus_jll = "8.19"
 JET = "0.8"
+PartitionedArrays = "0.4"
 Pkg = "1"
 Test = "1"
 TestSetExtensions = "2"
@@ -32,9 +35,10 @@ julia = "1"
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Adapt", "Aqua", "Test", "JET", "TestSetExtensions", "Unitful"]
+test = ["Adapt", "Aqua", "Test", "JET", "PartitionedArrays", "TestSetExtensions", "Unitful"]
