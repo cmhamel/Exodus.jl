@@ -1,9 +1,10 @@
 using Aqua
 using Base
 using Exodus
-# using Exodus_jll
 using Exodus_jll
 using JET
+using MPI
+using PartitionedArrays
 using Test
 using TestSetExtensions
 using Unitful

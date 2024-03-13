@@ -1,3 +1,38 @@
+# Make these tests also include own and ghost node indices tests
+# also test comm maps, etc.
+if Sys.iswindows()
+  println("Skipping ExodusPartitionedArraysExt test on Windows")
+else
+  @exodus_unit_test_set "ExodusPartitionedArraysExt" begin
+    decomp("mesh/cube_meshes/mesh_test.g", 8)
+    ranks = LinearIndices((8,))
+    exos, inits = ExodusDatabase(ranks, "mesh/cube_meshes/mesh_test.g")
+    close(exos)
+  end
+
+  @exodus_unit_test_set "ExodusPartitionedArraysExt" begin
+    decomp("mesh/cube_meshes/mesh_test.g", 8)
+    ranks = LinearIndices((8,))
+    parts = uniform_partition(ranks, "mesh/cube_meshes/mesh_test.g")
+    temp = pones(parts)
+    consistent!(temp)
+    assemble!(temp)
+  end
+
+  @exodus_unit_test_set "ExodusPartitionedArraysExt" begin
+    decomp("mesh/cube_meshes/mesh_test.g", 8)
+    ranks = LinearIndices((8,))
+    parts = uniform_partition(ranks, "mesh/cube_meshes/mesh_test.g", 2)
+    temp = pones(parts)
+    consistent!(temp)
+    assemble!(temp)
+  end
+
+  @exodus_unit_test_set "ExodusPartitionedArraysExt - with mpi" begin
+    decomp("mesh/cube_meshes/mesh_test.g", 8)
+    mpiexec(cmd -> run(`$cmd -n 8 julia --project=@. mpi/TestMPI.jl`))
+  end
+end
 # if Sys.iswindows()
 #   println("Skipping ParallelExodusDatabase tests on Windows...")
 # else
