@@ -20,7 +20,7 @@ function exodus_pad(n_procs::Int32)
 end
 
 # Some helpers
-function Exodus.ExodusDatabase(ranks::LinearIndices, mesh_file::String)
+function Exodus.ExodusDatabase(ranks, mesh_file::String)
   # first open nemesis file to get number of procs
   @info "Reading nemesis file"
   init_info = map(ranks) do _
@@ -52,11 +52,13 @@ function Exodus.close(exos::V) where V <: AbstractArray{<:ExodusDatabase}
   end
 end
 
-function PartitionedArrays.OwnAndGhostIndices(n_nodes_global, ranks, exos)
+function PartitionedArrays.OwnAndGhostIndices(ranks, exos, init_infos)
   # just in case
-  n_nodes_global = n_nodes_global |> Int64
+  # n_nodes_global = n_nodes_global |> Int64
 
-  indices = map(ranks, exos) do rank, exo
+  indices = map(ranks, exos, init_infos) do rank, exo, init_info
+    n_nodes_global = init_info[2] |> Int64
+
     # need this to get the right ids
     id_map = read_id_map(exo, NodeMap)
     node_map = Exodus.ProcessorNodeMaps(exo, rank - 1)
@@ -101,10 +103,83 @@ function PartitionedArrays.OwnAndGhostIndices(n_nodes_global, ranks, exos)
   return indices
 end
 
+# for multi-dof systems
+function PartitionedArrays.OwnAndGhostIndices(ranks, exos, init_infos, n_dofs::Int)
+  indices = map(ranks, exos, init_infos) do rank, exo, init_info
+    n_nodes_global = init_info[2] |> Int64
+    n_dofs_global = n_nodes_global * n_dofs
+
+    dofs = reshape(1:n_dofs_global, n_dofs, n_nodes_global)
+
+    # need this to get the right ids
+    id_map = read_id_map(exo, NodeMap)
+    node_map = Exodus.ProcessorNodeMaps(exo, rank - 1)
+
+    # stuff for ghost nodes
+    lb_params = Exodus.LoadBalanceParameters(exo, rank - 1)
+
+    cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, rank - 1)
+    cmap_ids, cmap_node_cts = cmap_params.node_cmap_ids, cmap_params.node_cmap_node_cnts
+    node_cmaps = map((x, y) -> Exodus.NodeCommunicationMap(exo, x, y, rank - 1), cmap_ids, cmap_node_cts)
+
+    ghost_node_ids = mapreduce(x -> x.node_ids, vcat, node_cmaps)
+    ghost_proc_ids = mapreduce(x -> x.proc_ids, vcat, node_cmaps)
+
+    # make these things have many dofs
+    id_map = dofs[:, id_map] |> vec
+    node_map = Exodus.ProcessorNodeMaps{eltype(node_map.node_map_internal)}(
+      convert.(Int32, dofs[:, node_map.node_map_internal]) |> vec,
+      convert.(Int32, dofs[:, node_map.node_map_border]) |> vec,
+      convert.(Int32, dofs[:, node_map.node_map_external]) |> vec
+    )
+
+    # get inernal nodes
+    internal_nodes = id_map[node_map.node_map_internal]
+    internal_nodes = convert.(Int64, internal_nodes)
+
+    # make sure the ghosts are in global
+    ghost_node_ids = dofs[:, ghost_node_ids] |> vec
+    ghost_node_ids = id_map[ghost_node_ids]
+
+    new_ghost_proc_ids = ghost_proc_ids
+    for n in 2:n_dofs
+      new_ghost_proc_ids = hcat(new_ghost_proc_ids, ghost_proc_ids)
+    end
+    
+    ghost_proc_ids = new_ghost_proc_ids' |> vec
+
+    # now sort and get unique ghost node ids only
+    unique_ids = unique(i -> ghost_node_ids[i], 1:length(ghost_node_ids))
+    
+    ghost_node_ids = ghost_node_ids[unique_ids]
+    ghost_proc_ids = ghost_proc_ids[unique_ids]
+
+    # maybe this operation isn't necessary?
+    sort_ids = sortperm(ghost_node_ids)
+
+    ghost_node_ids = ghost_node_ids[sort_ids]
+    ghost_proc_ids = ghost_proc_ids[sort_ids]
+
+    ghost_node_ids = convert.(Int64, ghost_node_ids)
+
+    own_indices = OwnIndices(n_dofs_global, rank, internal_nodes)
+    ghost_indices = GhostIndices(n_dofs_global, ghost_node_ids, ghost_proc_ids)
+
+    return OwnAndGhostIndices(own_indices, ghost_indices)
+  end
+
+  return indices
+end
+
 function PartitionedArrays.uniform_partition(ranks, mesh_file::String)
-  exos, init_info = Exodus.ExodusDatabase(ranks, mesh_file)
-  n_nodes_global = init_info[1][2]
-  indices = OwnAndGhostIndices(n_nodes_global, ranks, exos)
+  exos, init_infos = Exodus.ExodusDatabase(ranks, mesh_file)
+  indices = OwnAndGhostIndices(ranks, exos, init_infos)
+  return indices
+end
+
+function PartitionedArrays.uniform_partition(ranks, mesh_file::String, n_dofs::Int)
+  exos, init_infos = Exodus.ExodusDatabase(ranks, mesh_file)
+  indices = OwnAndGhostIndices(ranks, exos, init_infos, n_dofs)
   return indices
 end
 
