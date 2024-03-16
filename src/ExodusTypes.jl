@@ -489,11 +489,7 @@ function ExodusDatabase{M, I, B, F}(
     cpu_word_size::Ref{Cint}, sizeof(F)::Ref{Cint},
     EX_API_VERS_NODOT::Cint
   )::Cint
-  # exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
-
-  if exo < 0
-    error("Error trying to create file $file_name.")
-  end
+  exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
 
   int_modes = 0x00000000
   if M == Int64
