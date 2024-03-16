@@ -164,7 +164,7 @@ function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, elem_map
   proc_ids = Vector{B}(undef, elem_cnt)
 
   error_code = @ccall libexodus.ex_get_elem_cmap(
-    get_file_id(exo.exos[processor])::Cint, (elem_map_id - 1)::Clonglong, # really ex_entity_id
+    get_file_id(exo)::Cint, (elem_map_id - 1)::Clonglong, # really ex_entity_id
     elem_ids::Ptr{B}, side_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
@@ -214,7 +214,7 @@ function ProcessorElementMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::
   elem_map_border   = Vector{B}(undef, lb_params.num_bor_elems)
 
   error_code = @ccall libexodus.ex_get_processor_elem_maps(
-    get_file_id(exo.exos[processor])::Cint,
+    get_file_id(exo)::Cint,
     elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
     processor::Cint
   )::Cint

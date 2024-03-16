@@ -76,3 +76,117 @@ function collect_element_to_element_connectivities(exo::ExodusDatabase{M, I, B, 
 	return elem_to_elem
 end
 
+
+function exodus_pad(n_procs::Int32)
+
+  if n_procs < 10
+    pad_size = 1
+  elseif n_procs < 100
+    pad_size = 2
+  elseif n_procs < 1000
+    pad_size = 3
+  elseif n_procs < 10000
+    pad_size = 4
+  else
+    throw(ErrorException("Holy crap that's a big mesh. We need to check if we support that!"))
+  end
+  return pad_size
+end
+
+# for ghost nodes downstream
+function read_node_cmaps(rank, exo)
+  lb_params = Exodus.LoadBalanceParameters(exo, rank - 1)
+  cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, rank - 1)
+  cmap_ids, cmap_node_cts = cmap_params.node_cmap_ids, cmap_params.node_cmap_node_cnts
+  node_cmaps = map((x, y) -> Exodus.NodeCommunicationMap(exo, x, y, rank - 1), cmap_ids, cmap_node_cts)
+  return node_cmaps
+end
+
+function read_ghost_nodes_and_procs(rank, exo)
+
+	# need this to get the right ids
+	id_map = read_id_map(exo, NodeMap)
+
+	node_cmaps = read_node_cmaps(rank, exo)
+
+	ghost_node_ids = mapreduce(x -> x.node_ids, vcat, node_cmaps)
+	ghost_proc_ids = mapreduce(x -> x.proc_ids, vcat, node_cmaps)
+
+	# make sure the ghosts are in global
+	ghost_node_ids = id_map[ghost_node_ids]
+
+	# now sort and get unique ghost node ids only
+	unique_ids = unique(i -> ghost_node_ids[i], 1:length(ghost_node_ids))
+	
+	ghost_node_ids = ghost_node_ids[unique_ids]
+	ghost_proc_ids = ghost_proc_ids[unique_ids]
+
+	# maybe this operation isn't necessary?
+	sort_ids = sortperm(ghost_node_ids)
+
+	ghost_node_ids = ghost_node_ids[sort_ids]
+	ghost_proc_ids = ghost_proc_ids[sort_ids]
+
+	ghost_node_ids = convert.(Int64, ghost_node_ids)
+
+	return ghost_node_ids, ghost_proc_ids
+end
+
+function read_internal_nodes_and_procs(rank, exo)
+	# need this to get the right ids
+	id_map = read_id_map(exo, NodeMap)
+	node_map = Exodus.ProcessorNodeMaps(exo, rank - 1)
+
+	# get inernal nodes
+	internal_node_ids = id_map[node_map.node_map_internal]
+	internal_node_ids = convert.(Int64, internal_node_ids)
+
+	return internal_node_ids, fill(rank, length(internal_node_ids))
+end
+
+"""
+For collecting global_to_color
+"""
+function collect_global_to_color(file_name::String, n_procs::Int, n_dofs::Int=1)
+	n_procs = n_procs |> Int32
+	global_to_color_dict = Dict{Int64, Int32}()
+
+	exo = ExodusDatabase(file_name, "r")
+	n_nodes_global = num_nodes(initialization(exo))
+	close(exo)
+
+	n_dofs_global = n_nodes_global * n_dofs
+	dofs = reshape(1:n_dofs_global, (n_dofs, n_nodes_global))
+
+	for n in 1:n_procs
+    exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
+		internal_node_ids, _ = read_internal_nodes_and_procs(n, exo)
+		ghost_node_ids, ghost_proc_ids = read_ghost_nodes_and_procs(n, exo)
+
+		# modify if we have more than one dof
+		if n_dofs > 1
+			internal_node_ids = convert.(Int32, dofs[:, internal_node_ids] |> vec)
+			ghost_node_ids = convert.(Int32, dofs[:, ghost_node_ids] |> vec)
+			new_ghost_proc_ids = ghost_proc_ids
+			for n in 2:n_dofs
+				new_ghost_proc_ids = hcat(new_ghost_proc_ids, ghost_proc_ids)
+			end
+			ghost_proc_ids = new_ghost_proc_ids' |> vec
+		end
+
+		for node in internal_node_ids
+      global_to_color_dict[node] = n
+    end
+
+    for (node, proc) in zip(ghost_node_ids, ghost_proc_ids)
+      global_to_color_dict[node] = proc
+    end
+    close(exo)
+  end
+
+	global_to_color = zeros(Int64, length(global_to_color_dict))
+	for (key, val) in global_to_color_dict
+		global_to_color[key] = val
+	end
+	return global_to_color
+end

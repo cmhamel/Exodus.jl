@@ -296,8 +296,15 @@ function ExodusDatabase{M, I, B, F}(
   )
 
   # blocks set up
-  ids = read_ids(exo_db, Block)
-  names = read_names(exo_db, Block)
+  # annoying things we have to do to suppress warnings
+  if num_element_blocks(init) == 0
+    ids = I[]
+    names = String[]
+  else
+    ids = read_ids(exo_db, Block)
+    names = read_names(exo_db, Block)
+  end
+
   for (n, name) in enumerate(names)
     if name == ""
       temp_name = "unnamed_block_$(ids[n])"
@@ -308,8 +315,14 @@ function ExodusDatabase{M, I, B, F}(
   end
 
   # nset set up
-  ids = read_ids(exo_db, NodeSet)
-  names = read_names(exo_db, NodeSet)
+  if num_node_sets(init) == 0
+    ids = I[]
+    names = String[]
+  else
+    ids = read_ids(exo_db, NodeSet)
+    names = read_names(exo_db, NodeSet)
+  end
+
   for (n, name) in enumerate(names)
     if name == ""
       temp_name = "unnamed_nset_$(ids[n])"
@@ -320,8 +333,14 @@ function ExodusDatabase{M, I, B, F}(
   end
 
   # sset set up
-  ids = read_ids(exo_db, SideSet)
-  names = read_names(exo_db, SideSet)
+  if num_side_sets(init) == 0
+    ids = I[]
+    names = String[]
+  else
+    ids = read_ids(exo_db, SideSet)
+    names = read_names(exo_db, SideSet)
+  end
+  
   for (n, name) in enumerate(names)
     if name == ""
       temp_name = "unnamed_sset_$(ids[n])"
