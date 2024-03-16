@@ -13,14 +13,14 @@ function read_coordinates(exo::ExodusDatabase)
     y_coords = C_NULL
     z_coords = C_NULL
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
-    exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
+    exodus_error_check(exo, error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
   elseif num_dimensions(exo.init) == 2
     x_coords = Vector{float_type}(undef, n_nodes)
     y_coords = Vector{float_type}(undef, n_nodes)
     z_coords = C_NULL
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
-    exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
+    exodus_error_check(exo, error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
     coords[2, :] = y_coords
   elseif num_dimensions(exo.init) == 3
@@ -28,7 +28,7 @@ function read_coordinates(exo::ExodusDatabase)
     y_coords = Vector{float_type}(undef, n_nodes)
     z_coords = Vector{float_type}(undef, n_nodes)
     error_code = @ccall libexodus.ex_get_coord(exo.exo::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid})::Cint
-    exodus_error_check(error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
+    exodus_error_check(exo, error_code, "Exodus.read_coordinates -> libexodus.ex_get_coord")
     coords[1, :] = x_coords
     coords[2, :] = y_coords
     coords[3, :] = z_coords
@@ -54,7 +54,7 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, n_node
       get_file_id(exo)::Cint, start_node_num::Clonglong, n_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
     )::Cint
-    exodus_error_check(error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
+    exodus_error_check(exo, error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
     coords[1, :] = x_coords
   elseif num_dim == 2
     x_coords = Vector{float_type}(undef, n_nodes)
@@ -64,7 +64,7 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, n_node
       get_file_id(exo)::Cint, start_node_num::Clonglong, n_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
     )::Cint
-    exodus_error_check(error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
+    exodus_error_check(exo, error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
     coords[1, :] = x_coords
     coords[2, :] = y_coords
   elseif num_dim == 3
@@ -75,7 +75,7 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, n_node
       get_file_id(exo)::Cint, start_node_num::Clonglong, n_nodes::Clonglong,
       x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
     )::Cint
-    exodus_error_check(error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
+    exodus_error_check(exo, error_code, "Exodus.read_partial_coordinates -> libexodus.read_partial_coordinates")
     coords[1, :] = x_coords
     coords[2, :] = y_coords
     coords[3, :] = z_coords
@@ -98,7 +98,7 @@ function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num:
   error_code = @ccall libexodus.ex_get_partial_coord_component(
     get_file_id(exo)::Cint, start_node_num::Clonglong, n_nodes::Clonglong, component::Cint, coords::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_partial_coordinates_component -> libexodus.ex_get_partial_coord_component")
+  exodus_error_check(exo, error_code, "Exodus.read_partial_coordinates_component -> libexodus.ex_get_partial_coord_component")
   return coords
 end
 
@@ -124,7 +124,7 @@ function read_coordinate_names(exo::ExodusDatabase)
     coord_names[n] = Vector{UInt8}(undef, MAX_LINE_LENGTH)
   end
   error_code = @ccall libexodus.ex_get_coord_names(get_file_id(exo)::Cint, coord_names::Ptr{Ptr{UInt8}})::Cint
-  exodus_error_check(error_code, "Exodus.read_coordinate_names -> libexodus.ex_get_coord_names")
+  exodus_error_check(exo, error_code, "Exodus.read_coordinate_names -> libexodus.ex_get_coord_names")
   new_coord_names = Vector{String}(undef, num_dimensions(exo.init))
   for n in 1:num_dimensions(exo.init)
     new_coord_names[n] = unsafe_string(pointer(coord_names[n]))
@@ -170,7 +170,7 @@ function write_coordinates(exo::ExodusDatabase, coords::VecOrMat{F}) where {F <:
   error_code = @ccall libexodus.ex_put_coord(
     get_file_id(exo)::Cint, x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_coordinates -> libexodus.ex_put_coord")
+  exodus_error_check(exo, error_code, "Exodus.write_coordinates -> libexodus.ex_put_coord")
 end
 
 """
@@ -182,7 +182,7 @@ function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String}
     new_coord_names[n] = Vector{UInt8}(coord_name)
   end
   error_code = @ccall libexodus.ex_put_coord_names(get_file_id(exo)::Cint, new_coord_names::Ptr{Ptr{UInt8}})::Cint
-  exodus_error_check(error_code, "Exodus.write_coordinate_names -> libexodus.ex_put_coord_names")
+  exodus_error_check(exo, error_code, "Exodus.write_coordinate_names -> libexodus.ex_put_coord_names")
 end
 
 """
@@ -209,7 +209,7 @@ function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coord
     get_file_id(exo)::Cint, start_node_num::Clonglong, n_nodes::Clonglong,
     x_coords::Ptr{Cvoid}, y_coords::Ptr{Cvoid}, z_coords::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_partial_coordinates -> libexodus.ex_put_partial_coord")
+  exodus_error_check(exo, error_code, "Exodus.write_partial_coordinates -> libexodus.ex_put_partial_coord")
 end
 
 """
@@ -220,7 +220,7 @@ function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num
     get_file_id(exo)::Cint, start_node_num::Clonglong, length(coords)::Clonglong, component::Cint,
     coords::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_partial_coordinates_component -> libexodus.ex_put_partial_coord_component")
+  exodus_error_check(exo, error_code, "Exodus.write_partial_coordinates_component -> libexodus.ex_put_partial_coord_component")
 end
 
 """

@@ -6,7 +6,7 @@ function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F,
   error_code = @ccall libexodus.ex_get_ids(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, ids::Ptr{B}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
+  exodus_error_check(exo, error_code, "Exodus.read_set_ids -> libexodus.ex_get_ids")
   return ids
 end
 
@@ -18,7 +18,7 @@ function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: Abstr
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, 
     id::ex_entity_id, name::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_name -> libexodus.ex_get_name")
+  exodus_error_check(exo, error_code, "Exodus.read_name -> libexodus.ex_get_name")
   return unsafe_string(pointer(name))
 end
 
@@ -47,7 +47,7 @@ function read_set_parameters(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, set_id::Clonglong, # set_id is really an ex_entity_id but that is weirdly causing a type instability
     num_entries::Ptr{I}, num_df::Ptr{I}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_set_parameters -> libexodus.ex_get_set_param")
+  exodus_error_check(exo, error_code, "Exodus.read_set_parameters -> libexodus.ex_get_set_param")
   return num_entries[], num_df[]
 end
 
@@ -61,7 +61,7 @@ function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) w
     get_file_id(exo)::Cint, EX_NODE_SET::ex_entity_type, set_id::Clonglong, # set id is really a ex_entity_id but it's weirldy throwing a type instability
     entries::Ptr{B}, extras::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_node_set_nodes -> libexodus.ex_get_set")
+  exodus_error_check(exo, error_code, "Exodus.read_node_set_nodes -> libexodus.ex_get_set")
   return entries
 end
 
@@ -75,7 +75,7 @@ function read_side_set_elements_and_sides(exo::ExodusDatabase{M, I, B, F}, set_i
     get_file_id(exo)::Cint, EX_SIDE_SET::ex_entity_type, set_id::Clonglong, # set id is really a ex_entity_id but it's weirldy throwing a type instability
     entries::Ptr{B}, extras::Ptr{B}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_side_set_elements_and_sides -> libexodus.ex_get_set")
+  exodus_error_check(exo, error_code, "Exodus.read_side_set_elements_and_sides -> libexodus.ex_get_set")
   return entries, extras
 end
 
@@ -87,7 +87,7 @@ function read_side_set_node_list(exo::ExodusDatabase{M, I, B, F}, side_set_id::I
   error_code = @ccall libexodus.ex_get_side_set_node_list_len(
     get_file_id(exo)::Cint, side_set_id::Clonglong, side_set_node_list_len::Ptr{Cint} # side_set-Id should really be ex_entity_id but it's weirdly causing a type instability
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_side_set_node_list -> libexodus.ex_get_side_set_node_list_len")
+  exodus_error_check(exo, error_code, "Exodus.read_side_set_node_list -> libexodus.ex_get_side_set_node_list_len")
   
   num_sides, _ = read_set_parameters(exo, side_set_id, SideSet)
   side_set_node_cnt_list = Vector{B}(undef, num_sides)
@@ -97,7 +97,7 @@ function read_side_set_node_list(exo::ExodusDatabase{M, I, B, F}, side_set_id::I
     get_file_id(exo)::Cint, side_set_id::Clonglong, # should really be ex_entity_id but it's weirdly causing a type instability
     side_set_node_cnt_list::Ptr{B}, side_set_node_list::Ptr{B}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_side_set_node_list -> libexodus.ex_get_side_set_node_list")
+  exodus_error_check(exo, error_code, "Exodus.read_side_set_node_list -> libexodus.ex_get_side_set_node_list")
   return side_set_node_cnt_list, side_set_node_list
 end
 
@@ -149,7 +149,7 @@ function write_set_parameters(exo::ExodusDatabase{M, I, B, F}, set::T) where {M,
     get_file_id(exo)::Cint, entity_type(T)::ex_entity_type, set.id::Clonglong, # should be ex_entity_id
     length(set)::Clonglong, num_dist_fact_in_set::Clonglong
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_node_set_parameters -> libexodus.ex_put_set_param")
+  exodus_error_check(exo, error_code, "Exodus.write_node_set_parameters -> libexodus.ex_put_set_param")
 end
 
 """
@@ -162,7 +162,7 @@ function write_set(exo::ExodusDatabase{M, I, B, F}, set::T) where {T <: Abstract
     get_file_id(exo)::Cint, entity_type(T)::ex_entity_type, set.id::Clonglong, # should be ex_entity_id
     entries(set)::Ptr{B}, extras(set)::Ptr{Union{Cvoid, B}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_set -> libexodus.ex_put_set")
+  exodus_error_check(exo, error_code, "Exodus.write_set -> libexodus.ex_put_set")
 end
 
 """
@@ -189,7 +189,7 @@ function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer,
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, set_id::Clonglong, # should really be ex_entity_id
     name::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_set_name -> libexodus.ex_put_name")
+  exodus_error_check(exo, error_code, "Exodus.write_set_name -> libexodus.ex_put_name")
 end
 
 """
@@ -207,7 +207,7 @@ function write_name(exo::ExodusDatabase{M, I, B, F}, set::S, name::String) where
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, set.id::Clonglong, # should really be ex_entity_id
     name::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_set_name -> libexodus.ex_put_name")
+  exodus_error_check(exo, error_code, "Exodus.write_set_name -> libexodus.ex_put_name")
 end
 
 """
@@ -217,5 +217,5 @@ function write_names(exo::ExodusDatabase, ::Type{S}, names::Vector{String}) wher
   error_code = @ccall libexodus.ex_put_names(
     get_file_id(exo)::Cint, entity_type(S)::ex_entity_type, names::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_set_names -> libexodus.ex_put_names")
+  exodus_error_check(exo, error_code, "Exodus.write_set_names -> libexodus.ex_put_names")
 end

@@ -13,7 +13,7 @@ function read_qa(exo::ExodusDatabase)
   error_code = @ccall libexodus.ex_get_qa(
     get_file_id(exo)::Cint, qa_record::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_qa -> libexodus.ex_get_qa")
+  exodus_error_check(exo, error_code, "Exodus.read_qa -> libexodus.ex_get_qa")
 
   new_qa_record = Matrix{String}(undef, num_qa_rec, 4)
   for i in 1:num_qa_rec
@@ -31,5 +31,5 @@ function write_qa(exo::ExodusDatabase, qa_record::Matrix{String})
   error_code = @ccall libexodus.ex_put_qa(
     get_file_id(exo)::Cint, num_qa_records::Cint, qa_record::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_qa -> libexodus.ex_put_qa")
+  exodus_error_check(exo, error_code, "Exodus.write_qa -> libexodus.ex_put_qa")
 end

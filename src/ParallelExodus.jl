@@ -7,7 +7,7 @@ function read_init_info(exo::ExodusDatabase)
   error_code = @ccall libexodus.ex_get_init_info(
     get_file_id(exo)::Cint, num_proc::Ptr{Cint}, num_proc_in_f::Ptr{Cint}, ftype::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.ParallelExodusDatabase -> libexodus.ex_get_init_info")
+  exodus_error_check(exo, error_code, "Exodus.ParallelExodusDatabase -> libexodus.ex_get_init_info")
   return num_proc[], num_proc_in_f[], unsafe_string(pointer(ftype))
 end
 
@@ -23,7 +23,7 @@ function InitializationGlobal(exo::ExodusDatabase{M, I, B, F, Init}) where {M, I
     get_file_id(exo)::Cint, num_nodes::Ptr{Cint}, num_elem::Ptr{Cint},
     num_elem_blk::Ptr{Cint}, num_node_sets::Ptr{Cint}, num_side_sets::Ptr{Cint}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_init_global -> libexodus.ex_get_init_global")
+  exodus_error_check(exo, error_code, "Exodus.read_init_global -> libexodus.ex_get_init_global")
   return Initialization{
     num_dimensions(exo.init), num_nodes[], num_elem[],
     num_elem_blk[], num_node_sets[], num_side_sets[]
@@ -75,7 +75,7 @@ function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F, Init}, processor:
     num_node_cmaps::Ptr{B}, num_elem_cmaps::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.LoadBalanceParameters -> libexodus.ex_get_loadbal_param")
+  exodus_error_check(exo, error_code, "Exodus.LoadBalanceParameters -> libexodus.ex_get_loadbal_param")
   return LoadBalanceParameters{B}(
     num_int_nodes[], num_bor_nodes[], num_ext_nodes[],
     num_int_elems[], num_bor_elems[],
@@ -117,7 +117,7 @@ function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F, Init}, lb_pa
     elem_cmap_ids::Ptr{B}, elem_cmap_elem_cnts::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.CommunicationMapParameters -> libexodus.ex_get_cmap_params")
+  exodus_error_check(exo, error_code, "Exodus.CommunicationMapParameters -> libexodus.ex_get_cmap_params")
   return CommunicationMapParameters{B}(
     node_cmap_ids .+ 1, node_cmap_node_cnts,
     elem_cmap_ids .+ 1, elem_cmap_elem_cnts
@@ -142,7 +142,7 @@ function NodeCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, node_map_id
     node_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.NodeCommunicationMap -> libexodus.ex_get_node_cmap")
+  exodus_error_check(exo, error_code, "Exodus.NodeCommunicationMap -> libexodus.ex_get_node_cmap")
 
   return NodeCommunicationMap{B}(node_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
@@ -168,7 +168,7 @@ function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, elem_map
     elem_ids::Ptr{B}, side_ids::Ptr{B}, proc_ids::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ElementCommunicationMap -> libexodus.ex_get_elem_cmap")
+  exodus_error_check(exo, error_code, "Exodus.ElementCommunicationMap -> libexodus.ex_get_elem_cmap")
   return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
@@ -194,7 +194,7 @@ function ProcessorNodeMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Ity
     node_map_internal::Ptr{B}, node_map_border::Ptr{B}, node_map_external::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ProcessorNodeMap -> libexodus.ex_get_processor_node_maps")
+  exodus_error_check(exo, error_code, "Exodus.ProcessorNodeMap -> libexodus.ex_get_processor_node_maps")
   return ProcessorNodeMaps{B}(node_map_internal, node_map_border, node_map_external)
 end
 
@@ -218,6 +218,6 @@ function ProcessorElementMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::
     elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
     processor::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
+  exodus_error_check(exo, error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
   return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end

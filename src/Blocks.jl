@@ -8,7 +8,7 @@ function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
   error_code = @ccall libexodus.ex_get_block_id_map(
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id, block_id_map::Ptr{void_int}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_element_block_id_map -> libexodus.ex_get_block_id_map")
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_id_map -> libexodus.ex_get_block_id_map")
   return block_id_map
 end
 
@@ -29,7 +29,7 @@ function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Intege
     num_elem::Ptr{B}, num_nodes::Ptr{B}, num_edges::Ptr{B},
     num_faces::Ptr{B}, num_attributes::Ptr{B}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_element_block_parameters -> libexodus.ex_get_block")
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_parameters -> libexodus.ex_get_block")
   element_type_out = unsafe_string(pointer(element_type))
   return element_type_out, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
@@ -42,7 +42,7 @@ function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Inte
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
     conn::Ptr{B}, C_NULL::Ptr{Cvoid}, C_NULL::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_element_block_connectivity -> libexodus.ex_get_conn")
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_connectivity -> libexodus.ex_get_conn")
   return conn
 end
 
@@ -60,7 +60,7 @@ function write_block_connectivity(exo::ExodusDatabase, block_id::Integer, conn::
     get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
     conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int} 
   )::Cint
-  exodus_error_check(error_code, "Exodus_write_block_connectivity -> libexodus.ex_put_conn")
+  exodus_error_check(exo, error_code, "Exodus_write_block_connectivity -> libexodus.ex_put_conn")
 end
 
 """
@@ -76,7 +76,7 @@ function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start
     start_num::Clonglong, num_ent::Clonglong,
     conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_partial_element_block_connectivity -> libexodus.ex_get_partial_conn")
+  exodus_error_check(exo, error_code, "Exodus.read_partial_element_block_connectivity -> libexodus.ex_get_partial_conn")
   return conn
 end
 
@@ -87,7 +87,7 @@ function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
   error_code = @ccall libexodus.ex_get_elem_type(
     get_file_id(exo)::Cint, block_id::ex_entity_id, element_type::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_element_type -> libexodus.ex_get_elem_type")
+  exodus_error_check(exo, error_code, "Exodus.read_element_type -> libexodus.ex_get_elem_type")
   return unsafe_string(pointer(element_type))
 end
 
@@ -139,7 +139,7 @@ function write_block(exo::ExodusDatabase, block::Block)
     block.num_elem::Clonglong, block.num_nodes_per_elem::Clonglong,
     0::Clonglong, 0::Clonglong, 0::Clonglong
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  exodus_error_check(exo, error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
   write_block_connectivity(exo, block.id, block.conn)
 end
 
@@ -152,7 +152,7 @@ function write_block(exo::ExodusDatabase, block_id::Integer, elem_type::String, 
     num_elem::Clonglong, num_nodes_per_elem::Clonglong,
     0::Clonglong, 0::Clonglong, 0::Clonglong
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  exodus_error_check(exo, error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
   write_block_connectivity(exo, block_id, conn)
 end
 
