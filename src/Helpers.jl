@@ -147,14 +147,32 @@ end
 """
 For collecting global_to_color
 """
-function collect_global_to_color(file_name::String, n_procs::Int)
+function collect_global_to_color(file_name::String, n_procs::Int, n_dofs::Int=1)
 	n_procs = n_procs |> Int32
 	global_to_color_dict = Dict{Int64, Int32}()
 
+	exo = ExodusDatabase(file_name, "r")
+	n_nodes_global = num_nodes(initialization(exo))
+	close(exo)
+
+	n_dofs_global = n_nodes_global * n_dofs
+	dofs = reshape(1:n_dofs_global, (n_dofs, n_nodes_global))
+
 	for n in 1:n_procs
     exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
-		internal_node_ids, internal_proc_ids = read_internal_nodes_and_procs(n, exo)
+		internal_node_ids, _ = read_internal_nodes_and_procs(n, exo)
 		ghost_node_ids, ghost_proc_ids = read_ghost_nodes_and_procs(n, exo)
+
+		# modify if we have more than one dof
+		if n_dofs > 1
+			internal_node_ids = convert.(Int32, dofs[:, internal_node_ids] |> vec)
+			ghost_node_ids = convert.(Int32, dofs[:, ghost_node_ids] |> vec)
+			new_ghost_proc_ids = ghost_proc_ids
+			for n in 2:n_dofs
+				new_ghost_proc_ids = hcat(new_ghost_proc_ids, ghost_proc_ids)
+			end
+			ghost_proc_ids = new_ghost_proc_ids' |> vec
+		end
 
 		for node in internal_node_ids
       global_to_color_dict[node] = n

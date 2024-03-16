@@ -3,18 +3,7 @@ module ExodusPartitionedArraysExt
 using Exodus
 using PartitionedArrays
 
-
-
-# for ghost nodes downstream
-function read_node_cmaps(rank, exo)
-  lb_params = Exodus.LoadBalanceParameters(exo, rank - 1)
-  cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, rank - 1)
-  cmap_ids, cmap_node_cts = cmap_params.node_cmap_ids, cmap_params.node_cmap_node_cnts
-  node_cmaps = map((x, y) -> Exodus.NodeCommunicationMap(exo, x, y, rank - 1), cmap_ids, cmap_node_cts)
-  return node_cmaps
-end
-
-# Some helpers
+# Some helpers for IO
 function Exodus.ExodusDatabase(ranks, mesh_file::String)
   # first open nemesis file to get number of procs
   @info "Reading nemesis file"
@@ -48,24 +37,39 @@ function Exodus.close(exos::V) where V <: AbstractArray{<:ExodusDatabase}
 end
 
 # PArrays overrides
-function PartitionedArrays.OwnAndGhostIndices(ranks, exos, inits, global_to_color)
-  indices = map(ranks, exos, inits) do rank, exo, init
-    n_nodes_global = init[2] |> Int64
-    internal_node_ids, internal_proc_ids = Exodus.read_internal_nodes_and_procs(rank, exo)
-		ghost_node_ids, ghost_proc_ids = Exodus.read_ghost_nodes_and_procs(rank, exo)
+# Bug in this currently
+# function PartitionedArrays.OwnAndGhostIndices(ranks, exos, inits, global_to_color)
+#   indices = map(ranks, exos, inits) do rank, exo, init
+#     n_nodes_global = init[2] |> Int64
+#     internal_node_ids, internal_proc_ids = Exodus.read_internal_nodes_and_procs(rank, exo)
+# 		ghost_node_ids, ghost_proc_ids = Exodus.read_ghost_nodes_and_procs(rank, exo)
 
-    own_indices = OwnIndices(n_nodes_global, rank, internal_node_ids)
-    ghost_indices = GhostIndices(n_nodes_global, ghost_node_ids, ghost_proc_ids)
+#     own_indices = OwnIndices(n_nodes_global, rank, internal_node_ids)
+#     ghost_indices = GhostIndices(n_nodes_global, ghost_node_ids, ghost_proc_ids)
 
-    return OwnAndGhostIndices(own_indices, ghost_indices, global_to_color)
-  end
-  return indices
-end
+#     return OwnAndGhostIndices(own_indices, ghost_indices, global_to_color)
+#   end
+#   return indices
+# end
 
 # dumb for now since each proc has to read each mesh part
 function PartitionedArrays.partition_from_color(ranks, file_name::String, global_to_color)
+  parts = partition_from_color(ranks, global_to_color)
   exos, inits = ExodusDatabase(ranks, file_name)
-  return OwnAndGhostIndices(ranks, exos, inits, global_to_color)
+
+  # below doesn't work
+  # parts = OwnAndGhostIndices(ranks, exos, inits, global_to_color)
+
+  # now update ghost nodes
+  node_procs = map(ranks, exos) do rank, exo
+    ghost_nodes, ghost_procs = Exodus.read_ghost_nodes_and_procs(rank, exo)
+  end
+  ghost_nodes, ghost_procs = tuple_of_arrays(node_procs)
+
+  parts = map(parts, ghost_nodes, ghost_procs) do part, gids, owners
+    replace_ghost(part, gids, owners)
+  end
+  return parts
 end
 
 end # module
