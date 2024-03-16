@@ -11,7 +11,7 @@ function read_info(exo::ExodusDatabase)
   error_code = @ccall libexodus.ex_get_info(
     get_file_id(exo)::Cint, info::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_info -> libexodus.ex_get_info")
+  exodus_error_check(exo, error_code, "Exodus.read_info -> libexodus.ex_get_info")
   new_info = Vector{String}(undef, num_info)
   for n in eachindex(info)
     new_info[n] = unsafe_string(pointer(info[n]))
@@ -25,5 +25,5 @@ function write_info(exo::ExodusDatabase, info::Vector{String})
   error_code = @ccall libexodus.ex_put_info(
     get_file_id(exo)::Cint, length(info)::Cint, info::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_info -> libexodus.ex_put_info")
+  exodus_error_check(exo, error_code, "Exodus.write_info -> libexodus.ex_put_info")
 end

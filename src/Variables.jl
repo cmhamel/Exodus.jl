@@ -22,7 +22,7 @@ function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: Abs
   error_code = @ccall libexodus.ex_get_variable_param(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Ptr{Cint}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_number_of_variables -> libexodus.ex_get_variable_param")
+  exodus_error_check(exo, error_code, "Exodus.read_number_of_variables -> libexodus.ex_get_variable_param")
   return num_vars[]
 end
 
@@ -53,7 +53,7 @@ function read_name(
   error_code = @ccall libexodus.ex_get_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_variable_name -> libexodus.ex_get_variable_name")
+  exodus_error_check(exo, error_code, "Exodus.read_variable_name -> libexodus.ex_get_variable_name")
   return unsafe_string(pointer(var_name))
 end
 
@@ -177,7 +177,7 @@ function read_values(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
 
@@ -205,7 +205,7 @@ function read_values(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
 
@@ -233,7 +233,7 @@ function read_values(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
 
@@ -261,7 +261,7 @@ function read_values(
     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
 
@@ -363,7 +363,7 @@ function write_number_of_variables(exo::ExodusDatabase, ::Type{V}, num_vars::Int
   error_code = @ccall libexodus.ex_put_variable_param(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, num_vars::Cint
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_number_of_variables -> libexodus.ex_put_variable_param")
+  exodus_error_check(exo, error_code, "Exodus.write_number_of_variables -> libexodus.ex_put_variable_param")
 end
 
 """
@@ -377,7 +377,7 @@ function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name
   error_code = @ccall libexodus.ex_put_variable_name(
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_variable_name -> libexodus.ex_put_variable_name")
+  exodus_error_check(exo, error_code, "Exodus.write_variable_name -> libexodus.ex_put_variable_name")
 end
 
 """
@@ -399,7 +399,7 @@ function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{Strin
     get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, length(var_names)::Cint,
     var_names::Ptr{Ptr{UInt8}}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_variable_names -> libexodus.ex_put_variable_names")
+  exodus_error_check(exo, error_code, "Exodus.write_variable_names -> libexodus.ex_put_variable_names")
 end
 
 """
@@ -417,7 +417,7 @@ function write_values(
     var_index::Cint, id::ex_entity_id,
     num_nodes::Clonglong, var_values::Ptr{Cvoid}
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_variable_values -> libexodus.ex_put_var")
+  exodus_error_check(exo, error_code, "Exodus.write_variable_values -> libexodus.ex_put_var")
 end
 
 """

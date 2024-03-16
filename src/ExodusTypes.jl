@@ -22,7 +22,7 @@ function set_exodus_max_name_length(exoid::Cint, len::Cint)
   error_code = @ccall libexodus.ex_set_max_name_length(
     exoid::Cint, len::Cint
   )::Cint
-  exodus_error_check(error_code, "ex_set_max_name_length")
+  exodus_error_check(exoid, error_code, "ex_set_max_name_length")
 end
 
 # TODO cleanup below three methods
@@ -130,7 +130,7 @@ function Initialization(exo::Cint, ::Type{B}) where B
     num_dim::Ptr{B}, num_nodes::Ptr{B}, num_elems::Ptr{B},
     num_elem_blks::Ptr{B}, num_node_sets::Ptr{B}, num_side_sets::Ptr{B}
   )::Cint
-  exodus_error_check(error_code, "Exodus.Initialization -> libexodus.ex_get_init")
+  exodus_error_check(exo, error_code, "Exodus.Initialization -> libexodus.ex_get_init")
 
   title = unsafe_string(pointer(title))
 
@@ -169,7 +169,7 @@ function write_initialization!(exoid::Cint, init::Initialization)
     num_dimensions(init)::Clonglong, num_nodes(init)::Clonglong, num_elements(init)::Clonglong,
     num_element_blocks(init)::Clonglong, num_node_sets(init)::Clonglong, num_side_sets(init)::Clonglong
   )::Cint
-  exodus_error_check(error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
+  exodus_error_check(exoid, error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
 
 
@@ -420,6 +420,10 @@ function open_exodus_file(file_name::String, mode)
   return exo
 end
 
+function exodus_error_check(exo::ExodusDatabase, error_code::T, method_name::String) where {T <: Integer}
+  exodus_error_check(get_file_id(exo), error_code, method_name)
+end
+
 function exodus_type_check(sym, context, type1, type2)
   if type1 != type2
     throw(TypeError(sym, context, type1, type2))
@@ -485,7 +489,11 @@ function ExodusDatabase{M, I, B, F}(
     cpu_word_size::Ref{Cint}, sizeof(F)::Ref{Cint},
     EX_API_VERS_NODOT::Cint
   )::Cint
-  exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+  # exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+
+  if exo < 0
+    error("Error trying to create file $file_name.")
+  end
 
   int_modes = 0x00000000
   if M == Int64
@@ -502,7 +510,7 @@ function ExodusDatabase{M, I, B, F}(
 
   if int_modes != 0x00000000
     error = @ccall libexodus.ex_set_int64_status(exo::Cint, int_modes::Cint)::Cint
-    exodus_error_check(error, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
+    exodus_error_check(exo, error, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
   end
 
   write_initialization!(exo, init)
@@ -558,7 +566,7 @@ Used to close and ExodusDatabase.
 """
 function Base.close(exo::ExodusDatabase)
   error_code = @ccall libexodus.ex_close(get_file_id(exo)::Cint)::Cint
-  exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
+  exodus_error_check(exo, error_code, "Exodus.close -> libexodus.ex_close")
 end
 
 """
@@ -573,14 +581,14 @@ function Base.copy(exo::E, new_file_name::String; mesh_only_flag::Bool=true) whe
   new_exo_id = @ccall libexodus.ex_create_int(
     new_file_name::Cstring, options::Cint, cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, EX_API_VERS_NODOT::Cint
   )::Cint
-  exodus_error_check(new_exo_id, "Exodus.copy -> libexodus.ex_create_int")
+  exodus_error_check(exo, new_exo_id, "Exodus.copy -> libexodus.ex_create_int")
   # first make a copy
   # error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint)::Cint
   error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint, mesh_only::Cint)::Cint
-  exodus_error_check(error_code, "Exodus.copy -> libexodus.ex_copy")
+  exodus_error_check(exo, error_code, "Exodus.copy -> libexodus.ex_copy")
   # now close the exodus file
   error_code = @ccall libexodus.ex_close(new_exo_id::Cint)::Cint
-  exodus_error_check(error_code, "Exodus.close -> libexodus.ex_close")
+  exodus_error_check(new_exo_id, error_code, "Exodus.close -> libexodus.ex_close")
 end
 
 """
