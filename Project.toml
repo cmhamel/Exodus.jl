@@ -19,7 +19,7 @@ ExodusPartitionedArraysExt = "PartitionedArrays"
 ExodusUnitfulExt = "Unitful"
 
 [compat]
-Adapt = "3"
+Adapt = "3, 4"
 Aqua = "0.8"
 DocStringExtensions = "0.9"
 Exodus_jll = "8.19"
