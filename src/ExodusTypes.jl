@@ -505,8 +505,8 @@ function ExodusDatabase{M, I, B, F}(
   end
 
   if int_modes != 0x00000000
-    error = @ccall libexodus.ex_set_int64_status(exo::Cint, int_modes::Cint)::Cint
-    exodus_error_check(exo, error, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
+    err = @ccall libexodus.ex_set_int64_status(exo::Cint, int_modes::Cint)::Cint
+    exodus_error_check(exo, err, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
   end
 
   write_initialization!(exo, init)
