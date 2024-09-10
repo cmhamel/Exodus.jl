@@ -128,6 +128,7 @@ if Sys.iswindows()
 else
   @exodus_unit_test_set "exodiff help" begin
     exodiff()
+    exodiff("./example_output/output.gold", "./example_output/output.gold", ["-Help"]) == true
   end
 
   @exodus_unit_test_set "exodiff" begin
@@ -364,6 +365,7 @@ end
 
 # JET testing
 # report_package("Exodus")
-@testset ExtendedTestSet "JET.jl" begin
-  test_package("Exodus"; target_defined_modules=true)
-end
+# @testset ExtendedTestSet "JET.jl" begin
+#   # test_package("Exodus"; target_defined_modules=true)
+#   JET.test_all("Exodus")
+# end

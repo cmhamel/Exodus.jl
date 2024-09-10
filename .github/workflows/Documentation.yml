@@ -13,6 +13,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
+      - uses: julia-actions/cache@v2
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
