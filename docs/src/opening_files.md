@@ -9,7 +9,7 @@ exo = ExodusDatabase("../test/example_output/output.gold", "r")
 
 ExodusDatabase:
   File name                   = ../test/example_output/output.gold
-  Mode                        = rw
+  Mode                        = r
 
 Initialization:
   Number of dim       = 2
@@ -23,10 +23,10 @@ Block:
   unnamed_block_1               
 
 NodeSet:
-  unnamed_nset_1                  unnamed_nset_2                  unnamed_nset_3                  unnamed_nset_4                
+  unnamed_nset_1                  unnamed_nset_2                  unnamed_nset_3                  unnamed_nset_4                               
 
 SideSet:
-  unnamed_sset_1                  unnamed_sset_2                  unnamed_sset_3                  unnamed_sset_4                
+  unnamed_sset_1                  unnamed_sset_2                  unnamed_sset_3                  unnamed_sset_4                               
 
 NodalVariable:
   u                             
