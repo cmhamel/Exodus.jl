@@ -128,6 +128,7 @@ if Sys.iswindows()
 else
   @exodus_unit_test_set "exodiff help" begin
     exodiff()
+    exodiff("./example_output/output.gold", "./example_output/output.gold", ["-Help"]) == true
   end
 
   @exodus_unit_test_set "exodiff" begin
