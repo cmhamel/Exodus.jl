@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 """
 function read_number_of_time_steps(exo::ExodusDatabase)
   num_steps = @ccall libexodus.ex_inquire_int(get_file_id(exo)::Cint, EX_INQ_TIME::ex_inquiry)::UInt32
@@ -7,6 +8,7 @@ function read_number_of_time_steps(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 TODO figure out how to make this not use a vector of length 1 - either a ref or a ptr
 """
 function read_time(exo::ExodusDatabase, time_step::I) where I <: Integer
@@ -19,6 +21,7 @@ function read_time(exo::ExodusDatabase, time_step::I) where I <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_times(exo::ExodusDatabase)
   num_steps = read_number_of_time_steps(exo)
@@ -29,6 +32,7 @@ function read_times(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_time(exo::ExodusDatabase, time_step::I, time_value::F) where {I <: Integer, F <: AbstractFloat}
   error_code = @ccall libexodus.ex_put_time(get_file_id(exo)::Cint, time_step::Cint, time_value::Ref{F})::Cint

@@ -17,6 +17,7 @@ function set_exodus_options(options::T) where T
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function set_exodus_max_name_length(exoid::Cint, len::Cint)
   error_code = @ccall libexodus.ex_set_max_name_length(
@@ -26,6 +27,9 @@ function set_exodus_max_name_length(exoid::Cint, len::Cint)
 end
 
 # TODO cleanup below three methods
+"""
+$(TYPEDSIGNATURES)
+"""
 function map_int_mode(exo::Cint)
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   if int64_status == 0x00000000
@@ -48,6 +52,9 @@ function map_int_mode(exo::Cint)
   return M
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function id_int_mode(exo::Cint)
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   if int64_status == 0x00000000
@@ -70,6 +77,9 @@ function id_int_mode(exo::Cint)
   return I
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function bulk_int_mode(exo::Cint)
   int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
   if int64_status == 0x00000000
@@ -92,6 +102,9 @@ function bulk_int_mode(exo::Cint)
   return B
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function float_mode(exo::Cint)
   float_size = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
   if float_size == 4
@@ -143,11 +156,29 @@ function Initialization(exo::Cint, ::Type{B}) where B
                         num_elem_blks[], num_node_sets[], num_side_sets[]}()
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 num_dimensions(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = ND
+"""
+$(TYPEDSIGNATURES)
+"""
 num_nodes(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NN
+"""
+$(TYPEDSIGNATURES)
+"""
 num_elements(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NE
+"""
+$(TYPEDSIGNATURES)
+"""
 num_element_blocks(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NEB
+"""
+$(TYPEDSIGNATURES)
+"""
 num_node_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NNS
+"""
+$(TYPEDSIGNATURES)
+"""
 num_side_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NSS
 
 """
@@ -307,14 +338,37 @@ $(TYPEDEF)
 struct SideSetVariable <: AbstractExodusVariable
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 set_name_dict(exo::ExodusDatabase, ::Type{Block})   = exo.block_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 set_name_dict(exo::ExodusDatabase, ::Type{NodeSet}) = exo.nset_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 set_name_dict(exo::ExodusDatabase, ::Type{SideSet}) = exo.sset_name_dict
-
+"""
+$(TYPEDSIGNATURES)
+"""
 var_name_dict(exo::ExodusDatabase, ::Type{ElementVariable}) = exo.element_var_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 var_name_dict(exo::ExodusDatabase, ::Type{GlobalVariable})  = exo.global_var_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 var_name_dict(exo::ExodusDatabase, ::Type{NodalVariable})   = exo.nodal_var_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_dict
+"""
+$(TYPEDSIGNATURES)
+"""
 var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
 
 """
@@ -661,23 +715,52 @@ function copy_transient(file_name::String, new_file_name::String)
   close(exo)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 get_map_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = M
+"""
+$(TYPEDSIGNATURES)
+"""
 get_id_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = I
+"""
+$(TYPEDSIGNATURES)
+"""
 get_bulk_int_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = B
+"""
+$(TYPEDSIGNATURES)
+"""
 get_float_type(::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = F
+"""
+$(TYPEDSIGNATURES)
+"""
 get_init(exo::ExodusDatabase)      = getfield(exo, :init)
+"""
+$(TYPEDSIGNATURES)
+"""
 get_mode(exo::ExodusDatabase)      = getfield(exo, :mode)
+"""
+$(TYPEDSIGNATURES)
+"""
 get_file_id(exo::ExodusDatabase)   = getfield(exo, :exo)
 # get_num_dim(exo::ExodusDatabase)   = getfield(getfield(exo, :init), :num_dim)
 # get_num_nodes(exo::ExodusDatabase) = getfield(getfield(exo, :init), :num_nodes)
 
 
 # helper method
+"""
+$(TYPEDSIGNATURES)
+"""
 Initialization(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F} = Initialization(exo.exo, B)
 
+"""
+$(TYPEDSIGNATURES)
+"""
 initialization(exo::ExodusDatabase) = exo.init
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ModeException <: Exception
   mode::String
@@ -685,10 +768,15 @@ end
 Base.show(io::IO, e::ModeException) = 
 print(io, "Bad read/write mode: $(e.mode)", "\nAvailable modes are \"r\", \"rw\", and \"w\"")
 
+"""
+$(TYPEDSIGNATURES)
+"""
 mode_error(mode::String) = throw(ModeException(mode))
 
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct SetIDException{M, I, B, F, V, I1 <: Integer} <: Exception 
   exo::ExodusDatabase{M, I, B, F}
@@ -707,6 +795,8 @@ function Base.show(io::IO, e::SetIDException)
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct SetNameException{M, I, B, F, V} <: Exception 
   exo::ExodusDatabase{M, I, B, F}
@@ -725,6 +815,8 @@ function Base.show(io::IO, e::SetNameException)
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct VariableIDException{M, I, B, F, V} <: Exception 
   exo::ExodusDatabase{M, I, B, F}
@@ -744,6 +836,8 @@ function Base.show(io::IO, e::VariableIDException)
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct VariableNameException{M, I, B, F, V} <: Exception 
   exo::ExodusDatabase{M, I, B, F}
@@ -761,12 +855,25 @@ function Base.show(io::IO, e::VariableNameException)
   end
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 id_error(exo, ::Type{t}, id) where t <: AbstractExodusSet = throw(SetIDException(exo, t, id))
+"""
+$(TYPEDSIGNATURES)
+"""
 name_error(exo, ::Type{t}, name) where t <: AbstractExodusSet = throw(SetNameException(exo, t, name))
+"""
+$(TYPEDSIGNATURES)
+"""
 id_error(exo, ::Type{t}, id) where t <: AbstractExodusVariable = throw(VariableIDException(exo, t, id))
+"""
+$(TYPEDSIGNATURES)
+"""
 name_error(exo, ::Type{t}, name) where t <: AbstractExodusVariable = throw(VariableNameException(exo, t, name))
 
 """
+$(TYPEDSIGNATURES)
 Init method for block container.
 """
 function Block(exo::ExodusDatabase, block_id::Integer)
@@ -785,6 +892,7 @@ function Block(exo::ExodusDatabase, block_id::Integer)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Block(exo::ExodusDatabase, name::String)
   if !(name in keys(exo.block_name_dict))
@@ -804,6 +912,7 @@ print(io, "Block:\n",
       "  Elem type          = ", block.elem_type, "\n")
 
 """
+$(TYPEDSIGNATURES)
 """
 function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
   if !(id in read_ids(exo, NodeSet))
@@ -819,6 +928,7 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function NodeSet(exo::ExodusDatabase, name::String)
   if !(name in keys(exo.nset_name_dict))
@@ -832,6 +942,7 @@ entries(n::NodeSet)     = n.nodes
 extras(::NodeSet)       = C_NULL
 
 """
+$(TYPEDSIGNATURES)
 """
 Base.length(n::NodeSet) = length(n.nodes)
 
@@ -845,6 +956,7 @@ print(
 )
 
 """
+$(TYPEDSIGNATURES)
 """
 function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F}
   if !(id in read_ids(exo, SideSet))
@@ -860,6 +972,7 @@ function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function SideSet(exo::ExodusDatabase, name::String)
   if !(name in keys(exo.sset_name_dict))
@@ -869,10 +982,17 @@ function SideSet(exo::ExodusDatabase, name::String)
   return SideSet(exo, exo.sset_name_dict[name])
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 entries(s::SideSet)     = s.elements
+"""
+$(TYPEDSIGNATURES)
+"""
 extras(s::SideSet)      = s.sides
 
 """
+$(TYPEDSIGNATURES)
 """
 Base.length(s::SideSet) = length(s.elements)
 

@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 """
 function read_init_info(exo::ExodusDatabase)
   num_proc      = Ref{Cint}(0)
@@ -12,6 +13,7 @@ function read_init_info(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function InitializationGlobal(exo::ExodusDatabase{M, I, B, F, Init}) where {M, I, B, F, Init}
   num_nodes     = Ref{B}(0)
@@ -31,6 +33,8 @@ function InitializationGlobal(exo::ExodusDatabase{M, I, B, F, Init}) where {M, I
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct LoadBalanceParameters{B}
   num_int_nodes::B
@@ -59,6 +63,7 @@ print(
 )
 
 """
+$(TYPEDSIGNATURES)
 """
 function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
   num_int_nodes  = Ref{B}(0)
@@ -85,6 +90,8 @@ function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F, Init}, processor:
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct CommunicationMapParameters{B}
   node_cmap_ids::Vector{B} # this appears to be 0-based
@@ -105,6 +112,7 @@ print(
 )
 
 """
+$(TYPEDSIGNATURES)
 """
 function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F, Init}, lb_params::LoadBalanceParameters{B}, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
   node_cmap_ids       = Vector{B}(undef, lb_params.num_node_cmaps)
@@ -126,12 +134,17 @@ function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F, Init}, lb_pa
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct NodeCommunicationMap{B}
   node_ids::Vector{B}
   proc_ids::Vector{B}
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function NodeCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, node_map_id, node_cnt, processor) where {M, I, B, F, Init}
 
   node_ids = Vector{B}(undef, node_cnt)
@@ -148,6 +161,8 @@ function NodeCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, node_map_id
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ElementCommunicationMap{B}
   elem_ids::Vector{B}
@@ -156,6 +171,7 @@ struct ElementCommunicationMap{B}
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, elem_map_id::Itype, elem_cnt, processor::Itype) where {M, I, B, F, Init, Itype <: Integer}
 
@@ -173,6 +189,8 @@ function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F, Init}, elem_map
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ProcessorNodeMaps{B}
   node_map_internal::Vector{B}
@@ -181,6 +199,7 @@ struct ProcessorNodeMaps{B}
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function ProcessorNodeMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype}
   lb_params = LoadBalanceParameters(exo, processor - 1)
@@ -199,6 +218,8 @@ function ProcessorNodeMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Ity
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ProcessorElementMaps{B}
   elem_map_internal::Vector{B}
@@ -206,6 +227,7 @@ struct ProcessorElementMaps{B}
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function ProcessorElementMaps(exo::ExodusDatabase{M, I, B, F, Init}, processor::Itype) where {M, I, B, F, Init, Itype}
   lb_params = LoadBalanceParameters(exo, processor - 1)

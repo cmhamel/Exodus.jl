@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 TODO change to not use void_int
 """
 function read_map(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
@@ -9,6 +10,7 @@ function read_map(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_id_map(
   exo::ExodusDatabase{M, I, B, F}, type::Type{MAP}
@@ -31,6 +33,7 @@ function read_id_map(
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_id_map(
   exo::ExodusDatabase{M, I, B, F}, type::Type{MAP}, map::Vector{M}

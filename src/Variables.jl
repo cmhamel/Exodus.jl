@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 General method to read the number of variables for a given variable type V.
 
 Examples:
@@ -27,6 +28,7 @@ function read_number_of_variables(exo::ExodusDatabase, ::Type{V}) where V <: Abs
 end
 
 """
+$(TYPEDSIGNATURES)
 General method to read the name of a variable in index var_index 
 for a given variable type V.
 
@@ -58,6 +60,7 @@ function read_name(
 end
 
 """
+$(TYPEDSIGNATURES)
 General method to read the names of variables
 for a given variable type V.
 
@@ -154,6 +157,7 @@ end
 # end
 
 """
+$(TYPEDSIGNATURES)
 Method to read element variables
 """
 function read_values(
@@ -182,6 +186,7 @@ function read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read global variables
 """
 function read_values(
@@ -210,6 +215,7 @@ function read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read nodal variables
 """
 function read_values(
@@ -238,6 +244,7 @@ function read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read nodeset/sideset variables
 """
 function read_values(
@@ -266,6 +273,7 @@ function read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for global variables around the main read_values method
 read_values(exo::ExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
@@ -275,12 +283,14 @@ read_values(exo, GlobalVariable, 1)
 read_values(exo::ExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Integer, index::Integer) = 
 read_values(exo, t, timestep, 1, index)
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
@@ -291,12 +301,14 @@ function read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Integer, name::String) = 
 read_values(exo, t, timestep, 1, name)
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 
@@ -346,6 +358,7 @@ end
 # end
 
 """
+$(TYPEDSIGNATURES)
 General method to write the number of variables for a given variable type V.
 
 Examples:
@@ -367,6 +380,7 @@ function write_number_of_variables(exo::ExodusDatabase, ::Type{V}, num_vars::Int
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name::String) where V <: AbstractExodusVariable
   # TODO probably need a railguard on var_index
@@ -381,6 +395,7 @@ function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{String}) where V <: AbstractExodusVariable
   if read_number_of_variables(exo, type) == 0
@@ -403,6 +418,7 @@ function write_names(exo::ExodusDatabase, type::Type{V}, var_names::Vector{Strin
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_values(
   exo::ExodusDatabase, 
@@ -421,6 +437,7 @@ function write_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for global variables around the main write_values method
 write_values(
   exo::ExodusDatabase, t::Type{GlobalVariable}, 
@@ -441,6 +458,7 @@ write_values(
 ) = write_values(exo, t, timestep, 1, 1, var_values)
 
 """
+$(TYPEDSIGNATURES)
 Wrapper for writing nodal variables by index number
 """
 write_values(
@@ -450,6 +468,7 @@ write_values(
 ) = write_values(exo, t, timestep, 1, var_index, var_values)
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_values(
   exo::ExodusDatabase, 
@@ -462,6 +481,7 @@ function write_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 write_values(
@@ -471,6 +491,7 @@ write_values(
 ) = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), var_values)
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_values(
   exo::ExodusDatabase, 

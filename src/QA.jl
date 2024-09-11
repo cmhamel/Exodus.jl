@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 """
 function read_qa(exo::ExodusDatabase)
   num_qa_rec = @ccall libexodus.ex_inquire_int(
@@ -25,6 +26,7 @@ function read_qa(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_qa(exo::ExodusDatabase, qa_record::Matrix{String})
   num_qa_records = size(qa_record, 1)
