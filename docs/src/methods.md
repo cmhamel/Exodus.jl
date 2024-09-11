@@ -1,11 +1,11 @@
-# Exodus.jl Types
+# Exodus.jl Methods
 
 # Public methods
 ```@autodocs
 Modules = [Exodus]
 Public = true
 Private = false
-Order = [:type]
+Order = [:function]
 ```
 
 # Private methods
@@ -13,5 +13,5 @@ Order = [:type]
 Modules = [Exodus]
 Public = false
 Private = true
-Order = [:type]
+Order = [:function]
 ```

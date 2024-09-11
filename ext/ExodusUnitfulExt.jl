@@ -1,23 +1,27 @@
 module ExodusUnitfulExt
 
+using DocStringExtensions
 using Exodus
 using Unitful
 
 # write methods below
 
 """
+$(SIGNATURES)
 """
 function Exodus.read_coordinates(exo::ExodusDatabase, unit::U) where U <: Unitful.FreeUnits
   return read_coordinates(exo)unit
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.read_times(exo::ExodusDatabase, unit::U) where U <: Unitful.FreeUnits
   return read_times(exo)unit
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.read_values(
   exo::ExodusDatabase, type::Type{V}, 
@@ -29,6 +33,7 @@ function Exodus.read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for global variables around the main read_values method
 read_values(exo::ExodusDatabase, t::Type{GlobalVariable}, timestep::Integer) = read_values(exo, t, timestep, 1, 1)
 
@@ -45,6 +50,7 @@ Exodus.read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Intege
 read_values(exo, t, timestep, 1, index)unit
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.read_values(
   exo::ExodusDatabase, ::Type{V}, 
@@ -55,12 +61,14 @@ function Exodus.read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 Exodus.read_values(exo::ExodusDatabase, t::Type{NodalVariable}, timestep::Integer, name::String, unit::U) where U <: Unitful.FreeUnits = 
 read_values(exo, t, timestep, 1, name)unit
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.read_values(
   exo::ExodusDatabase, ::Type{V}, 
@@ -74,6 +82,7 @@ function Exodus.read_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.write_values(
   exo::ExodusDatabase, 
@@ -86,6 +95,7 @@ function Exodus.write_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for global variables around the main write_values method
 write_values(
   exo::ExodusDatabase, t::Type{GlobalVariable}, 
@@ -115,6 +125,7 @@ Exodus.write_values(
 ) = write_values(exo, t, timestep, 1, var_index, ustrip(var_values))
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.write_values(
   exo::ExodusDatabase, 
@@ -127,6 +138,7 @@ function Exodus.write_values(
 end
 
 """
+$(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 Exodus.write_values(
@@ -136,6 +148,7 @@ Exodus.write_values(
 ) = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), ustrip(var_values))
 
 """
+$(TYPEDSIGNATURES)
 """
 function Exodus.write_values(
   exo::ExodusDatabase, 

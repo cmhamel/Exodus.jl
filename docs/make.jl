@@ -3,9 +3,10 @@ using Documenter
 using Unitful
 
 DocMeta.setdocmeta!(Exodus, :DocTestSetup, :(using Exodus); recursive=true)
+unitful_ext = Base.get_extension(Exodus, :ExodusUnitfulExt)
 
 makedocs(;
-    modules=[Exodus],
+    modules=[Exodus, unitful_ext],
     authors="Craig M. Hamel <cmhamel32@gmail.com> and contributors",
     repo="https://github.com/cmhamel/Exodus.jl/blob/{commit}{path}#{line}",
     sitename="Exodus.jl",
@@ -18,6 +19,7 @@ makedocs(;
     ),
     pages=[
         "Exodus"           => "index.md",
+        "Exodus Methods"   => "methods.md",
         "Exodus Types"     => "types.md",
         "ExodusUnitfulExt" => "unitful_ext.md"
     ],

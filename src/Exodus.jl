@@ -78,20 +78,6 @@ export exodiff
 using DocStringExtensions
 using Exodus_jll
 
-# for docs
-@template (FUNCTIONS, METHODS, MACROS) = 
-"""
-$(TYPEDSIGNATURES)
-$(DOCSTRING)
-$(METHODLIST)
-"""
-
-@template (TYPES) = 
-"""
-$(TYPEDFIELDS)
-$(DOCSTRING)
-"""
-
 include("Errors.jl")
 
 # exodus constants and type definitions

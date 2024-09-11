@@ -103,11 +103,15 @@ function float_mode(exo::Cint)
 end
 
 """
+$(TYPEDEF)
+Type that holds initialization information.
 """
 struct Initialization{ND, NN, NE, NEB, NNS, NSS}
 end
 
 """
+$(TYPEDSIGNATURES)
+$(SIGNATURES)
 """
 function Initialization(::Type{B}) where B <: Integer
   return Initialization{B(0), B(0), B(0), B(0), B(0), B(0)}()
