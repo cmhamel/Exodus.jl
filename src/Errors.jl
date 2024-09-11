@@ -1,4 +1,6 @@
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ExodusError <: Exception
   error_code::Cint
@@ -17,6 +19,7 @@ function exodus_error_check(error_code::T, method_name::String) where {T <: Inte
 end
 
 """
+$(TYPEDSIGNATURES)
 Generic error handling method.
 # Arguments
 - `error_code::T`: error code, usually negative means something went bad
@@ -30,6 +33,8 @@ function exodus_error_check(exo::Cint, error_code::T, method_name::String) where
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ExodusWindowsError <: Exception
 end

@@ -1,4 +1,6 @@
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct EPUException <: Exception
   cmd::Cmd
@@ -10,11 +12,13 @@ Base.show(io::IO, e::EPUException) =
 print(io, "\n\nError running epu.\ncmd = $(e.cmd)\n\n")
 
 """
+$(TYPEDSIGNATURES)
 """
 epu_error(cmd::Cmd) = throw(EPUException(cmd))
 
 
 """
+$(TYPEDSIGNATURES)
 Prints epu help message
 """
 function epu()
@@ -24,6 +28,7 @@ function epu()
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function epu(file_name::String)
   @assert !Sys.iswindows()
