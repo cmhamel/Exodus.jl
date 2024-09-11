@@ -118,6 +118,7 @@ function Initialization(::Type{B}) where B <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Initialization(exo::Cint, ::Type{B}) where B
   num_dim       = Ref{B}(0)
@@ -162,6 +163,7 @@ function Base.show(io::IO, init::Init) where Init <: Initialization
 end
 
 """
+$(TYPEDSIGNATURES)
 Used to set up a exodus database in write mode
 
 The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
@@ -178,9 +180,21 @@ end
 
 
 # sets and blocks
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusMap <: AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
 
@@ -204,21 +218,25 @@ end
 
 # Maps
 """
+$(TYPEDEF)
 """
 struct NodeMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct ElementMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct FaceMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct EdgeMap <: AbstractExodusMap
 end
@@ -226,6 +244,8 @@ end
 # TODO add face and edge maps
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
   id::I
@@ -236,6 +256,8 @@ struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
@@ -243,6 +265,8 @@ struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
@@ -251,26 +275,31 @@ struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
 """
 struct ElementVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct GlobalVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct NodalVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct NodeSetVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct SideSetVariable <: AbstractExodusVariable
 end
