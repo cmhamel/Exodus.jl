@@ -27,5 +27,6 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/cmhamel/Exodus.jl",
-    devbranch="master",
+    # devbranch="master",
+    devbranch="docs/revamp"
 )
