@@ -1,3 +1,6 @@
+"""
+$(TYPEDSIGNATURES)
+"""
 function collect_element_connectivities!(conns::Vector{Vector{B}}, blocks::Vector{Block{I, Matrix{B}}}) where {I, B}
 	n = 1
 	for block in blocks
@@ -9,6 +12,7 @@ function collect_element_connectivities!(conns::Vector{Vector{B}}, blocks::Vecto
 end
 
 """
+$(TYPEDSIGNATURES)
 collects all blocks by default
 """
 function collect_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
@@ -18,7 +22,9 @@ function collect_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {
 	return conns
 end
 
-
+"""
+$(TYPEDSIGNATURES)
+"""
 function collect_node_to_element_connectivities!(node_to_elem::Vector{Vector{B}}, conns::Vector{Vector{B}}) where B
 
 	for n in axes(node_to_elem, 1)
@@ -35,6 +41,7 @@ function collect_node_to_element_connectivities!(node_to_elem::Vector{Vector{B}}
 end
 
 """
+$(TYPEDSIGNATURES)
 collect all blocks by default
 """
 function collect_node_to_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
@@ -44,6 +51,9 @@ function collect_node_to_element_connectivities(exo::ExodusDatabase{M, I, B, F})
 	return node_to_elem
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function collect_element_to_element_connectivities!(
 	elem_to_elem::Vector{Vector{B}},
 	node_to_elem::Vector{Vector{B}},
@@ -66,6 +76,7 @@ function collect_element_to_element_connectivities!(
 end
 
 """
+$(TYPEDSIGNATURES)
 collect all blocks by default
 """
 function collect_element_to_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
@@ -94,6 +105,9 @@ function exodus_pad(n_procs::Int32)
 end
 
 # for ghost nodes downstream
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_node_cmaps(rank, exo)
   lb_params = Exodus.LoadBalanceParameters(exo, rank - 1)
   cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, rank - 1)
@@ -102,6 +116,9 @@ function read_node_cmaps(rank, exo)
   return node_cmaps
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_ghost_nodes_and_procs(rank, exo)
 
 	# need this to get the right ids
@@ -132,6 +149,9 @@ function read_ghost_nodes_and_procs(rank, exo)
 	return ghost_node_ids, ghost_proc_ids
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_internal_nodes_and_procs(rank, exo)
 	# need this to get the right ids
 	id_map = read_id_map(exo, NodeMap)
@@ -146,6 +166,7 @@ end
 
 """
 For collecting global_to_color
+$(TYPEDSIGNATURES)
 """
 function collect_global_to_color(file_name::String, n_procs::Int, n_dofs::Int=1)
 	n_procs = n_procs |> Int32

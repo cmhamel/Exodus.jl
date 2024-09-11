@@ -1,4 +1,6 @@
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct ExodiffException <: Exception
   cmd::Cmd
@@ -10,10 +12,12 @@ Base.show(io::IO, e::ExodiffException) =
 print(io, "\n\nError running exodiff.\ncmd = $(e.cmd)\n\n")
 
 """
+$(TYPEDSIGNATURES)
 """
 exodiff_error(cmd::Cmd) = throw(ExodiffException(cmd))
 
 """
+$(TYPEDSIGNATURES)
 Prints exodiff help message
 """
 function exodiff()
@@ -23,6 +27,7 @@ function exodiff()
 end
 
 """
+$(TYPEDSIGNATURES)
 Return true if the two files pass the exodiff test. Otherwise it returns false
 """
 function exodiff(
@@ -81,6 +86,9 @@ function exodiff(
   return return_bool
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function exodiff(
   ex_1::String, 
   ex_2::String,

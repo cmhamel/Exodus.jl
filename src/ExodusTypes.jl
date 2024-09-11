@@ -118,6 +118,7 @@ function Initialization(::Type{B}) where B <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function Initialization(exo::Cint, ::Type{B}) where B
   num_dim       = Ref{B}(0)
@@ -162,6 +163,7 @@ function Base.show(io::IO, init::Init) where Init <: Initialization
 end
 
 """
+$(TYPEDSIGNATURES)
 Used to set up a exodus database in write mode
 
 The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
@@ -178,12 +180,27 @@ end
 
 
 # sets and blocks
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusMap <: AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusSet{I, A} <: AbstractExodusType end
+"""
+$(TYPEDEF)
+"""
 abstract type AbstractExodusVariable <: AbstractExodusType end
 
-
+"""
+$(TYPEDEF)
+$(TYPEDFIELDS)
+"""
 struct ExodusDatabase{M, I, B, F, Init}
   exo::Cint
   mode::String
@@ -204,21 +221,25 @@ end
 
 # Maps
 """
+$(TYPEDEF)
 """
 struct NodeMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct ElementMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct FaceMap <: AbstractExodusMap
 end
 
 """
+$(TYPEDEF)
 """
 struct EdgeMap <: AbstractExodusMap
 end
@@ -226,6 +247,8 @@ end
 # TODO add face and edge maps
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
   id::I
@@ -236,6 +259,8 @@ struct Block{I, A <: AbstractMatrix} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
@@ -243,6 +268,8 @@ struct NodeSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
@@ -251,26 +278,31 @@ struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
 end
 
 """
+$(TYPEDEF)
 """
 struct ElementVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct GlobalVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct NodalVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct NodeSetVariable <: AbstractExodusVariable
 end
 
 """
+$(TYPEDEF)
 """
 struct SideSetVariable <: AbstractExodusVariable
 end
@@ -286,6 +318,7 @@ var_name_dict(exo::ExodusDatabase, ::Type{NodeSetVariable}) = exo.nset_var_name_
 var_name_dict(exo::ExodusDatabase, ::Type{SideSetVariable}) = exo.sset_var_name_dict
 
 """
+$(TYPEDSIGNATURES)
 """
 function ExodusDatabase{M, I, B, F}(
   exo::Cint, mode::String, file_name::String
@@ -393,6 +426,7 @@ function ExodusDatabase{M, I, B, F}(
 end
 
 """
+$(TYPEDSIGNATURES)
 Helper method for opening exodus database
 """
 function open_exodus_file(file_name::String, mode)
@@ -424,10 +458,16 @@ function open_exodus_file(file_name::String, mode)
   return exo
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function exodus_error_check(exo::ExodusDatabase, error_code::T, method_name::String) where {T <: Integer}
   exodus_error_check(get_file_id(exo), error_code, method_name)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function exodus_type_check(sym, context, type1, type2)
   if type1 != type2
     throw(TypeError(sym, context, type1, type2))
@@ -435,6 +475,7 @@ function exodus_type_check(sym, context, type1, type2)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function ExodusDatabase{M, I, B, F}(file_name::String, mode::String) where {M, I, B, F}
   exo = open_exodus_file(file_name, mode)
@@ -447,11 +488,13 @@ function ExodusDatabase{M, I, B, F}(file_name::String, mode::String) where {M, I
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 ExodusDatabase{I, F}(file_name::String, mode::String) where {I, F} = 
 ExodusDatabase{I, I, I, F}(file_name, mode)
 
 """
+$(TYPEDSIGNATURES)
 Type unstable helper to eliminate annoying lines of code to get type stability.
 
 If you're looking for a type stable way to to open an exodus file, Simple copy past some of
@@ -471,6 +514,9 @@ function ExodusDatabase(file_name::String, mode::String)
   return exo_db
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function ExodusDatabase(
   file_name::String, mode::String, init::Init,
   ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
@@ -479,6 +525,9 @@ function ExodusDatabase(
   return ExodusDatabase{M, I, B, F}(file_name, mode, init)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function ExodusDatabase{M, I, B, F}(
   file_name::String, mode::String, init::Init
 ) where {M, I, B, F, Init <: Initialization}
@@ -562,6 +611,7 @@ function Base.show(io::IO, exo::E) where E <: ExodusDatabase
 end
 
 """
+$(TYPEDSIGNATURES)
 Used to close and ExodusDatabase.
 """
 function Base.close(exo::ExodusDatabase)
@@ -570,6 +620,7 @@ function Base.close(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 Used to copy an ExodusDatabase. As of right now this is the best way to create a new ExodusDatabase
 for output. Not all of the put methods have been wrapped and properly tested. This one has though.
 """
@@ -592,6 +643,7 @@ function Base.copy(exo::E, new_file_name::String; mesh_only_flag::Bool=true) whe
 end
 
 """
+$(TYPEDSIGNATURES)
 Simpler copy method to only copy a mesh for output later on
 """
 function copy_mesh(file_name::String, new_file_name::String)
@@ -600,6 +652,9 @@ function copy_mesh(file_name::String, new_file_name::String)
   close(exo)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function copy_transient(file_name::String, new_file_name::String)
   exo = ExodusDatabase(file_name, "r")
   copy(exo, new_file_name; mesh_only_flag=true)

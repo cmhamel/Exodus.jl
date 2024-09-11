@@ -1,10 +1,14 @@
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct NemSliceException <: Exception
   cmd::Cmd
 end
 
 """
+$(TYPEDEF)
+$(TYPEDFIELDS)
 """
 struct NemSpreadException <: Exception
   cmd::Cmd
@@ -23,14 +27,17 @@ function Base.show(io::IO, e::NemSpreadException)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 nem_slice_error(cmd::Cmd) = throw(NemSliceException(cmd))
 
 """
+$(TYPEDSIGNATURES)
 """
 nem_spread_error(cmd::Cmd) = throw(NemSpreadException(cmd))
 
 """
+$(TYPEDSIGNATURES)
 """
 function nem_slice()
   nem_slice_exe() do exe
@@ -39,6 +46,7 @@ function nem_slice()
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function nem_slice(file_name::String, n_procs::I) where I <: Integer
   nem_file = file_name * ".nem"
@@ -65,6 +73,7 @@ function nem_slice(file_name::String, n_procs::I) where I <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function nem_spread()
   nem_slice_exe() do exe
@@ -73,6 +82,7 @@ function nem_spread()
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function nem_spread(file_name::String, n_procs::I) where I <: Integer
   nem_file = file_name * ".nem"
@@ -116,6 +126,7 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function decomp(file_name::String, n_procs::I) where I <: Integer
   @assert !Sys.iswindows() "This method is not supported on Windows"

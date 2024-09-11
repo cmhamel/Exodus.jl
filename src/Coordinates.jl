@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 Method to read coordinates. 
 Returns a matrix that is n_dim x n_nodes.
 """
@@ -37,6 +38,7 @@ function read_coordinates(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read a partial set of coordinates that are contiguous. 
 Returns a matrix that is n_dim x n_nodes
 """
@@ -84,6 +86,7 @@ function read_partial_coordinates(exo::ExodusDatabase, start_node_num::I, n_node
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read a specific component of a partial set of coordinates that are contiguous. 
 Returns a vector of length n_nodes
 TODO change to not use Cvoid
@@ -102,6 +105,9 @@ function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num:
   return coords
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, n_nodes::I, component::String) where I <: Integer
   if lowercase(component) == "x"
     coord_id = 1
@@ -114,6 +120,7 @@ function read_partial_coordinates_component(exo::ExodusDatabase, start_node_num:
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to read coordinates names
 Returns a vector of strings
 """
@@ -133,6 +140,7 @@ function read_coordinate_names(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to write coordinates
 """
 function write_coordinates(exo::ExodusDatabase, coords::VecOrMat{F}) where {F <: AbstractFloat}
@@ -174,6 +182,7 @@ function write_coordinates(exo::ExodusDatabase, coords::VecOrMat{F}) where {F <:
 end
 
 """
+$(TYPEDSIGNATURES)
 Method to write coordinate names, e.g. x, y, z
 """
 function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
@@ -186,6 +195,7 @@ function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String}
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coords::VecOrMat{F}) where {I <: Integer, F <: AbstractFloat}
   coords = convert(VecOrMat{get_float_type(exo)}, coords)
@@ -213,6 +223,7 @@ function write_partial_coordinates(exo::ExodusDatabase, start_node_num::I, coord
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::I, coords::Vector{F}) where {I <: Integer, F <: AbstractFloat}
   coords = convert(Vector{get_float_type(exo)}, coords)
@@ -224,6 +235,7 @@ function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_partial_coordinates_component(exo::ExodusDatabase, start_node_num::I, component::String, coords::Vector{F}) where {I <: Integer, F <: AbstractFloat}
   if lowercase(component) == "x"

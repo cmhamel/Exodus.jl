@@ -1,5 +1,6 @@
 module ExodusMeshesExt
 
+using DocStringExtensions
 using Exodus
 using Meshes
 
@@ -9,6 +10,9 @@ elem_type_to_polytope = Dict{String, Any}(
   "TRI3"  => Triangle
 )
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function Meshes.SimpleMesh(exo::ExodusDatabase)
   coords = read_coordinates(exo)
   coords = map(x -> tuple(x...), eachcol(coords))

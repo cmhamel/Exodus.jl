@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 # TODO do this one later... it depends on a few things
 TODO fix this to not use void_int... use a proper type
 """
@@ -13,6 +14,7 @@ function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
   num_elem       = Ref{B}(0)
@@ -35,6 +37,7 @@ function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Intege
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Integer, conn_length::Integer) where {M, I, B, F}
   conn = Vector{B}(undef, conn_length)
@@ -47,6 +50,7 @@ function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Inte
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_block_connectivity(exo::ExodusDatabase, block_id::Integer, conn::Matrix{I}) where I <: Integer
   if I != get_bulk_int_type(exo)
@@ -64,6 +68,7 @@ function write_block_connectivity(exo::ExodusDatabase, block_id::Integer, conn::
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start_num::I, num_ent::I) where I <: Integer
   _, _, num_nodes, _, _, _ =
@@ -81,6 +86,7 @@ function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
   element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
@@ -92,14 +98,17 @@ function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 read_block(exo::ExodusDatabase, block_id::Integer) = Block(exo, block_id)
 
 """
+$(TYPEDSIGNATURES)
 """
 read_block(exo::ExodusDatabase, block_name::String) = Block(exo, block_name)
 
 """
+$(TYPEDSIGNATURES)
 TODO: change name to read_element_blocks!
 """
 function read_blocks!(blocks::Vector{B}, 
@@ -111,6 +120,7 @@ function read_blocks!(blocks::Vector{B},
 end
 
 """
+$(TYPEDSIGNATURES)
 Helper method for initializing blocks.
 
 TODO: change name to read_element_blocks
@@ -129,6 +139,7 @@ function read_blocks(exo::ExodusDatabase, block_ids::U) where U <: Union{<:Integ
 end
 
 """
+$(TYPEDSIGNATURES)
 WARNING:
 currently does not support edges, faces and attributes
 """
@@ -143,6 +154,9 @@ function write_block(exo::ExodusDatabase, block::Block)
   write_block_connectivity(exo, block.id, block.conn)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function write_block(exo::ExodusDatabase, block_id::Integer, elem_type::String, conn::Matrix{I}) where I <: Integer
   num_nodes_per_elem, num_elem = size(conn)
   elem_type = uppercase(elem_type)
@@ -157,6 +171,7 @@ function write_block(exo::ExodusDatabase, block_id::Integer, elem_type::String, 
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
   for block in blocks
