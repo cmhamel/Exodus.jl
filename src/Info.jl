@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 """
 function read_info(exo::ExodusDatabase)
   num_info = @ccall libexodus.ex_inquire_int(
@@ -20,6 +21,7 @@ function read_info(exo::ExodusDatabase)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_info(exo::ExodusDatabase, info::Vector{String})
   error_code = @ccall libexodus.ex_put_info(

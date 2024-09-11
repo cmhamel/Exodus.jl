@@ -1,4 +1,5 @@
 """
+$(TYPEDSIGNATURES)
 """
 function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
   num_entries = num_sets(exo, S)::B
@@ -11,6 +12,7 @@ function read_ids(exo::ExodusDatabase{M, I, B, F}, ::Type{S}) where {M, I, B, F,
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractExodusSet
   name = Vector{UInt8}(undef, MAX_STR_LENGTH)
@@ -23,6 +25,7 @@ function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: Abstr
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractExodusSet
   ids   = read_ids(exo, S)
@@ -35,6 +38,7 @@ function read_names(exo::ExodusDatabase, ::Type{S}) where S <: AbstractExodusSet
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_set_parameters(
   exo::ExodusDatabase{M, I, B, F}, 
@@ -52,6 +56,7 @@ function read_set_parameters(
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
   num_entries, _ = read_set_parameters(exo, set_id, NodeSet)
@@ -66,6 +71,7 @@ function read_node_set_nodes(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) w
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_side_set_elements_and_sides(exo::ExodusDatabase{M, I, B, F}, set_id::Integer) where {M, I, B, F}
   num_entries, _ = read_set_parameters(exo, set_id, SideSet)
@@ -80,6 +86,7 @@ function read_side_set_elements_and_sides(exo::ExodusDatabase{M, I, B, F}, set_i
 end
 
 """
+$(TYPEDSIGNATURES)
 UNTESTED
 """
 function read_side_set_node_list(exo::ExodusDatabase{M, I, B, F}, side_set_id::Integer) where {M, I, B, F}
@@ -102,12 +109,14 @@ function read_side_set_node_list(exo::ExodusDatabase{M, I, B, F}, side_set_id::I
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_set(exo::ExodusDatabase, type::Type{S}, set_id::I) where {S <: AbstractExodusSet, I}
   return type(exo, set_id)
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_sets!(sets::Vector{T}, exo::ExodusDatabase, ids::Vector{I}) where {T <: AbstractExodusSet, I}
   if T <: Block
@@ -124,6 +133,7 @@ function read_sets!(sets::Vector{T}, exo::ExodusDatabase, ids::Vector{I}) where 
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, B, F, S <: AbstractExodusSet}
   set_ids = read_ids(exo, type)
@@ -140,6 +150,7 @@ function read_sets(exo::ExodusDatabase{M, I, B, F}, type::Type{S}) where {M, I, 
 end
 
 """
+$(TYPEDSIGNATURES)
 WARNING:
 currently doesn't support distance factors
 """
@@ -153,6 +164,7 @@ function write_set_parameters(exo::ExodusDatabase{M, I, B, F}, set::T) where {M,
 end
 
 """
+$(TYPEDSIGNATURES)
 Typing ensures we don't write a set with non-matching types
 to the exodus file.
 """
@@ -166,6 +178,7 @@ function write_set(exo::ExodusDatabase{M, I, B, F}, set::T) where {T <: Abstract
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_sets(exo::ExodusDatabase, sets::Vector{T}) where T <: AbstractExodusSet
   for set in sets
@@ -174,6 +187,7 @@ function write_sets(exo::ExodusDatabase, sets::Vector{T}) where T <: AbstractExo
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer, name::String) where {M, I, B, F, S <: AbstractExodusSet}
   
@@ -193,6 +207,7 @@ function write_name(exo::ExodusDatabase{M, I, B, F}, ::Type{S}, set_id::Integer,
 end
 
 """
+$(TYPEDSIGNATURES)
 """
 function write_name(exo::ExodusDatabase{M, I, B, F}, set::S, name::String) where {M, I, B, F, S <: AbstractExodusSet}
   if S <: Block
@@ -211,6 +226,7 @@ function write_name(exo::ExodusDatabase{M, I, B, F}, set::S, name::String) where
 end
 
 """
+$(TYPEDSIGNATURES)
 WARNING: this methods likely does not have good safe guards
 """
 function write_names(exo::ExodusDatabase, ::Type{S}, names::Vector{String}) where S <: AbstractExodusSet
