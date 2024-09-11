@@ -1,5 +1,6 @@
 module ExodusMeshesExt
 
+using DocStringExtensions
 using Exodus
 using Meshes
 
