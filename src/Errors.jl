@@ -27,7 +27,7 @@ Generic error handling method.
 """
 function exodus_error_check(exo::Cint, error_code::T, method_name::String) where {T <: Integer}
   if error_code < 0
-    error_code = @ccall libexodus.ex_close(exo::Cint)::Cint
+    # error_code = @ccall libexodus.ex_close(exo::Cint)::Cint
     throw(ExodusError(error_code, method_name))
   end
 end

@@ -3,11 +3,11 @@ $(TYPEDSIGNATURES)
 # TODO do this one later... it depends on a few things
 TODO fix this to not use void_int... use a proper type
 """
-function read_block_id_map(exo::ExodusDatabase, block_id::I) where I <: Integer
+function read_block_id_map(exo::ExodusDatabase{M, I, B, F}, block_id) where {M, I, B, F}
   _, num_elem, _, _, _, _ = read_block_parameters(exo, block_id)
   block_id_map = Vector{get_map_int_type(exo)}(undef, num_elem)
   error_code = @ccall libexodus.ex_get_block_id_map(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id, block_id_map::Ptr{void_int}
+    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id, block_id_map::Ptr{B}
   )::Cint
   exodus_error_check(exo, error_code, "Exodus.read_element_block_id_map -> libexodus.ex_get_block_id_map")
   return block_id_map

@@ -14,6 +14,7 @@ export FaceMap
 export GlobalVariable
 export Initialization
 export NodalVariable
+export NodalVectorVariable
 # export NodeCommunicationMap
 export NodeMap
 export NodeSet
