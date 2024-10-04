@@ -309,6 +309,24 @@ read_values(exo, t, timestep, 1, name)
 
 """
 $(TYPEDSIGNATURES)
+Wrapper method for nodal vector variables
+"""
+function read_values(exo::ExodusDatabase, t::Type{NodalVectorVariable}, timestep::Integer, base_name::String)
+  ND = num_dimensions(exo.init)
+  v1 = read_values(exo, NodalVariable, timestep, base_name * "_x")
+  v2 = read_values(exo, NodalVariable, timestep, base_name * "_y")
+  if ND == 2
+    return hcat(v1, v2)' |> collect
+  elseif ND == 3  
+    v3 = read_values(exo, NodalVariable, timestep, base_name * "_z")
+    return hcat(v1, v2, v3)' |> collect
+  else
+    throw(ErrorException("ND == 1 not supported for this method."))
+  end
+end
+
+"""
+$(TYPEDSIGNATURES)
 """
 function read_values(
   exo::ExodusDatabase, ::Type{V}, 

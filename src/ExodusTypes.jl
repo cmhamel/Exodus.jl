@@ -329,6 +329,17 @@ end
 """
 $(TYPEDEF)
 """
+const NodalScalarVariable = NodalVariable
+
+"""
+$(TYPEDEF)
+"""
+struct NodalVectorVariable <: AbstractExodusVariable
+end
+
+"""
+$(TYPEDEF)
+"""
 struct NodeSetVariable <: AbstractExodusVariable
 end
 
