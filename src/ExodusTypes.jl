@@ -306,6 +306,8 @@ struct SideSet{I, A <: AbstractVector} <: AbstractExodusSet{I, A}
   id::I
   elements::A
   sides::A
+  num_nodes_per_side::A
+  side_nodes::A
 end
 
 """
@@ -974,12 +976,13 @@ function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
     id_error(exo, SideSet, id)
   end
   elements, sides = read_side_set_elements_and_sides(exo, id)
+  num_nodes_per_side, side_nodes = read_side_set_node_list(exo, id)
 
   elements = copy(elements)
   sides   = copy(sides)
 
   # return SideSet{I, B}(id, elements, sides)
-  return SideSet{I, typeof(elements)}(id, elements, sides)
+  return SideSet{I, typeof(elements)}(id, elements, sides, num_nodes_per_side, side_nodes)
 end
 
 """

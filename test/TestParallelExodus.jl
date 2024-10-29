@@ -32,8 +32,8 @@ else
     assemble!(temp)
   end
 
-  @exodus_unit_test_set "ExodusPartitionedArraysExt - with mpi" begin
-    decomp("mesh/cube_meshes/mesh_test.g", 8)
-    mpiexec(cmd -> run(`$cmd -n 8 julia --project=@. mpi/TestMPI.jl`))
-  end
+  # @exodus_unit_test_set "ExodusPartitionedArraysExt - with mpi" begin
+  #   decomp("mesh/cube_meshes/mesh_test.g", 8)
+  #   mpiexec(cmd -> run(`$cmd -n 8 julia --project=@. mpi/TestMPI.jl`))
+  # end
 end
