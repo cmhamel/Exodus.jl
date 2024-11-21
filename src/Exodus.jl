@@ -111,6 +111,9 @@ include("ParallelExodus.jl")
 
 include("Helpers.jl")
 
+function vizmesh end
+function vizmesh! end
+
 # TODO eventually make these options initialized through a flag or something
 # TODO really you should move this to ExodusDatabase constructor with
 # TODO some optional input arguments like int and float mode
