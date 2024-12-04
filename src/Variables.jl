@@ -405,9 +405,8 @@ function write_name(exo::ExodusDatabase, ::Type{V}, var_index::Integer, var_name
   
   set_var_name_index(exo, V, var_index, var_name)
 
-  temp = Vector{UInt8}(var_name)
   error_code = @ccall libexodus.ex_put_variable_name(
-    get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, temp::Ptr{UInt8}
+    get_file_id(exo)::Cint, entity_type(V)::ex_entity_type, var_index::Cint, var_name::Ptr{UInt8}
   )::Cint
   exodus_error_check(exo, error_code, "Exodus.write_variable_name -> libexodus.ex_put_variable_name")
 end
