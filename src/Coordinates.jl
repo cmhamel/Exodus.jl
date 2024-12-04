@@ -186,11 +186,7 @@ $(TYPEDSIGNATURES)
 Method to write coordinate names, e.g. x, y, z
 """
 function write_coordinate_names(exo::ExodusDatabase, coord_names::Vector{String})
-  new_coord_names = Vector{Vector{UInt8}}(undef, length(coord_names))
-  for (n, coord_name) in enumerate(coord_names)
-    new_coord_names[n] = Vector{UInt8}(coord_name)
-  end
-  error_code = @ccall libexodus.ex_put_coord_names(get_file_id(exo)::Cint, new_coord_names::Ptr{Ptr{UInt8}})::Cint
+  error_code = @ccall libexodus.ex_put_coord_names(get_file_id(exo)::Cint, coord_names::Ptr{Ptr{UInt8}})::Cint
   exodus_error_check(exo, error_code, "Exodus.write_coordinate_names -> libexodus.ex_put_coord_names")
 end
 

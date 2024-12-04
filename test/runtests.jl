@@ -365,8 +365,6 @@ end
 end
 
 # JET testing
-# report_package("Exodus")
-# @testset ExtendedTestSet "JET.jl" begin
-#   # test_package("Exodus"; target_defined_modules=true)
-#   JET.test_all("Exodus")
-# end
+@testset ExtendedTestSet "JET.jl" begin
+  JET.test_package("Exodus"; target_defined_modules=true)
+end
