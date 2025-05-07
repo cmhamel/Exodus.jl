@@ -7,7 +7,7 @@
 
 
 # Exodus.jl
-A julia interface for accessing the ExodusII data format for large scale finite element simulations. The C library is directly called through julia ccalls. 
+A julia interface for accessing the ExodusII data format for large scale finite element simulations. The C library is accessed via pre-built julia linked library through julia ccalls. 
 
 # Installation
 From the package manager simply type
