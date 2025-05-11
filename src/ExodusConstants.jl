@@ -10,12 +10,12 @@ const IO_word_size = Int32(8)                # This was what we did before
 
 # TODO: make this be read in from the OS or something like that
 #
-const version_number_1 = Int32(8)
-const version_number_2 = Int32(19)
-const version_number = Float32(8.19)
+const version_number_1 = Int32(9)
+const version_number_2 = Int32(4)
+const version_number = Float32(9.04)
 const version_number_int = Int32(100 * version_number_1 + version_number_2)
 
-const EX_API_VERS = Float32(8.19)
+const EX_API_VERS = Float32(9.04)
 const EX_API_VERS_NODOT = Int32(100 * version_number_1 + version_number_2)
 const EX_VERS = EX_API_VERS
 

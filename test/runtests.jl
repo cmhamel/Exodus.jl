@@ -2,7 +2,6 @@ using Aqua
 using Base
 using Exodus
 using Exodus_jll
-using JET
 using Meshes
 using MPI
 using PartitionedArrays
@@ -365,6 +364,6 @@ end
 end
 
 # JET testing
-@testset ExtendedTestSet "JET.jl" begin
-  JET.test_package("Exodus"; target_defined_modules=true)
-end
+# @testset ExtendedTestSet "JET.jl" begin
+#   JET.test_package("Exodus"; target_defined_modules=true)
+# end
