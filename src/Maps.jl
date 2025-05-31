@@ -51,45 +51,30 @@ function write_id_map(
   exodus_error_check(exo, error, "write_id_map -> ex_put_id_map")
 end
 
-"""
-$(TYPEDSIGNATURES)
-"""
-function read_num_map(
-  exo::ExodusDatabase{M, I, B, F}, type::Type{MAP}
-) where {M, I, B, F, MAP <: AbstractExodusMap}
-  if type <: NodeMap
-    num_vals = num_nodes(exo.init)
-    id = 1
-  elseif type <: ElementMap
-    num_vals = num_elements(exo.init)
-    id = -1
-  end
-  @show entity_type(type)
-  map = Vector{M}(undef, 1)
+# this is not working as expected so disabling
+# """
+# $(TYPEDSIGNATURES)
+# """
+# function read_num_map(
+#   exo::ExodusDatabase{M, I, B, F}, type::Type{MAP}, id
+# ) where {M, I, B, F, MAP <: AbstractExodusMap}
+#   if type <: NodeMap
+#     num_vals = num_nodes(exo.init)
+#     # id = 1
+#   elseif type <: ElementMap
+#     num_vals = num_elements(exo.init)
+#     # id = -1
+#   end
+#   @show entity_type(type)
+#   # map = Vector{M}(undef, 1)
+#   map = Vector{Int64}(undef, num_vals)
 
-  error = @ccall libexodus.ex_get_num_map(
-    exo.exo::Cint, entity_type(type)::ex_entity_type, id::ex_entity_id,
-    map::Ptr{void_int}
-  )::Cint
-  exodus_error_check(exo, error, "read_num_map -> ex_get_num_map")
-
-  return map
-end
-
-# TODO implement this, it might be useful
-# function read_id_map(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
-
-#   # map = Vector{M}(undef, exo.init.num_elems)
-#   # error = @ccall libexodus.ex_get_id_map(
-#   #   exo.exo::Cint, EX_ELEM_MAP::ex_entity_type, map::Ptr{M}
-#   # )::Cint
-#   # exodus_error_check(error, "read_id_map -> ex_get_id_map")
-#   # return map
-
-#   map = Vector{M}(undef, exo.init.num_nodes)
-#   error = @ccall libexodus.ex_get_id_map(
-#     exo.exo::Cint, EX_NODE::ex_entity_type, map::Ptr{M}
+#   error = @ccall libexodus.ex_get_num_map(
+#     exo.exo::Cint, entity_type(type)::ex_entity_type, id::ex_entity_id,
+#     # map::Ptr{void_int}
+#     map::Ptr{Int64}
 #   )::Cint
-#   exodus_error_check(error, "read_id_map -> ex_get_id_map")
+#   exodus_error_check(exo, error, "read_num_map -> ex_get_num_map")
+
 #   return map
 # end
