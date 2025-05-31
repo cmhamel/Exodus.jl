@@ -30,9 +30,8 @@ end
     Int32(2), Int32(16641), Int32(16384),
     Int32(1), Int32(4), Int32(4)
   }()
-  exo = ExodusDatabase(
-    "./test_write_meaningful.e", "w", init, 
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "./test_write_meaningful.e", "w", init
   )
   # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
@@ -55,9 +54,8 @@ end
     Int32(3), Int32(729), Int32(512),
     Int32(1), Int32(6), Int32(6)
   }()
-  exo = ExodusDatabase(
-    "./test_write_meaningful.e", "w", init,
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "./test_write_meaningful.e", "w", init 
   )
   # @test typeof(exo) == ExodusDatabase{Int32, Int32, Int32, Float64}
   @test Exodus.get_map_int_type(exo) == Int32
@@ -72,9 +70,8 @@ end
   exo_temp = ExodusDatabase("./mesh/square_meshes/mesh_test.g", "r")
   init = exo_temp.init
   close(exo_temp)
-  exo = ExodusDatabase(
-    "./test_with_init.e", "w", init,
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "./test_with_init.e", "w", init
   )
   close(exo)
   Base.rm("./test_with_init.e")
@@ -114,7 +111,7 @@ end
             B(Exodus.num_node_sets(init_old)), 
             B(Exodus.num_side_sets(init_old))
           }()
-          exo = ExodusDatabase("./dummy_$(M)_$(I)_$(B)_$(F).e", "w", init, M, I, B, F)
+          exo = ExodusDatabase{M, I, B, F}("./dummy_$(M)_$(I)_$(B)_$(F).e", "w", init)
           # @test typeof(exo) == ExodusDatabase{M, I, B, F}
           @test Exodus.get_map_int_type(exo) == M
           @test Exodus.get_id_int_type(exo) == I

@@ -29,9 +29,8 @@
   }()
 
   # create exodus database
-  exo = ExodusDatabase(
-    "test_write_1D_mesh.e", "w", init,
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "test_write_1D_mesh.e", "w", init
   )
 
   # how to write coordinates
@@ -106,9 +105,8 @@ end
   }()
 
   # create exodus database
-  exo = ExodusDatabase(
-    "test_write_2D_mesh.e", "w", init,
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "test_write_2D_mesh.e", "w", init
   )
   
   # how to write coordinates
@@ -214,9 +212,8 @@ end
     Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
   }()
 
-  exo = ExodusDatabase(
-    "test_write_3D_mesh.e", "w", init,
-    Int32, Int32, Int32, Float64
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
+    "test_write_3D_mesh.e", "w", init
   )
 
   # how to write coordinates

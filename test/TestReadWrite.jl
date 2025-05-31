@@ -17,9 +17,8 @@
   qa_old = read_qa(exo_old)
   close(exo_old)
 
-  exo_new = ExodusDatabase(
-    "./test_output_2D_Mesh.e", "w", init_old,
-    M, I, B, F
+  exo_new = ExodusDatabase{M, I, B, F}(
+    "./test_output_2D_Mesh.e", "w", init_old
   )
 
   # info
@@ -535,13 +534,11 @@ end
     }()
 
     # finally make empty exo database
-    exo1 = ExodusDatabase(
-      "test_write.e.2.0", "w", init,
-      maps_int_type, ids_int_type, bulk_int_type, float_type
+    exo1 = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
+      "test_write.e.2.0", "w", init
     )
-    exo2 = ExodusDatabase(
-      "test_write.e.2.1", "w", init,
-      maps_int_type, ids_int_type, bulk_int_type, float_type
+    exo2 = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
+      "test_write.e.2.1", "w", init
     )
 
     # how to write coordinates

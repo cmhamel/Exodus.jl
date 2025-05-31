@@ -200,8 +200,7 @@ end
   #                       Int32(1), Int32(0), Int32(0))
   init = Initialization{Int32(2), Int32(4), Int32(1), 
                         Int32(1), Int32(0), Int32(0)}()
-  exo = ExodusDatabase("./test_exceptions.e", "w", init,
-                       Int32, Int32, Int32, Float64)
+  exo = ExodusDatabase{Int32, Int32, Int32, Float64}("./test_exceptions.e", "w", init)
   write_number_of_variables(exo, NodalVariable, 3)
   write_names(exo, NodalVariable, ["u", "v", "w"])
   e = Exodus.VariableIDException(exo, NodalVariable, 4)
@@ -214,9 +213,7 @@ end
 
 @exodus_unit_test_set "Clobber mode" begin
   init = Initialization(Int32)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int32, Int32, Int32, Float32)
-
+  exo = ExodusDatabase{Int32, Int32, Int32, Float32}("test_temp.e", "w", init)
   close(exo)
 
   exo = ExodusDatabase("test_temp.e", "w")
@@ -226,8 +223,7 @@ end
 
 @exodus_unit_test_set "Modes" begin
   init = Initialization(Int32)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int32, Int32, Int32, Float32)
+  exo = ExodusDatabase{Int32, Int32, Int32, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -240,8 +236,7 @@ end
   rm("test_temp.e", force=true)
 
   init = Initialization(Int32)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int32, Int64, Int32, Float32)
+  exo = ExodusDatabase{Int32, Int64, Int32, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -254,8 +249,7 @@ end
   rm("test_temp.e", force=true)
 
   init = Initialization(Int64)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int32, Int32, Int64, Float32)
+  exo = ExodusDatabase{Int32, Int32, Int64, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -268,8 +262,7 @@ end
   rm("test_temp.e", force=true)
 
   init = Initialization(Int64)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int32, Int64, Int64, Float32)
+  exo = ExodusDatabase{Int32, Int64, Int64, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -284,8 +277,7 @@ end
   #
 
   init = Initialization(Int32)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int64, Int32, Int32, Float32)
+  exo = ExodusDatabase{Int64, Int32, Int32, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -298,8 +290,7 @@ end
   rm("test_temp.e", force=true)
 
   init = Initialization(Int32)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int64, Int64, Int32, Float32)
+  exo = ExodusDatabase{Int64, Int64, Int32, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -308,8 +299,7 @@ end
   rm("test_temp.e", force=true)
 
   init = Initialization(Int64)
-  exo = ExodusDatabase("test_temp.e", "w", init,
-                       Int64, Int32, Int64, Float32)
+  exo = ExodusDatabase{Int64, Int32, Int64, Float32}("test_temp.e", "w", init)
   M = Exodus.map_int_mode(exo.exo)
   I = Exodus.id_int_mode(exo.exo)
   B = Exodus.bulk_int_mode(exo.exo)
@@ -324,8 +314,7 @@ end
   @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "non")
 
   init = Initialization(Int32)
-  @test_throws Exodus.ModeException ExodusDatabase("test_temp.e", "r", init,
-                                                   Int32, Int32, Int32, Float32)
+  @test_throws Exodus.ModeException ExodusDatabase{Int32, Int32, Int32, Float32}("test_temp.e", "r", init)
 end
 
 # set max name length
