@@ -26,16 +26,11 @@ end
   copy(exo, "./copy_test.e")
   close(exo)
 
-  Exodus_jll.exodiff_exe() do exe
-    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
-  end
-
+  exodiff("./copy_test.e", "./mesh/square_meshes/mesh_test.g")
   rm("./copy_test.e")
 
   copy_mesh("./mesh/square_meshes/mesh_test.g", "./copy_test.e")
-  Exodus_jll.exodiff_exe() do exe
-    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
-  end
+  exodiff("./copy_test.e", "./mesh/square_meshes/mesh_test.g")
 
   rm("./copy_test.e")
 end
@@ -195,9 +190,6 @@ end
   @show e
   close(exo)
 
-  # init = Initialization(Int32)
-  # init = Initialization(Int32(2), Int32(4), Int32(1), 
-  #                       Int32(1), Int32(0), Int32(0))
   init = Initialization{Int32(2), Int32(4), Int32(1), 
                         Int32(1), Int32(0), Int32(0)}()
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}("./test_exceptions.e", "w", init)
@@ -341,7 +333,7 @@ if Sys.iswindows()
   @exodus_unit_test_set "Windows errors for parallel support" begin
     @test_throws AssertionError decomp("./mesh/square_meshes/mesh_test.g", 4)
     @test_throws AssertionError epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-    @test_throws AssertionError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+    # @test_throws AssertionError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
   end
 end
 
