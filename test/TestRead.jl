@@ -136,6 +136,10 @@ number_of_elements_3D = 512
   @test_throws Exodus.SetNameException SideSet(exo, "sset_fake")
   @test_throws Exodus.SetNameException read_set(exo, SideSet, "sset_fake")
 
+  # map tests
+  # @test read_num_map(exo, NodeMap) == 1
+  # @test read_num_map(exo, ElementMap) == 1
+
   close(exo)
 end
 

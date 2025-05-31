@@ -44,6 +44,7 @@ export read_info
 export read_map
 export read_name
 export read_names
+# export read_num_map # not working as expected
 export read_qa
 export read_number_of_variables
 export read_number_of_time_steps

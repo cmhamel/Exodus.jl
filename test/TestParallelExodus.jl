@@ -36,4 +36,19 @@ else
   #   decomp("mesh/cube_meshes/mesh_test.g", 8)
   #   mpiexec(cmd -> run(`$cmd -n 8 julia --project=@. mpi/TestMPI.jl`))
   # end
+
+  @exodus_unit_test_set "ParallelExodus.jl" begin
+    mesh_file = "mesh/cube_meshes/mesh_test.g"
+    decomp(mesh_file, 8)
+    exo = ExodusDatabase(mesh_file * ".8.0", "r")
+    lb_params = Exodus.LoadBalanceParameters(exo, 0)
+    @show lb_params
+    cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, 0)
+    @show cmap_params
+
+    proc_elem_maps = Exodus.ProcessorElementMaps(exo, 0)
+    # elem_comm_map = Exodus.ElementCommunicationMap(
+    #   exo, 0, Exodus.num_elements(exo.init), 0
+    # )
+  end
 end

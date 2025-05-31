@@ -6,18 +6,31 @@ using Unitful
 
 # write methods below
 
+const Frequency = Unitful.FreeUnits{S, Unitful.𝐓^-1, nothing} where S
+const Length = Unitful.FreeUnits{S, Unitful.𝐋, nothing} where S
+const Time = Unitful.FreeUnits{S, Unitful.𝐓, nothing} where S
+
+const ExoTime = Union{<:Frequency, <:Time}
+
 """
 $(SIGNATURES)
 """
-function Exodus.read_coordinates(exo::ExodusDatabase, unit::U) where U <: Unitful.FreeUnits
+function Exodus.read_coordinates(exo::ExodusDatabase, unit::Length)
   return read_coordinates(exo)unit
 end
 
 """
 $(TYPEDSIGNATURES)
 """
-function Exodus.read_times(exo::ExodusDatabase, unit::U) where U <: Unitful.FreeUnits
+function Exodus.read_times(exo::ExodusDatabase, unit::ExoTime)
   return read_times(exo)unit
+end
+
+"""
+$(TYPEDSIGNATURES)
+"""
+function Exodus.write_time(exo::ExodusDatabase, step::Int, time::Q) where Q <: Quantity
+  return write_time(exo, step, ustrip(time))
 end
 
 """
@@ -77,7 +90,7 @@ function Exodus.read_values(
 ) where {V <: Union{ElementVariable, NodeSetVariable, SideSetVariable}, U <: Unitful.FreeUnits}
 
   read_values(exo, V, time_step, 
-              Exodus.set_name_index(exo, set_equivalent(V), set_name), 
+              Exodus.set_name_index(exo, Exodus.set_equivalent(V), set_name), 
               Exodus.var_name_index(exo, V, var_name))unit
 end
 
@@ -91,7 +104,7 @@ function Exodus.write_values(
   var_values::Vector{<:Quantity},
 ) where V <: Exodus.AbstractExodusVariable
 
-  write_values(exo, type, timestep, id, var_index, ustrip(var_values))
+  write_values(exo, type, timestep, id, var_index, ustrip(var_values) |> collect)
 end
 
 """
@@ -113,7 +126,7 @@ write_values(exo, GlobalVariable, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
 Exodus.write_values(
   exo::ExodusDatabase, t::Type{GlobalVariable}, 
   timestep::Integer, var_values::Vector{<:Quantity}
-) = write_values(exo, t, timestep, 1, 1, ustrip(var_values))
+) = write_values(exo, t, timestep, 1, 1, ustrip(var_values) |> collect)
 
 """
 Wrapper for writing nodal variables by index number
@@ -122,19 +135,19 @@ Exodus.write_values(
   exo::ExodusDatabase, t::Type{NodalVariable}, 
   timestep::Integer, var_index::Integer,
   var_values::Vector{<:Quantity}
-) = write_values(exo, t, timestep, 1, var_index, ustrip(var_values))
+) = write_values(exo, t, timestep, 1, var_index, ustrip(var_values) |> collect)
 
 """
 $(TYPEDSIGNATURES)
 """
 function Exodus.write_values(
   exo::ExodusDatabase, 
-  type::Type{V},
+  ::Type{V},
   timestep::Integer, id::Integer, var_name::String, 
   var_value::Vector{<:Quantity}
 ) where V <: Exodus.AbstractExodusVariable
 
-  write_values(exo, V, timestep, id, var_name_index(exo, V, var_name), ustrip(var_value))
+  write_values(exo, V, timestep, id, Exodus.var_name_index(exo, V, var_name), ustrip(var_value) |> collect)
 end
 
 """
@@ -145,7 +158,7 @@ Exodus.write_values(
   exo::ExodusDatabase, t::Type{NodalVariable},
   timestep::Integer, var_name::String,
   var_values::Vector{<:Quantity}
-) = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), ustrip(var_values))
+) = write_values(exo, t, timestep, 1, Exodus.var_name_index(exo, t, var_name), ustrip(var_values) |> collect)
 
 """
 $(TYPEDSIGNATURES)
@@ -158,9 +171,9 @@ function Exodus.write_values(
 ) where V <: Exodus.AbstractExodusVariable
 
   write_values(exo, V, time_step, 
-               set_name_index(exo, set_equivalent(V), set_name), 
-               var_name_index(exo, V, var_name), 
-               ustrip(var_value))
+               Exodus.set_name_index(exo, Exodus.set_equivalent(V), set_name), 
+               Exodus.var_name_index(exo, V, var_name), 
+               ustrip(var_value) |> collect)
 end
 
 end # module
