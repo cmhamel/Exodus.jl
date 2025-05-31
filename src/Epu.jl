@@ -2,8 +2,8 @@
 $(TYPEDEF)
 $(TYPEDFIELDS)
 """
-struct EPUException{C} <: Exception
-  cmd::C
+struct EPUException <: Exception
+  cmd::Cmd
 end
 
 """
@@ -14,7 +14,7 @@ print(io, "\n\nError running epu.\ncmd = $(e.cmd)\n\n")
 """
 $(TYPEDSIGNATURES)
 """
-epu_error(cmd) = throw(EPUException(cmd))
+epu_error(cmd::Cmd) = throw(EPUException(cmd))
 
 
 """
@@ -41,19 +41,13 @@ function epu(file_name::String)
   stdout_file = "epu.log"
   stderr_file = "epu_err.log"
 
-  errors_found = false
-  redirect_stdio(stdout=stdout_file, stderr=stderr_file) do 
-    try
+  try
+    redirect_stdio(stdout=stdout_file, stderr=stderr_file) do 
       run(`$(epu_exe()) $epu_args`, wait=true)
-    catch
-      errors_found = true
     end
+  catch
+    epu_error(Cmd(`$(epu_exe()) $epu_args`))
   end
 
-  if errors_found
-    println("error in epu")
-    epu_error(epu_args)
-  end
-  
-  rm("epu_stderr.log", force=true)
+  # rm("epu_stderr.log", force=true)
 end

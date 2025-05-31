@@ -39,6 +39,11 @@ end
 if Sys.iswindows()
   println("Skipping decomp tests on Windows...")
 else
+  @exodus_unit_test_set "decomp - aux" begin
+    @test_throws Exodus.NemSliceException Exodus.nem_slice("bad_file", 16)
+    @test_throws Exodus.NemSpreadException Exodus.nem_spread("bad_file", 16)
+    @test_throws AssertionError decomp("bad_file", 16)
+  end
   @exodus_unit_test_set "decomp - 2d" begin
     decomp("./mesh/square_meshes/mesh_test.g", 16)
 
@@ -96,10 +101,9 @@ else
     epu()
   end
 
-  # TODO patch this up later
-  # @exodus_unit_test_set "EPU error" begin
-  #   @test_throws Exodus.EPUException epu("fake_file.g")
-  # end
+  @exodus_unit_test_set "epu error" begin
+    @test_throws Exodus.EPUException epu("bad_file.e.8.0")
+  end
 
   @exodus_unit_test_set "EPU test" begin
     epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
@@ -325,15 +329,9 @@ end
 
 # test windows errors
 if Sys.iswindows()
-  # @exodus_unit_test_set "Windows errors for parallel support" begin
-  #   @test_throws Exodus.ExodusWindowsError decomp("./mesh/square_meshes/mesh_test.g", 4)
-  #   @test_throws Exodus.ExodusWindowsError epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-  #   @test_throws Exodus.ExodusWindowsError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
-  # end
   @exodus_unit_test_set "Windows errors for parallel support" begin
     @test_throws AssertionError decomp("./mesh/square_meshes/mesh_test.g", 4)
     @test_throws AssertionError epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-    # @test_throws AssertionError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
   end
 end
 

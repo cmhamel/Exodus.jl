@@ -5,6 +5,7 @@ history*.jou
 *.e
 *.e.*
 *.log
+*.pex
 **/temp_mesh.g
 docs/build
 test/epu_mesh_test.g
