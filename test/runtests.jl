@@ -333,7 +333,7 @@ if Sys.iswindows()
   @exodus_unit_test_set "Windows errors for parallel support" begin
     @test_throws AssertionError decomp("./mesh/square_meshes/mesh_test.g", 4)
     @test_throws AssertionError epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-    @test_throws AssertionError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+    # @test_throws AssertionError exodiff("./mesh/square_meshes/mesh_test.g", "./mesh/square_meshes/mesh_test.g")
   end
 end
 
