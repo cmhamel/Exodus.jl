@@ -584,17 +584,6 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function ExodusDatabase(
-  file_name::String, mode::String, init::Init,
-  ::Type{M}, ::Type{I}, ::Type{B}, ::Type{F}
-) where {M, I, B, F, Init <: Initialization}
-  @warn "This is deprecated. Use ExodusDatabase{M, I, B, F}(file_name, mode, init) instead. This method now wraps that."
-  return ExodusDatabase{M, I, B, F}(file_name, mode, init)
-end
-
-"""
-$(TYPEDSIGNATURES)
-"""
 function ExodusDatabase{M, I, B, F}(
   file_name::String, mode::String, init::Init
 ) where {M, I, B, F, Init <: Initialization}
