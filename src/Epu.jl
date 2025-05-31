@@ -22,7 +22,7 @@ $(TYPEDSIGNATURES)
 Prints epu help message
 """
 function epu()
-  run(`$(epu_exe()) --help`)
+  run(`$(epu_exe()) --help`, wait=true)
 end
 
 """

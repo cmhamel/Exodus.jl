@@ -21,9 +21,7 @@ $(TYPEDSIGNATURES)
 Prints exodiff help message
 """
 function exodiff()
-  exodiff_exe() do exe
-    run(`$exe --help`)
-  end
+  run(`$(exodiff_exe()) --help`, wait=true)
 end
 
 """
@@ -51,16 +49,12 @@ function exodiff(
 
   # finally run the command
   errors_found = false
-  exodiff_exe() do exe
-    pushfirst!(exo_cmd, "$exe")
-    cmd = Cmd(exo_cmd)
 
-    redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
-      try
-        run(cmd, wait=true)
-      catch
-        errors_found = true
-      end
+  redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
+    try
+      run(`$(exodiff_exe()) $exo_cmd`, wait=true)
+    catch
+      errors_found = true
     end
   end
 
@@ -109,16 +103,11 @@ function exodiff(
 
   # finally run the command
   errors_found = false
-  exodiff_exe() do exe
-    pushfirst!(exo_cmd, "$exe")
-    cmd = Cmd(exo_cmd)
-    
-    redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
-      try
-        run(cmd, wait=true)
-      catch
-        errors_found = true
-      end
+  redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
+    try
+      run(`$(exodiff_exe()) $exo_cmd`, wait=true)
+    catch
+      errors_found = true
     end
   end
 

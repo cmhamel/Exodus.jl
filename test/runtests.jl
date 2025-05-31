@@ -26,16 +26,11 @@ end
   copy(exo, "./copy_test.e")
   close(exo)
 
-  Exodus_jll.exodiff_exe() do exe
-    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
-  end
-
+  exodiff("./copy_test.e", "./mesh/square_meshes/mesh_test.g")
   rm("./copy_test.e")
 
   copy_mesh("./mesh/square_meshes/mesh_test.g", "./copy_test.e")
-  Exodus_jll.exodiff_exe() do exe
-    run(`$exe ./copy_test.e ./mesh/square_meshes/mesh_test.g`, wait=true)
-  end
+  exodiff("./copy_test.e", "./mesh/square_meshes/mesh_test.g")
 
   rm("./copy_test.e")
 end
