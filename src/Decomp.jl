@@ -39,13 +39,6 @@ nem_spread_error(cmd::Cmd) = throw(NemSpreadException(cmd))
 """
 $(TYPEDSIGNATURES)
 """
-function nem_slice()
-  run(`$(nem_slice_exe) -help`, wait=true)
-end
-
-"""
-$(TYPEDSIGNATURES)
-"""
 function nem_slice(file_name::String, n_procs::I) where I <: Integer
   nem_file = file_name * ".nem"
   dir_name = dirname(file_name) * "/" # TODO this will be an issue for windows
@@ -55,21 +48,15 @@ function nem_slice(file_name::String, n_procs::I) where I <: Integer
                          "$(abspath(nem_file))", "-m", 
                          "mesh=$n_procs", "$file_name"]
 
-  redirect_stdio(stdout=open(stdout_file, "w"), 
-                 stderr=open(stderr_file, "w")) do 
-    try
+  try
+    redirect_stdio(stdout=open(stdout_file, "w"), 
+                   stderr=open(stderr_file, "w")) do 
       run(`$(nem_slice_exe()) $nem_slice_cmd`, wait=true)
-    catch
-      nem_slice_error(Base.Cmd(cmd))
     end
+  catch
+    pushfirst!(nem_slice_cmd, "$(nem_slice_exe())")
+    nem_slice_error(Cmd(nem_slice_cmd))
   end
-end
-
-"""
-$(TYPEDSIGNATURES)
-"""
-function nem_spread()
-  run(`$(nem_slice_exe) -help`, wait=true)
 end
 
 """
@@ -81,8 +68,6 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
   dir_name = dirname(file_name) * "/" # TODO this will be an issue for windows
   stdout_file = joinpath(dir_name, "decomp.log")
   stderr_file = joinpath(dir_name, "decomp_err.log")
-  @show stdout_file
-  @show stderr_file
   base_name, mesh_ext = splitext(file_name)
   # now need to write pex file for nem_spread
   open(pex_file, "w") do file
@@ -98,13 +83,13 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
     write(file, "Parallel file location = root=$dir_name, subdir=.\n")
   end
 
-  redirect_stdio(stdout=open(stdout_file, "w+"), 
-                 stderr=open(stderr_file, "w+")) do 
-    try
+  try
+    redirect_stdio(stdout=open(stdout_file, "w+"), 
+                   stderr=open(stderr_file, "w+")) do 
       run(`$(nem_spread_exe()) $pex_file`, wait=true)
-    catch
-      nem_spread_error(Base.Cmd(`$exe $pex_file`))
     end
+  catch
+    nem_spread_error(Cmd(`$(nem_spread_exe()) $pex_file`))
   end
 end
 

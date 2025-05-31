@@ -50,12 +50,12 @@ function exodiff(
   # finally run the command
   errors_found = false
 
-  redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
-    try
+  try
+    redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
       run(`$(exodiff_exe()) $exo_cmd`, wait=true)
-    catch
-      errors_found = true
     end
+  catch
+    errors_found = true
   end
 
   # now handle errors
@@ -67,7 +67,7 @@ function exodiff(
       # look for no such file error
       if contains(words, "no such file")
         println("\n\nFile not found error in exodiff\n\n")
-        exodiff_error(Cmd(exo_cmd))
+        exodiff_error(Cmd(`$(exodiff_exe()) $exo_cmd`))
       end
     end
     
@@ -103,12 +103,12 @@ function exodiff(
 
   # finally run the command
   errors_found = false
-  redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
-    try
+  try
+    redirect_stdio(stdout="exodiff.log", stderr="exodiff_stderr.log") do 
       run(`$(exodiff_exe()) $exo_cmd`, wait=true)
-    catch
-      errors_found = true
     end
+  catch
+    errors_found = true
   end
 
   # now handle errors
@@ -120,7 +120,7 @@ function exodiff(
       # look for no such file error
       if contains(words, "no such file")
         println("\n\nFile not found error in exodiff\n\n")
-        exodiff_error(Cmd(exo_cmd))
+        exodiff_error(Cmd(`$(exodiff_exe) $exo_cmd`))
       end
     end
     

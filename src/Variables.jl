@@ -101,67 +101,12 @@ function read_names(exo::ExodusDatabase, ::Type{V}) where V <: AbstractExodusVar
   return names
 end
 
-# """
-# General method to read variable values.
-# """
-# function read_values_old(
-#   exo::ExodusDatabase{M, I, B, F}, ::Type{V},
-#   timestep::Integer, id::Integer, var_index::Integer, 
-# ) where {M, I, B, F, V <: AbstractExodusVariable}
-
-#   # check_for_id(exo, V, var_index)
-#   # if !(id in 1:read_number_of_variables(exo, V))
-
-#   # error check for global/nodal in case someone uses this internal method
-#   if V <: GlobalVariable
-#     if !(id == 1)
-#       id_error(exo, GlobalVariable, id)
-#     end
-#   elseif V <: NodalVariable
-#     if !(id == 1)
-#       id_error(exo, NodalVariable, id)
-#     end
-#   else
-#     if !(id in read_ids(exo, set_equivalent(V)))
-#       id_error(exo, set_equivalent(V), id)
-#     end
-#   end
-
-#   # error check on var index, maybe a better way to do this
-#   if !(var_index in 1:read_number_of_variables(exo, V))
-#     id_error(exo, V, id)
-#   end
-
-#   # get number of entries - TODO make a method elsewhere
-#   if V <: ElementVariable
-#     # TODO allocation here due to reading element type
-#     # TODO can maybe read the element map for a block?
-#     _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
-#   elseif V <: GlobalVariable
-#     num_entries = read_number_of_variables(exo, V)
-#   elseif V <: NodalVariable
-#     num_entries = exo.init.num_nodes
-#   elseif V <: NodeSetVariable || V <: SideSetVariable
-#     # check_for_id(exo, set_equivalent(V), id)
-#     num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
-#   end
-
-#   values = Vector{F}(undef, num_entries)
-
-#   error_code = @ccall libexodus.ex_get_var(
-#     get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
-#     var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
-#   )::Cint
-#   exodus_error_check(error_code, "Exodus.read_values -> libexodus.ex_get_var")
-#   return values
-# end
-
 """
 $(TYPEDSIGNATURES)
 Method to read element variables
 """
 function read_values(
-  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  exo::ExodusDatabase{M, I, B, F}, type::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: ElementVariable}
 
@@ -176,21 +121,19 @@ function read_values(
 
   _, num_entries, _, _, _, _ = read_block_parameters(exo, id)
   values = Vector{F}(undef, num_entries)
+  read_values!(values, exo, type, timestep, id, var_index)
 
-  error_code = @ccall libexodus.ex_get_var(
-    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
-    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
   return values
 end
+
+
 
 """
 $(TYPEDSIGNATURES)
 Method to read global variables
 """
 function read_values(
-  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  exo::ExodusDatabase{M, I, B, F}, type::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: GlobalVariable}
 
@@ -205,12 +148,7 @@ function read_values(
 
   num_entries = read_number_of_variables(exo, V)
   values = Vector{F}(undef, num_entries)
-
-  error_code = @ccall libexodus.ex_get_var(
-    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
-    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  read_values!(values, exo, type, timestep, id, var_index)
   return values
 end
 
@@ -219,7 +157,7 @@ $(TYPEDSIGNATURES)
 Method to read nodal variables
 """
 function read_values(
-  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  exo::ExodusDatabase{M, I, B, F}, type::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: NodalVariable}
 
@@ -234,12 +172,7 @@ function read_values(
 
   num_entries = num_nodes(exo.init)
   values = Vector{F}(undef, num_entries)
-
-  error_code = @ccall libexodus.ex_get_var(
-    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
-    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  read_values!(values, exo, type, timestep, id, var_index)
   return values
 end
 
@@ -248,7 +181,7 @@ $(TYPEDSIGNATURES)
 Method to read nodeset/sideset variables
 """
 function read_values(
-  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  exo::ExodusDatabase{M, I, B, F}, type::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
 ) where {M, I, B, F, V <: Union{NodeSetVariable, SideSetVariable}}
 
@@ -263,12 +196,7 @@ function read_values(
 
   num_entries, _ = read_set_parameters(exo, id, set_equivalent(V))
   values = Vector{F}(undef, num_entries)
-
-  error_code = @ccall libexodus.ex_get_var(
-    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
-    var_index::Cint, id::ex_entity_id, num_entries::Clonglong, values::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  read_values!(values, exo, type, timestep, id, var_index)
   return values
 end
 
@@ -311,7 +239,7 @@ read_values(exo, t, timestep, 1, name)
 $(TYPEDSIGNATURES)
 Wrapper method for nodal vector variables
 """
-function read_values(exo::ExodusDatabase, t::Type{NodalVectorVariable}, timestep::Integer, base_name::String)
+function read_values(exo::ExodusDatabase, ::Type{NodalVectorVariable}, timestep::Integer, base_name::String)
   ND = num_dimensions(exo.init)
   v1 = read_values(exo, NodalVariable, timestep, base_name * "_x")
   v2 = read_values(exo, NodalVariable, timestep, base_name * "_y")
@@ -336,6 +264,23 @@ function read_values(
   read_values(exo, V, time_step, 
               set_name_index(exo, set_equivalent(V), set_name), 
               var_name_index(exo, V, var_name))
+end
+
+"""
+$(TYPEDSIGNATURES)
+Method to read element variables with pre-allocated array
+"""
+function read_values!(
+  values::Vector{F},
+  exo::ExodusDatabase{M, I, B, F}, ::Type{V},
+  timestep::Integer, id::Integer, var_index::Integer, 
+) where {M, I, B, F, V <: AbstractExodusVariable}
+  error_code = @ccall libexodus.ex_get_var(
+    get_file_id(exo)::Cint, timestep::Cint, entity_type(V)::ex_entity_type,
+    var_index::Cint, id::ex_entity_id, length(values)::Clonglong, values::Ptr{Cvoid}
+  )::Cint
+  exodus_error_check(exo, error_code, "Exodus.read_values -> libexodus.ex_get_var")
+  return values
 end
 
 # """
@@ -438,11 +383,11 @@ end
 $(TYPEDSIGNATURES)
 """
 function write_values(
-  exo::ExodusDatabase, 
+  exo::ExodusDatabase{M, I, B, F}, 
   ::Type{V},
   timestep::Integer, id::Integer, var_index::Integer, 
-  var_values::Vector{<:AbstractFloat},
-) where V <: AbstractExodusVariable
+  var_values::Vector{F},
+) where {M, I, B, F, V <: AbstractExodusVariable}
 
   num_nodes = size(var_values, 1)
   error_code = @ccall libexodus.ex_put_var(
@@ -458,7 +403,7 @@ $(TYPEDSIGNATURES)
 Wrapper method for global variables around the main write_values method
 write_values(
   exo::ExodusDatabase, t::Type{GlobalVariable}, 
-  timestep::Integer, var_values::Vector{<:AbstractFloat}
+  timestep::Integer, var_values::Vector{F}
 ) = write_values(exo, t, timestep, 1, 1, var_values)
 
 Note: you need to first run
@@ -470,29 +415,29 @@ write_number_of_variables(exo, GlobalVariable, 5)
 write_values(exo, GlobalVariable, 1, [10.0, 20.0, 30.0, 40.0, 50.0])
 """
 write_values(
-  exo::ExodusDatabase, t::Type{GlobalVariable}, 
-  timestep::Integer, var_values::Vector{<:AbstractFloat}
-) = write_values(exo, t, timestep, 1, 1, var_values)
+  exo::ExodusDatabase{M, I, B, F}, t::Type{GlobalVariable}, 
+  timestep::Integer, var_values::Vector{F}
+) where {M, I, B, F} = write_values(exo, t, timestep, 1, 1, var_values)
 
 """
 $(TYPEDSIGNATURES)
 Wrapper for writing nodal variables by index number
 """
 write_values(
-  exo::ExodusDatabase, t::Type{NodalVariable}, 
+  exo::ExodusDatabase{M, I, B, F}, t::Type{NodalVariable}, 
   timestep::Integer, var_index::Integer,
-  var_values::Vector{<:AbstractFloat}
-) = write_values(exo, t, timestep, 1, var_index, var_values)
+  var_values::Vector{F}
+) where {M, I, B, F} = write_values(exo, t, timestep, 1, var_index, var_values)
 
 """
 $(TYPEDSIGNATURES)
 """
 function write_values(
-  exo::ExodusDatabase, 
+  exo::ExodusDatabase{M, I, B, F}, 
   ::Type{V},
   timestep::Integer, id::Integer, var_name::String, 
-  var_value::Vector{<:AbstractFloat}
-) where V <: AbstractExodusVariable
+  var_value::Vector{F}
+) where {M, I, B, F, V <: AbstractExodusVariable}
 
   write_values(exo, V, timestep, id, var_name_index(exo, V, var_name), var_value)
 end
@@ -502,20 +447,20 @@ $(TYPEDSIGNATURES)
 Wrapper method for nodal variables
 """
 write_values(
-  exo::ExodusDatabase, t::Type{NodalVariable},
+  exo::ExodusDatabase{M, I, B, F}, t::Type{NodalVariable},
   timestep::Integer, var_name::String,
-  var_values::Vector{<:AbstractFloat}
-) = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), var_values)
+  var_values::Vector{F}
+) where {M, I, B, F} = write_values(exo, t, timestep, 1, var_name_index(exo, t, var_name), var_values)
 
 """
 $(TYPEDSIGNATURES)
 """
 function write_values(
-  exo::ExodusDatabase, 
+  exo::ExodusDatabase{M, I, B, F}, 
   ::Type{V},
   time_step::Integer, set_name::String, var_name::String,
-  var_value::Vector{<:AbstractFloat}
-) where V <: AbstractExodusVariable
+  var_value::Vector{F}
+) where {M, I, B, F, V <: AbstractExodusVariable}
 
   write_values(exo, V, time_step, 
                set_name_index(exo, set_equivalent(V), set_name), 
