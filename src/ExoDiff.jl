@@ -34,7 +34,7 @@ function exodiff(
   command_file = nothing
 )
   
-  @assert !Sys.iswindows()
+  # @assert !Sys.iswindows()
 
   exo_cmd = String[]
 
@@ -89,7 +89,7 @@ function exodiff(
   cli_args::Vector{String}
 )
   
-  @assert !Sys.iswindows()
+  # @assert !Sys.iswindows()
 
   exo_cmd = String[]
 
