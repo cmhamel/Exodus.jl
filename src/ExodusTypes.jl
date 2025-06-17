@@ -665,10 +665,10 @@ function Base.show(io::IO, exo::E) where E <: ExodusDatabase
   _juliac_safe_print_dict_keys(io, exo.nset_name_dict, "NodeSet")
   _juliac_safe_print_dict_keys(io, exo.sset_name_dict, "SideSet")
   _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "ElementVariable")
-  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "GlobalVariable")
-  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "NodalVariable")
-  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "NodeSetVariable")
-  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "SideSetVariable")
+  _juliac_safe_print_dict_keys(io, exo.global_var_name_dict, "GlobalVariable")
+  _juliac_safe_print_dict_keys(io, exo.nodal_var_name_dict, "NodalVariable")
+  _juliac_safe_print_dict_keys(io, exo.nset_var_name_dict, "NodeSetVariable")
+  _juliac_safe_print_dict_keys(io, exo.sset_var_name_dict, "SideSetVariable")
 end
 
 """
