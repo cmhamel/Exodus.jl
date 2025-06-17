@@ -633,6 +633,24 @@ function ExodusDatabase{M, I, B, F}(
   )
 end
 
+function _juliac_safe_rpad(s::AbstractString, n::Integer)
+  len = ncodeunits(s)
+  padlen = max(0, n - len)
+  return string(s, " "^padlen)
+end
+
+function _juliac_safe_print_dict_keys(io::IO, dict::Dict{String, I}, set_type_name::String) where I <: Integer
+  perm = 4
+  print(io, "$set_type_name:\n")
+  for (n, name) in enumerate(keys(dict) |> collect |> sort)
+    print(io, _juliac_safe_rpad("  $name", MAX_STR_LENGTH))
+    if (n % perm == 0) && (n != length(keys(dict)))
+      print(io, "\n")
+    end
+  end
+  print(io, "\n\n")
+end
+
 function Base.show(io::IO, exo::E) where E <: ExodusDatabase 
   print(
     io,
@@ -643,33 +661,14 @@ function Base.show(io::IO, exo::E) where E <: ExodusDatabase
     "$(exo.init)\n"
   )
 
-  perm = 4
-  for type in [Block, NodeSet, SideSet]
-    if keys(set_name_dict(exo, type)) |> length > 0
-      print(io, "$(type):\n")
-      for (n, name) in enumerate(keys(set_name_dict(exo, type)) |> collect |> sort)
-        print(io, rpad("  $name", MAX_STR_LENGTH))
-        if (n % perm == 0) && (n != length(keys(set_name_dict(exo, type))))
-          print(io, "\n")
-        end
-      end
-      print(io, "\n\n")
-    end
-  end
-
-  perm = 4
-  for type in [ElementVariable, GlobalVariable, NodalVariable, NodeSetVariable, SideSetVariable]
-    if keys(var_name_dict(exo, type)) |> length > 0
-      print(io, "$(type):\n")
-      for (n, name) in enumerate(keys(var_name_dict(exo, type)) |> collect |> sort)
-        print(io, rpad("  $name", MAX_STR_LENGTH))
-        if (n % perm == 0) && (n != length(keys(var_name_dict(exo, type))))
-          print(io, "\n")
-        end
-      end
-      print(io, "\n\n")
-    end
-  end
+  _juliac_safe_print_dict_keys(io, exo.block_name_dict, "Block")
+  _juliac_safe_print_dict_keys(io, exo.nset_name_dict, "NodeSet")
+  _juliac_safe_print_dict_keys(io, exo.sset_name_dict, "SideSet")
+  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "ElementVariable")
+  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "GlobalVariable")
+  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "NodalVariable")
+  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "NodeSetVariable")
+  _juliac_safe_print_dict_keys(io, exo.element_var_name_dict, "SideSetVariable")
 end
 
 """
