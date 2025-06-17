@@ -23,10 +23,10 @@
   n_side_sets = 0
 
   # create init  
-  init = Initialization{
+  init = Initialization{Int32}(
     Int32(n_dim), Int32(n_nodes), Int32(n_elems),
     Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
-  }()
+  )
 
   # create exodus database
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
@@ -99,10 +99,10 @@ end
   n_side_sets    = 0
 
   # create init
-  init = Initialization{
+  init = Initialization{Int32}(
     Int32(n_dim), Int32(n_nodes), Int32(n_elems),
     Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
-  }()
+  )
 
   # create exodus database
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
@@ -207,10 +207,10 @@ end
   #   num_elem_blks, num_node_sets, num_side_sets
   # )
 
-  init = Initialization{
+  init = Initialization{Int32}(
     Int32(n_dim), Int32(n_nodes), Int32(n_elems),
     Int32(n_elem_blks), Int32(n_node_sets), Int32(n_side_sets)
-  }()
+  )
 
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
     "test_write_3D_mesh.e", "w", init
