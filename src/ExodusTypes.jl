@@ -119,7 +119,13 @@ end
 $(TYPEDEF)
 Type that holds initialization information.
 """
-struct Initialization{ND, NN, NE, NEB, NNS, NSS}
+struct Initialization{B}
+  num_dimensions::B
+  num_nodes::B
+  num_elements::B
+  num_element_blocks::B
+  num_node_sets::B
+  num_side_sets::B
 end
 
 """
@@ -127,7 +133,7 @@ $(TYPEDSIGNATURES)
 $(SIGNATURES)
 """
 function Initialization(::Type{B}) where B <: Integer
-  return Initialization{B(0), B(0), B(0), B(0), B(0), B(0)}()
+  return Initialization{B}(0, 0, 0, 0, 0, 0)
 end
 
 """
@@ -152,34 +158,36 @@ function Initialization(exo::Cint, ::Type{B}) where B
 
   title = unsafe_string(pointer(title))
 
-  return Initialization{num_dim[], num_nodes[], num_elems[],
-                        num_elem_blks[], num_node_sets[], num_side_sets[]}()
+  return Initialization{B}(
+    num_dim[], num_nodes[], num_elems[],
+    num_elem_blks[], num_node_sets[], num_side_sets[]
+  )
 end
 
 """
 $(TYPEDSIGNATURES)
 """
-num_dimensions(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = ND
+num_dimensions(init::Initialization) = init.num_dimensions
 """
 $(TYPEDSIGNATURES)
 """
-num_nodes(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NN
+num_nodes(init::Initialization) = init.num_nodes
 """
 $(TYPEDSIGNATURES)
 """
-num_elements(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NE
+num_elements(init::Initialization) = init.num_elements
 """
 $(TYPEDSIGNATURES)
 """
-num_element_blocks(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NEB
+num_element_blocks(init::Initialization) = init.num_element_blocks
 """
 $(TYPEDSIGNATURES)
 """
-num_node_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NNS
+num_node_sets(init::Initialization) = init.num_node_sets
 """
 $(TYPEDSIGNATURES)
 """
-num_side_sets(::Initialization{ND, NN, NE, NEB, NNS, NSS}) where {ND, NN, NE, NEB, NNS, NSS} = NSS
+num_side_sets(init::Initialization) = init.num_side_sets
 
 """
 """
@@ -209,7 +217,6 @@ function write_initialization!(exoid::Cint, init::Initialization)
   exodus_error_check(exoid, error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
 end
 
-
 # sets and blocks
 """
 $(TYPEDEF)
@@ -232,12 +239,11 @@ abstract type AbstractExodusVariable <: AbstractExodusType end
 $(TYPEDEF)
 $(TYPEDFIELDS)
 """
-struct ExodusDatabase{M, I, B, F, Init}
+struct ExodusDatabase{M, I, B, F}
   exo::Cint
   mode::String
   file_name::String
-  # init::Initialization
-  init::Init
+  init::Initialization{B}
   # name to id dict for reducing allocations from access by name
   block_name_dict::Dict{String, I}
   nset_name_dict::Dict{String, I}
@@ -393,7 +399,7 @@ function ExodusDatabase{M, I, B, F}(
   
   # get init
   init = Initialization(exo, B)
-  exo_db = ExodusDatabase{M, I, B, F, typeof(init)}(
+  exo_db = ExodusDatabase{M, I, B, F}(
     exo, mode, file_name, init,
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()
@@ -620,7 +626,7 @@ function ExodusDatabase{M, I, B, F}(
 
   write_initialization!(exo, init)
 
-  return ExodusDatabase{M, I, B, F, typeof(init)}(
+  return ExodusDatabase{M, I, B, F}(
     exo, mode, file_name, init,
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), 
     Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}(), Dict{String, I}()

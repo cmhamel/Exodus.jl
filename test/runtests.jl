@@ -194,8 +194,10 @@ end
   @show e
   close(exo)
 
-  init = Initialization{Int32(2), Int32(4), Int32(1), 
-                        Int32(1), Int32(0), Int32(0)}()
+  init = Initialization{Int32}(
+    Int32(2), Int32(4), Int32(1), 
+    Int32(1), Int32(0), Int32(0)
+  )
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}("./test_exceptions.e", "w", init)
   write_number_of_variables(exo, NodalVariable, 3)
   write_names(exo, NodalVariable, ["u", "v", "w"])

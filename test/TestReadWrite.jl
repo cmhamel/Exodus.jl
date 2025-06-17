@@ -528,10 +528,10 @@ end
     n_node_sets = 0
 
     # make init
-    init = Initialization{
+    init = Initialization{bulk_int_type}(
       bulk_int_type(n_dim), bulk_int_type(n_nodes), bulk_int_type(n_elems),
       bulk_int_type(n_elem_blks), bulk_int_type(n_side_sets), bulk_int_type(n_node_sets)
-    }()
+    )
 
     # finally make empty exo database
     exo1 = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(

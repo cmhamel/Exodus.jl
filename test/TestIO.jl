@@ -26,10 +26,10 @@ end
   #   num_dim = 2, num_nodes = 16641, num_elems = 16384,
   #   num_elem_blks = 1, num_node_sets = 4, num_side_sets = 4
   # )
-  init = Initialization{
+  init = Initialization{Int32}(
     Int32(2), Int32(16641), Int32(16384),
     Int32(1), Int32(4), Int32(4)
-  }()
+  )
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
     "./test_write_meaningful.e", "w", init
   )
@@ -50,10 +50,10 @@ end
   #   num_dim = 3, num_nodes = 729, num_elems = 512,
   #   num_elem_blks = 1, num_node_sets = 6, num_side_sets = 6
   # )
-  init = Initialization{
+  init = Initialization{Int32}(
     Int32(3), Int32(729), Int32(512),
     Int32(1), Int32(6), Int32(6)
-  }()
+  )
   exo = ExodusDatabase{Int32, Int32, Int32, Float64}(
     "./test_write_meaningful.e", "w", init 
   )
@@ -103,14 +103,14 @@ end
     for I in Is
       for B in Bs
         for F in Fs
-          init = Initialization{
+          init = Initialization{B}(
             B(Exodus.num_dimensions(init_old)), 
             B(Exodus.num_nodes(init_old)), 
             B(Exodus.num_elements(init_old)),
             B(Exodus.num_element_blocks(init_old)), 
             B(Exodus.num_node_sets(init_old)), 
             B(Exodus.num_side_sets(init_old))
-          }()
+          )
           exo = ExodusDatabase{M, I, B, F}("./dummy_$(M)_$(I)_$(B)_$(F).e", "w", init)
           # @test typeof(exo) == ExodusDatabase{M, I, B, F}
           @test Exodus.get_map_int_type(exo) == M
