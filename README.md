@@ -4,24 +4,68 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cmhamel.github.io/Exodus.jl/dev/) 
 
 
-
-
 # Exodus.jl
-A julia interface for accessing the ExodusII data format for large scale finite element simulations. The C library is accessed via pre-built julia linked library through julia ccalls. 
+1. [Description](#description)
+2. [Installation](#installation)
+3. [Package Extensions](#package-extensions)
+4. [Opening Exodus Files]()
+5. [Reading Data](#reading-data)
+6. [Writing Data (Read-Write Mode)](#writing-data-read-write-mode)
+7. [Writing Data](#writing-data-write-mode)
+8. [Use With MPI.jl](#use-with-mpijl)
+9. [Use with MPI and juliac --experimental --trim](#use-with-mpi-and-juliac---experimental---trim-requires-julia-112-or-later)
+
+# Description
+A julia interface for accessing the ExodusII data format for large scale finite element simulations. The C library is accessed via a pre-built julia linked library through julia ccalls.
+
+Several helper utilies from [SEACAS](https://github.com/sandialabs/seacas) are also included to aid in using exodusII files in parallel environments and diffing files. 
 
 # Installation
 From the package manager simply type
-```
-add Exodus
+```julia
+pkg> add Exodus
 ```
 
-# Read Example
+Or from the REPL
+```julia
+julia> using Pkg
+julia> Pkg.add("Exodus") 
+```
+
+# Package Extensions
+Several package extensions are provided with ```Exodus.jl```. Please note, many of these are still experimental.
+
+The following extensions are provided
+- ```ExodusMeshesExt.jl``` - Provides a simple interface to ```SimpleMesh``` in ```Meshes.jl```.
+- ```ExodusPartitionedArrayExt.jl``` - Provides a lightweight interface to ```PartitionedArrays.jl```. Currently inefficient.
+- ```ExodusUnitfulExt.jl``` - Provides additional read/write methods to work with ```Unitful.jl``` ```Quantity```s
+
+# Opening Exodus Files
+The simplest way to open an exodusII file is to call the following method
+```julia
+mode = "r" # can be "r" for read, "rw" for read write
+           # or "w" for write modes
+exo = ExodusDatabase("/path/to/file/file.e", mode)
+```
+this howewer introduces a type stability however since the storage types different data types are not known until runtime. 
+
+If ahead of time you know the types your data are stored as (typeically 32 bit integers for ids and 64 bit floats for values) you can call this constructor which is type stable (important if you keep reading)
+```julia
+mode = "r" # can be "r" for read, "rw" for read write
+           # or "w" for write modes
+exo = ExodusDatabase{Int32, Int32, Int32, Float64}("/path/to/file/file.e", mode)
+```
+Either way, these constructors return an ```ExodusDatabase``` container which has a field "exo" that is a file id for this now opened exodusII database in "mode" i.e. read/read-write/write format.
+
+The container also contains additional meta-data for the current names of sets, variables, etc. present in the file to allow for a clean and efficient user facing interface.
+
+# Reading Data
 To read in an exodusII file (typically has a .e or .exo extension) simply do the following
 
 ```julia
 exo = ExodusDatabase("/path-to-file/file.e", "r")
 ```
-This returns an ExodusDatabase container which has a single field "exo" that is a file id for this now opened exodusII database in "r" i.e. read only format. The purpose of the container is to attached various types for multiple dispatch later on as the exodusII format can switch between data types for various fields such as element connectivity in Int32 or Int64 format or nodal variables in floats or doubles.
+
 
 For more useful methods, one can fetch the blocks of elements as follows which contains connectivity information for different blocks of elements useful for grouping materials
 ```julia
@@ -44,10 +88,13 @@ elem_var_names  = read_names(exo, ElementVariable)
 close(exo) # cleanup
 ```
 
-# Write Example where the mesh is first copied
+# Writing Data (Read-Write Mode)
+To write data in read-write mode, it's often common to take a mesh used as input to a simulation, copy it, and then write data to that copied mesh.
+
+Below is an example which first copies a mesh using the ```copy_mesh``` method, then opens the mesh, writes a t time step, writes variable names, and nodal field data.
 ```julia
 using Exodus
-copy_mesh("./mesh.g", "r")
+copy_mesh("./mesh.g", "./temp_element_variables.e")
 exo = ExodusDatabase("./temp_element_variables.e", "rw")
 
 write_time(exo, 1, 0.0)
@@ -61,7 +108,8 @@ write_values(exo, NodalVariable, 1, 1, randn(...))
 close(exo)
 ```
 
-# Write example from scratch
+# Writing Data (Write Mode)
+To completely write an exodusII file from a scratch, the following example can be used as a template.
 ```julia
 using Exodus
 
@@ -129,3 +177,95 @@ write_values(exo, ElementVariable, 1, 1, "v_elem_2", v_elem_2)
 # don't forget to close the exodusdatabase, it can get corrupted otherwise if you're writing
 close(exo)
 ```
+
+# Use With MPI.jl
+To use ```Exodus.jl``` with [MPI.jl](https://github.com/JuliaParallel/MPI.jl), it is quite simple. The following can be used as a recipe for more complex use cases.
+```julia
+using Exodus
+using MPI
+
+MPI.Init()
+comm = MPI.COMM_WORLD
+
+# First decompose mesh into n parts
+if MPI.Comm_rank(comm) == 0
+    decomp("hole_array.exo", MPI.Comm_size(comm))
+end
+MPI.Barrier(comm)
+
+# Now read the shard for this comm
+file_name = "hole_array.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))"
+exo = ExodusDatabase(file_name, "r")
+@show exo
+MPI.Barrier(comm)
+
+# Now we can copy a mesh
+new_file_name = "output.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))"
+copy_mesh(file_name, new_file_name)
+MPI.Barrier(comm)
+
+# Now stich the output shards together
+if MPI.Comm_rank(comm) == 0
+    epu("output.exo")
+end
+MPI.Barrier(comm)
+
+MPI.Finalize()
+```
+
+# Use with MPI and juliac --experimental --trim (requires julia 1.12 or later)
+```juliac --experimental --trim``` is an exciting new experimental development in julia 1.12 that allows for small binaries to be compiled. It code to have strict static typing to achieve this. ```Exodus.jl``` has recently been updated to work in this setting and the below example shows how this can work with MPI. Currently [MPI.jl](https://github.com/JuliaParallel/MPI.jl) has not played nice ```juliac --experimental --trim``` so the below example uses the system installed MPI and julia ```ccall```s. This may (and probably will) differ on your system. This example was tested on Ubuntu 24.04 with 4 MPI ranks as an example.
+
+First we must decompose the mesh offline from the executable we wish to generate. We can do this as follows
+```julia
+using Exodus
+decomp("hole_array.exo", 4)
+```
+
+```julia
+using Exodus
+
+const libmpi = "/usr/lib/x86_64-linux-gnu/libmpi.so.12"
+const MPI_Comm = Ptr{Cvoid}
+const MPI_COMM_WORLD = Cint(0x44000000)
+
+Base.@ccallable function main()::Cint
+    # Initialize MPI
+    ccall((:MPI_Init, libmpi), Cint, (Ptr{Cvoid}, Ptr{Cvoid}), C_NULL, C_NULL)
+
+    # get rank and total number of ranks
+    rank = Ref{Cint}()
+    size = Ref{Cint}()
+    ccall((:MPI_Comm_rank, libmpi), Cint, (Cint, Ptr{Cint}), MPI_COMM_WORLD, rank)
+    ccall((:MPI_Comm_size, libmpi), Cint, (Cint, Ptr{Cint}), MPI_COMM_WORLD, size)
+
+    println(Core.stdout, "Hello from rank $(rank[]) of $(size[])")
+
+    # open mesh file
+    file_name = "hole_array.exo.$(size[]).$(rank[])"
+    exo = ExodusDatabase{Int32, Int32, Int32, Float64}(file_name, "r")
+    println(Core.stdout, "$exo")
+
+    new_file_name = "output.exo.$(size[]).$(rank[])"
+    copy(exo, new_file_name)
+
+    # then do some stuff ...
+
+    # Finalize MPI
+    ccall((:MPI_Finalize, libmpi), Cint, ())
+
+    return 0
+end
+```
+
+This can then be compiled with ```juliac``` as follows
+```
+julia +1.12 --project=@. ~/.julia/juliaup/julia-1.12.0-beta4+0.x64.linux.gnu/share/julia
+/juliac.jl --output-exe a.out --compile-ccallable --experimental --trim script.jl
+```
+and produces and executable that is 3.7Mb. It then be run as follows
+```
+mpirun -n 4 ./a.out
+```
+
+Note: this is experimental. Not every piece of the package has been tested here. If you run into bugs, please open an issue.
