@@ -20,10 +20,16 @@ makedocs(;
     ),
     pages=[
         "Exodus"           => "index.md",
+        "Installation"     => "installation.md",
+        "Opening Files"    => "opening_files.md",
+        "Reading Data"     => "reading_data.md",
+        "Writing Data"     => "writing_data.md",
+        "Use With MPI"     => "use_with_mpi.md",
         "Exodus Methods"   => "methods.md",
         "Exodus Types"     => "types.md",
         "ExodusMeshesExt"  => "meshes_ext.md",
-        "ExodusUnitfulExt" => "unitful_ext.md"
+        "ExodusUnitfulExt" => "unitful_ext.md",
+        "Glossary"         => "glossary.md"
     ],
 )
 
