@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Use With MPI · Exodus.jl</title><meta name="title" content="Use With MPI · Exodus.jl"/><meta property="og:title" content="Use With MPI · Exodus.jl"/><meta property="twitter:title" content="Use With MPI · Exodus.jl"/><meta name="description" content="Documentation for Exodus.jl."/><meta property="og:description" content="Documentation for Exodus.jl."/><meta property="twitter:description" content="Documentation for Exodus.jl."/><meta property="og:url" content="https://cmhamel.github.io/Exodus.jl/stable/use_with_mpi/"/><meta property="twitter:url" content="https://cmhamel.github.io/Exodus.jl/stable/use_with_mpi/"/><link rel="canonical" href="https://cmhamel.github.io/Exodus.jl/stable/use_with_mpi/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Exodus.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Exodus</a></li><li><a class="tocitem" href="../installation/">Installation</a></li><li><a class="tocitem" href="../opening_files/">Opening Files</a></li><li><a class="tocitem" href="../reading_data/">Reading Data</a></li><li><a class="tocitem" href="../writing_data/">Writing Data</a></li><li class="is-active"><a class="tocitem" href>Use With MPI</a><ul class="internal"><li><a class="tocitem" href="#Use-With-MPI.jl"><span>Use With MPI.jl</span></a></li><li><a class="tocitem" href="#Use-with-MPI-and-juliac-–experimental-–trim-(requires-julia-1.12-or-later-and-system-MPI)"><span>Use with MPI and juliac –experimental –trim (requires julia 1.12 or later and system MPI)</span></a></li></ul></li><li><a class="tocitem" href="../methods/">Exodus Methods</a></li><li><a class="tocitem" href="../types/">Exodus Types</a></li><li><a class="tocitem" href="../meshes_ext/">ExodusMeshesExt</a></li><li><a class="tocitem" href="../unitful_ext/">ExodusUnitfulExt</a></li><li><a class="tocitem" href="../glossary/">Glossary</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Use With MPI</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Use With MPI</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/cmhamel/Exodus.jl/blob/master/docs/src/use_with_mpi.md#" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Use-with-MPI"><a class="docs-heading-anchor" href="#Use-with-MPI">Use with MPI</a><a id="Use-with-MPI-1"></a><a class="docs-heading-anchor-permalink" href="#Use-with-MPI" title="Permalink"></a></h1><h2 id="Use-With-MPI.jl"><a class="docs-heading-anchor" href="#Use-With-MPI.jl">Use With MPI.jl</a><a id="Use-With-MPI.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Use-With-MPI.jl" title="Permalink"></a></h2><p>To use <code>Exodus.jl</code> with <a href="https://github.com/JuliaParallel/MPI.jl">MPI.jl</a>, it is quite simple. The following can be used as a recipe for more complex use cases.</p><pre><code class="language-julia hljs">using Exodus
+using MPI
+
+MPI.Init()
+comm = MPI.COMM_WORLD
+
+# First decompose mesh into n parts
+if MPI.Comm_rank(comm) == 0
+    decomp(&quot;hole_array.exo&quot;, MPI.Comm_size(comm))
+end
+MPI.Barrier(comm)
+
+# Now read the shard for this comm
+file_name = &quot;hole_array.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))&quot;
+exo = ExodusDatabase(file_name, &quot;r&quot;)
+@show exo
+MPI.Barrier(comm)
+
+# Now we can copy a mesh
+new_file_name = &quot;output.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))&quot;
+copy_mesh(file_name, new_file_name)
+MPI.Barrier(comm)
+
+# Now stich the output shards together
+if MPI.Comm_rank(comm) == 0
+    epu(&quot;output.exo&quot;)
+end
+MPI.Barrier(comm)
+
+MPI.Finalize()</code></pre><h2 id="Use-with-MPI-and-juliac-–experimental-–trim-(requires-julia-1.12-or-later-and-system-MPI)"><a class="docs-heading-anchor" href="#Use-with-MPI-and-juliac-–experimental-–trim-(requires-julia-1.12-or-later-and-system-MPI)">Use with MPI and juliac –experimental –trim (requires julia 1.12 or later and system MPI)</a><a id="Use-with-MPI-and-juliac-–experimental-–trim-(requires-julia-1.12-or-later-and-system-MPI)-1"></a><a class="docs-heading-anchor-permalink" href="#Use-with-MPI-and-juliac-–experimental-–trim-(requires-julia-1.12-or-later-and-system-MPI)" title="Permalink"></a></h2><p><code>juliac --experimental --trim</code> is an exciting new experimental development in julia 1.12 that allows for small binaries to be compiled. It code to have strict static typing to achieve this. <code>Exodus.jl</code> has recently been updated to work in this setting and the below example shows how this can work with MPI. Currently <a href="https://github.com/JuliaParallel/MPI.jl">MPI.jl</a> has not played nice <code>juliac --experimental --trim</code> so the below example uses the system installed MPI and julia <code>ccall</code>s. This may (and probably will) differ on your system. This example was tested on Ubuntu 24.04 with 4 MPI ranks as an example.</p><p>First we must decompose the mesh offline from the executable we wish to generate. We can do this as follows</p><pre><code class="language-julia hljs">using Exodus
+decomp(&quot;hole_array.exo&quot;, 4)</code></pre><pre><code class="language-julia hljs">using Exodus
+
+const libmpi = &quot;/usr/lib/x86_64-linux-gnu/libmpi.so.12&quot;
+const MPI_Comm = Ptr{Cvoid}
+const MPI_COMM_WORLD = Cint(0x44000000)
+
+Base.@ccallable function main()::Cint
+    # Initialize MPI
+    ccall((:MPI_Init, libmpi), Cint, (Ptr{Cvoid}, Ptr{Cvoid}), C_NULL, C_NULL)
+
+    # get rank and total number of ranks
+    rank = Ref{Cint}()
+    size = Ref{Cint}()
+    ccall((:MPI_Comm_rank, libmpi), Cint, (Cint, Ptr{Cint}), MPI_COMM_WORLD, rank)
+    ccall((:MPI_Comm_size, libmpi), Cint, (Cint, Ptr{Cint}), MPI_COMM_WORLD, size)
+
+    println(Core.stdout, &quot;Hello from rank $(rank[]) of $(size[])&quot;)
+
+    # open mesh file
+    file_name = &quot;hole_array.exo.$(size[]).$(rank[])&quot;
+    exo = ExodusDatabase{Int32, Int32, Int32, Float64}(file_name, &quot;r&quot;)
+    println(Core.stdout, &quot;$exo&quot;)
+
+    new_file_name = &quot;output.exo.$(size[]).$(rank[])&quot;
+    copy(exo, new_file_name)
+
+    # then do some stuff ...
+
+    # Finalize MPI
+    ccall((:MPI_Finalize, libmpi), Cint, ())
+
+    return 0
+end</code></pre><p>This can then be compiled with <code>juliac</code> as follows</p><pre><code class="nohighlight hljs">julia +1.12 --project=@. ~/.julia/juliaup/julia-1.12.0-beta4+0.x64.linux.gnu/share/julia
+/juliac.jl --output-exe a.out --compile-ccallable --experimental --trim script.jl</code></pre><p>and produces and executable that is 3.7Mb. It then be run as follows</p><pre><code class="nohighlight hljs">mpirun -n 4 ./a.out</code></pre><p>Note: this is experimental. Not every piece of the package has been tested here. If you run into bugs, please open an issue.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../writing_data/">« Writing Data</a><a class="docs-footer-nextpage" href="../methods/">Exodus Methods »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.12.0 on <span class="colophon-date" title="Thursday 19 June 2025 16:19">Thursday 19 June 2025</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
