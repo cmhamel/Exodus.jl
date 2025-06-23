@@ -153,9 +153,8 @@ init = Initialization{bulk_int_type}(
 )
 
 # finally make empty exo database
-exo = ExodusDatabase(
-  "test_write.e", "w", init,
-  maps_int_type, ids_int_type, bulk_int_type, float_type
+exo = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
+  "test_write.e", "w", init
 )
 
 # how to write coordinates
