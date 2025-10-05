@@ -22,6 +22,43 @@ function collect_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {
 	return conns
 end
 
+# this method figures out which proc should own which node
+# base on a minimum rank ordering.
+# if ranks 1, 2, 3, 4 share nodes, rank 1 owns them
+# if ranks 2, 3, 4 share nodes, rank 2 owns them
+function collect_global_element_and_node_numberings(file_name::String, n_procs)
+	n_procs = n_procs |> Int32
+
+	exo = ExodusDatabase(file_name, "r")
+	n_elems_global = num_elements(initialization(exo))
+	n_nodes_global = num_nodes(initialization(exo))
+	close(exo)
+
+	global_elems = Vector{Int32}(undef, n_elems_global)
+	global_nodes = Vector{Vector{Int32}}(undef, n_nodes_global)
+	for n in 1:n_nodes_global
+		global_nodes[n] = Vector{Int32}(undef, 0)
+	end
+
+	for n in 1:n_procs
+		exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
+		elem_map = read_id_map(exo, ElementMap)
+		for elem in elem_map
+			global_elems[elem] = n
+		end
+
+		node_map = read_id_map(exo, NodeMap)
+		for node in node_map
+			push!(global_nodes[node], n)
+		end
+		close(exo)
+	end
+
+	new_global_nodes = map(minimum, global_nodes)
+
+	return global_elems, new_global_nodes
+end
+
 """
 $(TYPEDSIGNATURES)
 """
@@ -87,7 +124,6 @@ function collect_element_to_element_connectivities(exo::ExodusDatabase{M, I, B, 
 	return elem_to_elem
 end
 
-
 function exodus_pad(n_procs::Int32)
 
   if n_procs < 10
@@ -103,6 +139,43 @@ function exodus_pad(n_procs::Int32)
   end
   return pad_size
 end
+
+function read_element_cmaps(rank, exo)
+	lb_params = Exodus.LoadBalanceParameters(exo, rank - 1)
+	cmap_params = Exodus.CommunicationMapParameters(exo, lb_params, rank - 1)
+	cmap_ids, cmap_elem_cts = cmap_params.elem_cmap_ids, cmap_params.elem_cmap_elem_cnts
+	elem_cmaps = map((x, y) -> Exodus.ElementCommunicationMap(exo, x, y, Int32(rank - 1)), cmap_ids, cmap_elem_cts)
+	return elem_cmaps
+end
+
+# function read_ghost_elements_and_procs(rank, exo)
+# 	# need this to get the right ids
+# 	id_map = read_id_map(exo, ElementMap)
+
+# 	elem_cmaps = read_element_cmaps(rank, exo)
+
+# 	ghost_elem_ids = mapreduce(x -> x.elem_ids, vcat, elem_cmaps)
+# 	ghost_proc_ids = mapreduce(x -> x.proc_ids, vcat, elem_cmaps)
+
+# 	# make sure the ghosts are in global
+# 	ghost_elem_ids = id_map[ghost_elem_ids]
+
+# 	# now sort and get unique ghost node ids only
+# 	unique_ids = unique(i -> ghost_elem_ids[i], 1:length(ghost_elem_ids))
+	
+# 	ghost_elem_ids = ghost_elem_ids[unique_ids]
+# 	ghost_proc_ids = ghost_proc_ids[unique_ids]
+
+# 	# maybe this operation isn't necessary?
+# 	sort_ids = sortperm(ghost_elem_ids)
+
+# 	ghost_elem_ids = ghost_elem_ids[sort_ids]
+# 	ghost_proc_ids = ghost_proc_ids[sort_ids]
+
+# 	ghost_elem_ids = convert.(Int64, ghost_elem_ids)
+
+# 	return ghost_elem_ids, ghost_proc_ids
+# end
 
 # for ghost nodes downstream
 """
@@ -120,7 +193,6 @@ end
 $(TYPEDSIGNATURES)
 """
 function read_ghost_nodes_and_procs(rank, exo)
-
 	# need this to get the right ids
 	id_map = read_id_map(exo, NodeMap)
 
@@ -131,19 +203,6 @@ function read_ghost_nodes_and_procs(rank, exo)
 
 	# make sure the ghosts are in global
 	ghost_node_ids = id_map[ghost_node_ids]
-
-	# now sort and get unique ghost node ids only
-	unique_ids = unique(i -> ghost_node_ids[i], 1:length(ghost_node_ids))
-	
-	ghost_node_ids = ghost_node_ids[unique_ids]
-	ghost_proc_ids = ghost_proc_ids[unique_ids]
-
-	# maybe this operation isn't necessary?
-	sort_ids = sortperm(ghost_node_ids)
-
-	ghost_node_ids = ghost_node_ids[sort_ids]
-	ghost_proc_ids = ghost_proc_ids[sort_ids]
-
 	ghost_node_ids = convert.(Int64, ghost_node_ids)
 
 	return ghost_node_ids, ghost_proc_ids
@@ -164,50 +223,76 @@ function read_internal_nodes_and_procs(rank, exo)
 	return internal_node_ids, fill(rank, length(internal_node_ids))
 end
 
-"""
-For collecting global_to_color
-$(TYPEDSIGNATURES)
-"""
-function collect_global_to_color(file_name::String, n_procs::Int, n_dofs::Int=1)
-	n_procs = n_procs |> Int32
-	global_to_color_dict = Dict{Int64, Int32}()
+# # TODO convert to use MPI maybe?
+# function collect_global_element_to_color(file_name::String, n_procs::Int)
+# 	n_procs = n_procs |> Int32
+# 	global_to_color_dict = Dict{Int64, Int32}()
 
-	exo = ExodusDatabase(file_name, "r")
-	n_nodes_global = num_nodes(initialization(exo))
-	close(exo)
+# 	for n in 1:n_procs
+# 		exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
+# 		id_map = read_id_map(exo, ElementMap)
+# 		for id in id_map
+# 			global_to_color_dict[id] = n
+# 		end
+# 		close(exo)
+# 	end
 
-	n_dofs_global = n_nodes_global * n_dofs
-	dofs = reshape(1:n_dofs_global, (n_dofs, n_nodes_global))
+# 	global_to_color = zeros(Int64, length(global_to_color_dict))
+# 	for (key, val) in global_to_color_dict
+# 		global_to_color[key] = val
+# 	end
+# 	return global_to_color
+# end
 
-	for n in 1:n_procs
-    exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
-		internal_node_ids, _ = read_internal_nodes_and_procs(n, exo)
-		ghost_node_ids, ghost_proc_ids = read_ghost_nodes_and_procs(n, exo)
+# """
+# For collecting global_to_color
+# $(TYPEDSIGNATURES)
+# """
+# function collect_global_node_to_color(file_name::String, n_procs::Int, n_dofs::Int=1)
+# 	n_procs = n_procs |> Int32
+# 	global_to_color_dict = Dict{Int64, Int32}()
 
-		# modify if we have more than one dof
-		if n_dofs > 1
-			internal_node_ids = convert.(Int32, dofs[:, internal_node_ids] |> vec)
-			ghost_node_ids = convert.(Int32, dofs[:, ghost_node_ids] |> vec)
-			new_ghost_proc_ids = ghost_proc_ids
-			for n in 2:n_dofs
-				new_ghost_proc_ids = hcat(new_ghost_proc_ids, ghost_proc_ids)
-			end
-			ghost_proc_ids = new_ghost_proc_ids' |> vec
-		end
+# 	exo = ExodusDatabase(file_name, "r")
+# 	n_nodes_global = num_nodes(initialization(exo))
+# 	close(exo)
 
-		for node in internal_node_ids
-      global_to_color_dict[node] = n
-    end
+# 	n_dofs_global = n_nodes_global * n_dofs
+# 	dofs = reshape(1:n_dofs_global, (n_dofs, n_nodes_global))
 
-    for (node, proc) in zip(ghost_node_ids, ghost_proc_ids)
-      global_to_color_dict[node] = proc
-    end
-    close(exo)
-  end
+# 	for n in 1:n_procs
+#     	exo = ExodusDatabase(file_name * ".$(n_procs).$(lpad(n - 1, exodus_pad(n_procs), '0'))", "r")
+# 		internal_node_ids, _ = read_internal_nodes_and_procs(n, exo)
+# 		ghost_node_ids, ghost_proc_ids = read_ghost_nodes_and_procs(n, exo)
 
-	global_to_color = zeros(Int64, length(global_to_color_dict))
-	for (key, val) in global_to_color_dict
-		global_to_color[key] = val
-	end
-	return global_to_color
-end
+# 		# modify if we have more than one dof
+# 		# if n_dofs > 1
+# 		# 	internal_node_ids = convert.(Int32, dofs[:, internal_node_ids] |> vec)
+# 		# 	ghost_node_ids = convert.(Int32, dofs[:, ghost_node_ids] |> vec)
+# 		# 	new_ghost_proc_ids = ghost_proc_ids
+# 		# 	for n in 2:n_dofs
+# 		# 		new_ghost_proc_ids = hcat(new_ghost_proc_ids, ghost_proc_ids)
+# 		# 	end
+# 		# 	ghost_proc_ids = new_ghost_proc_ids' |> vec
+# 		# end
+# 		if n_dofs > 1
+# 			@assert false "fix me"
+# 		end
+# 		display(internal_node_ids)
+# 		for node in internal_node_ids
+# 			global_to_color_dict[node] = n
+# 		end
+
+# 		for (node, proc) in zip(ghost_node_ids, ghost_proc_ids)
+# 			global_to_color_dict[node] = proc
+# 		end
+#     	close(exo)
+#   	end
+
+# 	global_to_color = zeros(Int64, length(global_to_color_dict))
+# 	for (key, val) in global_to_color_dict
+# 		global_to_color[key] = val
+# 	end
+# 	return global_to_color
+# end
+
+
