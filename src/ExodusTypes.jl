@@ -633,6 +633,21 @@ function ExodusDatabase{M, I, B, F}(
   )
 end
 
+
+"""
+$(TYPEDSIGNATURES)
+Method that safely does stuff by ensuring
+the file closes no matter what.
+"""
+function ExodusDatabase(f::Function, file_name::String, mode::String)
+  exo = ExodusDatabase(file_name, mode)
+  try
+    return f(exo)
+  finally
+    close(exo)
+  end
+end
+
 function _juliac_safe_rpad(s::AbstractString, n::Integer)
   len = ncodeunits(s)
   padlen = max(0, n - len)

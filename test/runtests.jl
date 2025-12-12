@@ -6,14 +6,13 @@ using Meshes
 using MPI
 using PartitionedArrays
 using Test
-using TestSetExtensions
 using Unitful
 
 # macro for testing
 macro exodus_unit_test_set(test_name::String, ex)
   return quote
     local test_set_name = rpad($test_name, 64)
-    @testset ExtendedTestSet "$test_set_name" begin
+    @testset "$test_set_name" begin
       local val = $ex
       val
     end
@@ -337,10 +336,20 @@ if Sys.iswindows()
   end
 end
 
-@includetests ARGS
+# @includetests ARGS
+include("TestHelpers.jl")
+include("TestIO.jl")
+include("TestParallelExodus.jl")
+include("TestRead.jl")
+include("TestReadWrite.jl")
+include("TestWrite.jl")
+
+include("ext/TestMeshesExt.jl")
+include("ext/TestUnitfulExt.jl")
+
 
 # Aqua testing
-@testset ExtendedTestSet "Aqua.jl" begin
+@testset "Aqua.jl" begin
   Aqua.test_all(Exodus)
 end
 

@@ -39,12 +39,17 @@ nem_spread_error(cmd::Cmd) = throw(NemSpreadException(cmd))
 """
 $(TYPEDSIGNATURES)
 """
-function nem_slice(file_name::String, n_procs::I) where I <: Integer
+function nem_slice(file_name::String, n_procs::I; use_nodal=false) where I <: Integer
   nem_file = file_name * ".nem"
   dir_name = dirname(file_name) * "/" # TODO this will be an issue for windows
+  if use_nodal
+    decomp_type = "-n"
+  else
+    decomp_type = "-e"
+  end
   stdout_file = joinpath(dir_name, "decomp.log")
   stderr_file = joinpath(dir_name, "decomp_err.log")
-  nem_slice_cmd = String["-e", "-S", "-l", "inertial", "-c", "-o",
+  nem_slice_cmd = String[decomp_type, "-S", "-l", "inertial", "-c", "-o",
                          "$(abspath(nem_file))", "-m", 
                          "mesh=$n_procs", "$file_name"]
 
@@ -96,7 +101,11 @@ end
 """
 $(TYPEDSIGNATURES)
 """
-function decomp(file_name::String, n_procs::I) where I <: Integer
+function decomp(
+  file_name::String, 
+  n_procs::I;
+  use_nodal=false
+) where I <: Integer
   @assert !Sys.iswindows() "This method is not supported on Windows"
   @assert isfile(file_name) "File $file_name not found in decomp. Can't proceed."
 
@@ -113,7 +122,7 @@ function decomp(file_name::String, n_procs::I) where I <: Integer
   end
 
   # nem slice first
-  nem_slice(file_name_abs, n_procs)
+  nem_slice(file_name_abs, n_procs; use_nodal=use_nodal)
   # now nem spread
   nem_spread(file_name_abs, n_procs)
 

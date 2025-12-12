@@ -1,7 +1,7 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
-version = "0.14.1"
+version = "0.14.2"
 
 [deps]
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
@@ -25,7 +25,6 @@ MPI = "0.20"
 Meshes = "0.53"
 PartitionedArrays = "0.5"
 Test = "1"
-TestSetExtensions = "2"
 Unitful = "1"
 julia = "1"
 
@@ -35,8 +34,7 @@ MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
 PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-TestSetExtensions = "98d24dd4-01ad-11ea-1b02-c9a08f80db04"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Aqua", "MPI", "Meshes", "PartitionedArrays", "Test", "TestSetExtensions", "Unitful"]
+test = ["Aqua", "MPI", "Meshes", "PartitionedArrays", "Test", "Unitful"]
