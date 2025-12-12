@@ -18,7 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.13.0-alpha2'
           - '1.12'
           - '1.11'
           - '1.10'
