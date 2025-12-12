@@ -22,11 +22,15 @@ function collect_element_connectivities(exo::ExodusDatabase{M, I, B, F}) where {
 	return conns
 end
 
+# assumes decomp has been run first
 # this method figures out which proc should own which node
 # base on a minimum rank ordering.
 # if ranks 1, 2, 3, 4 share nodes, rank 1 owns them
 # if ranks 2, 3, 4 share nodes, rank 2 owns them
-function collect_global_element_and_node_numberings(file_name::String, n_procs)
+function collect_global_element_and_node_numberings(
+	file_name::String, n_procs;
+	func = maximum
+)
 	n_procs = n_procs |> Int32
 
 	exo = ExodusDatabase(file_name, "r")
@@ -54,7 +58,7 @@ function collect_global_element_and_node_numberings(file_name::String, n_procs)
 		close(exo)
 	end
 
-	new_global_nodes = map(minimum, global_nodes)
+	new_global_nodes = map(func, global_nodes)
 
 	return global_elems, new_global_nodes
 end
