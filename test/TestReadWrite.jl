@@ -459,7 +459,7 @@ end
   I = Exodus.id_int_mode(exo_old.exo)
   B = Exodus.bulk_int_mode(exo_old.exo)
   F = Exodus.float_mode(exo_old.exo)
-  copy_mesh(mesh_file_name_3D, "./test_output_3D_id_maps_Mesh.e")
+  copy_mesh(ExodusDatabase{M, I, B, F}, mesh_file_name_3D, "./test_output_3D_id_maps_Mesh.e")
   exo_new = ExodusDatabase("./test_output_3D_id_maps_Mesh.e", "rw")
 
   node_map = read_id_map(exo_old, NodeMap)
