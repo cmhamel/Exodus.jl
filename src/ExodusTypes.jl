@@ -728,6 +728,12 @@ function copy_mesh(file_name::String, new_file_name::String)
   close(exo)
 end
 
+function copy_mesh(::Type{ExodusDatabase{M, I, B, F}}, file_name::String, new_file_name::String) where {M, I, B, F}
+  exo = ExodusDatabase{M, I, B, F}(file_name, "r")
+  copy(exo, new_file_name)
+  close(exo)
+end
+
 """
 $(TYPEDSIGNATURES)
 """
