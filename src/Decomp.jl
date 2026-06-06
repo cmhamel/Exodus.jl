@@ -62,6 +62,7 @@ function nem_slice(file_name::String, n_procs::I; use_nodal=false) where I <: In
     pushfirst!(nem_slice_cmd, "$(nem_slice_exe())")
     nem_slice_error(Cmd(nem_slice_cmd))
   end
+  return nothing
 end
 
 """
@@ -96,6 +97,7 @@ function nem_spread(file_name::String, n_procs::I) where I <: Integer
   catch
     nem_spread_error(Cmd(`$(nem_spread_exe()) $pex_file`))
   end
+  return nothing
 end
 
 """
@@ -130,4 +132,5 @@ function decomp(
 
   # if we made it here, we have no errors, at least I think?
   rm(stderr_file, force=true)
+  return nothing
 end
