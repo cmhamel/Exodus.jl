@@ -106,8 +106,8 @@ else
 
   @exodus_unit_test_set "EPU test" begin
     epu("./mesh/square_meshes/epu_mesh_test.g.4.0")
-    exodiff("epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
-    rm("epu_mesh_test.g", force=true)
+    exodiff("./mesh/square_meshes/epu_mesh_test.g", "./mesh/square_meshes/mesh_test.g")
+    rm("./mesh/square_meshes/epu_mesh_test.g", force=true)
   end
 end 
 

@@ -578,6 +578,6 @@ end
     rm("test_write.e.2.0", force=true)
     rm("test_write.e.2.1", force=true)
     rm("epu.log")
-    rm("epu_err.log")
+    # rm("epu_err.log")
   end
 end
