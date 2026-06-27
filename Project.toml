@@ -9,32 +9,26 @@ Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
 
 [weakdeps]
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
-PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [extensions]
 ExodusMeshesExt = "Meshes"
-ExodusPartitionedArraysExt = "PartitionedArrays"
 ExodusUnitfulExt = "Unitful"
 
 [compat]
 Aqua = "0.8"
 DocStringExtensions = "0.9"
 Exodus_jll = "9"
-MPI = "0.20"
 Meshes = "0.53"
-PartitionedArrays = "0.5"
 Test = "1"
 Unitful = "1"
 julia = "1"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
-PartitionedArrays = "5a9dfac6-5c52-46f7-8278-5e2210713be9"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Aqua", "MPI", "Meshes", "PartitionedArrays", "Test", "Unitful"]
+test = ["Aqua", "Meshes", "Test", "Unitful"]
