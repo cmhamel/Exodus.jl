@@ -1,9 +1,10 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
-authors = ["cmhamel <cmhamel32@gmail.com>"]
 version = "0.14.4"
+authors = ["cmhamel <cmhamel32@gmail.com>"]
 
 [deps]
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 Exodus_jll = "fc7263ad-bce8-5229-97b1-c6ddabda41b1"
 
@@ -17,6 +18,7 @@ ExodusUnitfulExt = "Unitful"
 
 [compat]
 Aqua = "0.8"
+CEnum = "0.5.0"
 DocStringExtensions = "0.9"
 Exodus_jll = "9"
 Meshes = "0.53"
