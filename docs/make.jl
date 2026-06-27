@@ -34,6 +34,7 @@ makedocs(;
         "Variables"      => "variables.md",
         "API"            => "api.md"
     ],
+    checkdocs = :exports
 )
 
 deploydocs(;
