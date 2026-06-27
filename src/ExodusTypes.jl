@@ -1,28 +1,15 @@
-# types for convenience
-#
-"""
-  void_int = Cvoid
-"""
-const void_int = Cvoid
-
-"""
-"""
-const ex_entity_id = Clonglong
-
 """
 """
 function set_exodus_options(options::T) where T
-  error_code = @ccall libexodus.ex_opts(options::Cint)::Cint
-  exodus_error_check(error_code, "Exodus.set_exodus_options -> libexodus.ex_opts")
+  error_code = LibExodus.ex_opts(options)
+  exodus_error_check(error_code, "Exodus.set_exodus_options -> LibExodus.ex_opts")
 end
 
 """
 $(TYPEDSIGNATURES)
 """
 function set_exodus_max_name_length(exoid::Cint, len::Cint)
-  error_code = @ccall libexodus.ex_set_max_name_length(
-    exoid::Cint, len::Cint
-  )::Cint
+  error_code = LibExodus.ex_set_max_name_length(exoid, len)
   exodus_error_check(exoid, error_code, "ex_set_max_name_length")
 end
 
@@ -31,7 +18,7 @@ end
 $(TYPEDSIGNATURES)
 """
 function map_int_mode(exo::Cint)
-  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  int64_status = LibExodus.ex_int64_status(exo)
   if int64_status == 0x00000000
     M, I, B = Cint, Cint, Cint
   elseif int64_status == EX_MAPS_INT64_API
@@ -56,7 +43,7 @@ end
 $(TYPEDSIGNATURES)
 """
 function id_int_mode(exo::Cint)
-  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  int64_status = LibExodus.ex_int64_status(exo)
   if int64_status == 0x00000000
     M, I, B = Cint, Cint, Cint
   elseif int64_status == EX_MAPS_INT64_API
@@ -81,7 +68,7 @@ end
 $(TYPEDSIGNATURES)
 """
 function bulk_int_mode(exo::Cint)
-  int64_status = @ccall libexodus.ex_int64_status(exo::Cint)::UInt32
+  int64_status = LibExodus.ex_int64_status(exo)
   if int64_status == 0x00000000
     M, I, B = Cint, Cint, Cint
   elseif int64_status == EX_MAPS_INT64_API
@@ -106,7 +93,7 @@ end
 $(TYPEDSIGNATURES)
 """
 function float_mode(exo::Cint)
-  float_size = @ccall libexodus.ex_inquire_int(exo::Cint, EX_INQ_DB_FLOAT_SIZE::ex_inquiry)::Cint
+  float_size = LibExodus.ex_inquire_int(exo, EX_INQ_DB_FLOAT_SIZE)
   if float_size == 4
     F = Cfloat
   elseif float_size == 8
@@ -140,21 +127,20 @@ end
 $(TYPEDSIGNATURES)
 """
 function Initialization(exo::Cint, ::Type{B}) where B
-  num_dim       = Ref{B}(0)
-  num_nodes     = Ref{B}(0)
-  num_elems     = Ref{B}(0)
-  num_elem_blks = Ref{B}(0)
-  num_node_sets = Ref{B}(0)
-  num_side_sets = Ref{B}(0)
-  title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
+  num_dim       = Base.RefValue{B}(0)
+  num_nodes     = Base.RefValue{B}(0)
+  num_elems     = Base.RefValue{B}(0)
+  num_elem_blks = Base.RefValue{B}(0)
+  num_node_sets = Base.RefValue{B}(0)
+  num_side_sets = Base.RefValue{B}(0)
+  title         = Vector{Cchar}(undef, MAX_LINE_LENGTH)
 
-  error_code = @ccall libexodus.ex_get_init(
-    exo::Cint,
-    title::Ptr{UInt8},
-    num_dim::Ptr{B}, num_nodes::Ptr{B}, num_elems::Ptr{B},
-    num_elem_blks::Ptr{B}, num_node_sets::Ptr{B}, num_side_sets::Ptr{B}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.Initialization -> libexodus.ex_get_init")
+  error_code = LibExodus.ex_get_init(
+    exo, pointer(title),
+    num_dim, num_nodes, num_elems,
+    num_elem_blks, num_node_sets, num_side_sets
+  )
+  exodus_error_check(exo, error_code, "Exodus.Initialization -> LibExodus.ex_get_init")
 
   title = unsafe_string(pointer(title))
 
@@ -208,13 +194,13 @@ Used to set up a exodus database in write mode
 The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
 """
 function write_initialization!(exoid::Cint, init::Initialization)
-  title = Vector{UInt8}(undef, MAX_LINE_LENGTH)
-  error_code = @ccall libexodus.ex_put_init(
-    exoid::Cint, title::Ptr{UInt8},
-    num_dimensions(init)::Clonglong, num_nodes(init)::Clonglong, num_elements(init)::Clonglong,
-    num_element_blocks(init)::Clonglong, num_node_sets(init)::Clonglong, num_side_sets(init)::Clonglong
-  )::Cint
-  exodus_error_check(exoid, error_code, "Exodus.write_initialization! -> libexodus.ex_put_init")
+  title = Vector{Cchar}(undef, MAX_LINE_LENGTH)
+  error_code = LibExodus.ex_put_init(
+    exoid, pointer(title),
+    num_dimensions(init), num_nodes(init), num_elements(init),
+    num_element_blocks(init), num_node_sets(init), num_side_sets(init)
+  )
+  exodus_error_check(exoid, error_code, "Exodus.write_initialization! -> LibExodus.ex_put_init")
 end
 
 # sets and blocks
@@ -514,19 +500,19 @@ function open_exodus_file(file_name::String, mode)
   end
 
   if mode == "w" && !isfile(file_name)
-    exo = @ccall libexodus.ex_create_int(
-      file_name::Cstring, EX_WRITE::Cint, 
-      cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
-      EX_API_VERS_NODOT::Cint
-    )::Cint
-    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+    exo = LibExodus.ex_create_int(
+      file_name, EX_WRITE,
+      Base.RefValue(cpu_word_size), Base.RefValue(IO_word_size),
+      EX_API_VERS_NODOT
+    )
+    exodus_error_check(exo, "Exodus.ExodusDatabase -> LibExodus.ex_create_int")
   else
-    exo = @ccall libexodus.ex_open_int(
-      file_name::Cstring, ex_mode::Cint, 
-      cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, 
-      version_number::Ref{Cfloat}, EX_API_VERS_NODOT::Cint
-    )::Cint
-    exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_open_int")
+    exo = LibExodus.ex_open_int(
+      file_name, ex_mode,
+      Base.RefValue(cpu_word_size), Base.RefValue(IO_word_size),
+      Base.RefValue(version_number), EX_API_VERS_NODOT
+    )
+    exodus_error_check(exo, "Exodus.ExodusDatabase -> LibExodus.ex_open_int")
   end
   return exo
 end
@@ -599,12 +585,12 @@ function ExodusDatabase{M, I, B, F}(
   end
 
   # trying out different float sizes
-  exo = @ccall libexodus.ex_create_int(
-    file_name::Cstring, EX_WRITE::Cint, 
-    cpu_word_size::Ref{Cint}, sizeof(F)::Ref{Cint},
-    EX_API_VERS_NODOT::Cint
-  )::Cint
-  exodus_error_check(exo, "Exodus.ExodusDatabase -> libexodus.ex_create_int")
+  exo = LibExodus.ex_create_int(
+    file_name, EX_WRITE,
+    Base.RefValue(cpu_word_size), Base.RefValue(Int32(sizeof(F))),
+    EX_API_VERS_NODOT
+  )
+  exodus_error_check(exo, "Exodus.ExodusDatabase -> LibExodus.ex_create_int")
 
   int_modes = 0x00000000
   if M == Int64
@@ -620,8 +606,8 @@ function ExodusDatabase{M, I, B, F}(
   end
 
   if int_modes != 0x00000000
-    err = @ccall libexodus.ex_set_int64_status(exo::Cint, int_modes::Cint)::Cint
-    exodus_error_check(exo, err, "Exodus.ExodusDatabase -> libexodus.ex_set_int64_status")
+    err = LibExodus.ex_set_int64_status(exo, int_modes)
+    exodus_error_check(exo, err, "Exodus.ExodusDatabase -> LibExodus.ex_set_int64_status")
   end
 
   write_initialization!(exo, init)
@@ -691,8 +677,8 @@ $(TYPEDSIGNATURES)
 Used to close and ExodusDatabase.
 """
 function Base.close(exo::ExodusDatabase)
-  error_code = @ccall libexodus.ex_close(get_file_id(exo)::Cint)::Cint
-  exodus_error_check(exo, error_code, "Exodus.close -> libexodus.ex_close")
+  error_code = LibExodus.ex_close(get_file_id(exo))
+  exodus_error_check(exo, error_code, "Exodus.close -> LibExodus.ex_close")
 end
 
 """
@@ -702,20 +688,23 @@ for output. Not all of the put methods have been wrapped and properly tested. Th
 """
 function Base.copy(exo::E, new_file_name::String; mesh_only_flag::Bool=true) where {E <: ExodusDatabase}
   mesh_only = mesh_only_flag |> Cint
-  int64_status = @ccall libexodus.ex_int64_status(get_file_id(exo)::Cint)::UInt32
+  int64_status = LibExodus.ex_int64_status(get_file_id(exo))
   # TODO maybe make options an optional argument
   options = EX_CLOBBER | int64_status
-  new_exo_id = @ccall libexodus.ex_create_int(
-    new_file_name::Cstring, options::Cint, cpu_word_size::Ref{Cint}, IO_word_size::Ref{Cint}, EX_API_VERS_NODOT::Cint
-  )::Cint
-  exodus_error_check(exo, new_exo_id, "Exodus.copy -> libexodus.ex_create_int")
+  new_exo_id = LibExodus.ex_create_int(
+    new_file_name, options,
+    Base.RefValue(cpu_word_size), Base.RefValue(IO_word_size),
+    EX_API_VERS_NODOT
+  )
+  exodus_error_check(exo, new_exo_id, "Exodus.copy -> LibExodus.ex_create_int")
   # first make a copy
-  # error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint)::Cint
+  # TODO
+  # NOTE this one is weridly not being generated in the wrapper...
   error_code = @ccall libexodus.ex_copy(get_file_id(exo)::Cint, new_exo_id::Cint, mesh_only::Cint)::Cint
   exodus_error_check(exo, error_code, "Exodus.copy -> libexodus.ex_copy")
   # now close the exodus file
-  error_code = @ccall libexodus.ex_close(new_exo_id::Cint)::Cint
-  exodus_error_check(new_exo_id, error_code, "Exodus.close -> libexodus.ex_close")
+  error_code = LibExodus.ex_close(new_exo_id)
+  exodus_error_check(new_exo_id, error_code, "Exodus.close -> LibExodus.ex_close")
 end
 
 """
@@ -915,7 +904,6 @@ function Block(exo::ExodusDatabase, block_id::Integer)
     conn_out[:, e] = @views conn[(e - 1) * num_nodes + 1:e * num_nodes]
   end
 
-  # return Block{get_id_int_type(exo), get_bulk_int_type(exo)}(block_id, num_elem, num_nodes, element_type, conn_out)
   return Block{get_id_int_type(exo), typeof(conn_out)}(block_id, num_elem, num_nodes, element_type, conn_out)
 end
 
@@ -950,8 +938,6 @@ function NodeSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
 
   nodes = copy(nodes) # need to copy here to be safe
 
-  # return NodeSet{I, B}(id, nodes)
-  # return NodeSet{I, typeof(nodes)}(id, nodes)
   return NodeSet(id, nodes)
 end
 
@@ -996,7 +982,6 @@ function SideSet(exo::ExodusDatabase{M, I, B, F}, id::Integer) where {M, I, B, F
   elements = copy(elements)
   sides   = copy(sides)
 
-  # return SideSet{I, B}(id, elements, sides)
   return SideSet{I, typeof(elements)}(id, elements, sides, num_nodes_per_side, side_nodes)
 end
 

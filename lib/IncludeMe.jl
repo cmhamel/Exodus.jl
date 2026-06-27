@@ -1,11 +1,9 @@
 include("LibExodus.jl")
 # TODO make below constants not hardcoded. Read from LibExodus.
-const cpu_word_size = Int32(sizeof(Float64)) # TODO make parametric so we can have float models
-const IO_word_size = Int32(8)                # This was what we did before
+const cpu_word_size  = Int32(sizeof(Float64)) # TODO make parametric so we can have float models
+const IO_word_size   = Int32(8)               # This was what we did before
 const version_number = LibExodus.EX_API_VERS
 import .LibExodus:
-    ex_entity_type,
-    ex_inquiry,
     EX_ABORT,
     EX_API_VERS_NODOT,
     EX_BULK_INT64_API,

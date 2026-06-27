@@ -46,17 +46,9 @@ epilogue_file_path = ""
 
 # node with an id in the `output_ignorelist` will be ignored in the printing passes.
 # this is very useful for custom editing.
-# output_ignorelist = [
-#     "CINDEX_EXPORTS",
-#     "CINDEX_VERSION",
-#     "CINDEX_VERSION_STRING",
-#     "CINDEX_LINKAGE",
-#     "CINDEX_DEPRECATED",
-#     "LLVM_CLANG_C_STRICT_PROTOTYPES_BEGIN",
-#     "LLVM_CLANG_C_STRICT_PROTOTYPES_END",
-#     "LLVM_CLANG_C_EXTERN_C_BEGIN",
-#     "LLVM_CLANG_C_EXTERN_C_END"
-# ]
+output_ignorelist = [
+    "EX_MAX_NAME"
+]
 
 # Julia's `@enum` do not allow duplicated values, so by default, C enums are translated to
 # CEnum.jl's `@cenum`.
@@ -176,7 +168,7 @@ opaque_as_mutable_struct = true
 use_ccall_macro = true
 
 # if true, variadic functions are wrapped with `@ccall` macro. Otherwise variadic functions are ignored.
-wrap_variadic_function = false
+wrap_variadic_function = true
 
 # Generate getproperty/setproperty! methods for the types in the following list.
 # Warning: the generated methods will only work on the architecture that they
@@ -214,3 +206,6 @@ ignore_header_guards_with_suffixes = []
 
 # if true, ignore those pure definition macros in the C code
 ignore_pure_definition = true
+
+[codegen.typemap]
+"Ptr{Cvoid}" = "Ptr{Cfloat}"

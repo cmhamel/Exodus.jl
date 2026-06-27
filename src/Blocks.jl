@@ -6,10 +6,8 @@ TODO fix this to not use void_int... use a proper type
 function read_block_id_map(exo::ExodusDatabase{M, I, B, F}, block_id) where {M, I, B, F}
   _, num_elem, _, _, _, _ = read_block_parameters(exo, block_id)
   block_id_map = Vector{get_map_int_type(exo)}(undef, num_elem)
-  error_code = @ccall libexodus.ex_get_block_id_map(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id, block_id_map::Ptr{B}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_element_block_id_map -> libexodus.ex_get_block_id_map")
+  error_code = LibExodus.ex_get_block_id_map(get_file_id(exo), EX_ELEM_BLOCK, block_id, block_id_map)
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_id_map -> LibExodus.ex_get_block_id_map")
   return block_id_map
 end
 
@@ -17,21 +15,20 @@ end
 $(TYPEDSIGNATURES)
 """
 function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Integer) where {M, I, B, F}
-  num_elem       = Ref{B}(0)
-  num_nodes      = Ref{B}(0)
-  num_edges      = Ref{B}(0)
-  num_faces      = Ref{B}(0)
-  num_attributes = Ref{B}(0)
+  num_elem       = Base.RefValue{B}(0)
+  num_nodes      = Base.RefValue{B}(0)
+  num_edges      = Base.RefValue{B}(0)
+  num_faces      = Base.RefValue{B}(0)
+  num_attributes = Base.RefValue{B}(0)
+  element_type   = Vector{Cchar}(undef, MAX_STR_LENGTH)
 
-  element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-
-  error_code = @ccall libexodus.ex_get_block(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    element_type::Ptr{UInt8}, 
-    num_elem::Ptr{B}, num_nodes::Ptr{B}, num_edges::Ptr{B},
-    num_faces::Ptr{B}, num_attributes::Ptr{B}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_element_block_parameters -> libexodus.ex_get_block")
+  error_code = LibExodus.ex_get_block(
+    get_file_id(exo), EX_ELEM_BLOCK, block_id,
+    pointer(element_type),
+    num_elem, num_nodes, num_edges,
+    num_faces, num_attributes
+  )
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_parameters -> LibExodus.ex_get_block")
   element_type_out = unsafe_string(pointer(element_type))
   return element_type_out, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
@@ -41,11 +38,11 @@ $(TYPEDSIGNATURES)
 """
 function read_block_connectivity(exo::ExodusDatabase{M, I, B, F}, block_id::Integer, conn_length::Integer) where {M, I, B, F}
   conn = Vector{B}(undef, conn_length)
-  error_code = @ccall libexodus.ex_get_conn(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    conn::Ptr{B}, C_NULL::Ptr{Cvoid}, C_NULL::Ptr{Cvoid}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_element_block_connectivity -> libexodus.ex_get_conn")
+  error_code = LibExodus.ex_get_conn(
+    get_file_id(exo), EX_ELEM_BLOCK, block_id,
+    conn, C_NULL, C_NULL
+  )
+  exodus_error_check(exo, error_code, "Exodus.read_element_block_connectivity -> LibExodus.ex_get_conn")
   return conn
 end
 
@@ -60,11 +57,11 @@ function write_block_connectivity(exo::ExodusDatabase, block_id::Integer, conn::
   # TODO currently not using face or edges, should probably be there own methods maybe?
   conn_face = C_NULL  # Not using these currently
   conn_edge = C_NULL  # Not using these currently
-  error_code = @ccall libexodus.ex_put_conn(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int} 
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus_write_block_connectivity -> libexodus.ex_put_conn")
+  error_code = LibExodus.ex_put_conn(
+    get_file_id(exo), EX_ELEM_BLOCK, block_id,
+    conn, conn_face, conn_edge
+  )
+  exodus_error_check(exo, error_code, "Exodus_write_block_connectivity -> LibExodus.ex_put_conn")
 end
 
 """
@@ -76,12 +73,12 @@ function read_partial_block_connectivity(exo::ExodusDatabase, block_id::I, start
   conn = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)
   conn_face = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)  # Not using these currently
   conn_edge = Vector{get_bulk_int_type(exo)}(undef, num_nodes * num_ent)  # Not using these currently
-  error_code = @ccall libexodus.ex_get_partial_conn(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    start_num::Clonglong, num_ent::Clonglong,
-    conn::Ptr{void_int}, conn_face::Ptr{void_int}, conn_edge::Ptr{void_int}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_partial_element_block_connectivity -> libexodus.ex_get_partial_conn")
+  error_code = LibExodus.ex_get_partial_conn(
+    get_file_id(exo), EX_ELEM_BLOCK, block_id,
+    start_num, num_ent,
+    conn, conn_face, conn_edge
+  )
+  exodus_error_check(exo, error_code, "Exodus.read_partial_element_block_connectivity -> LibExodus.ex_get_partial_conn")
   return conn
 end
 
@@ -89,11 +86,9 @@ end
 $(TYPEDSIGNATURES)
 """
 function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
-  element_type = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  error_code = @ccall libexodus.ex_get_elem_type(
-    get_file_id(exo)::Cint, block_id::ex_entity_id, element_type::Ptr{UInt8}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_element_type -> libexodus.ex_get_elem_type")
+  element_type = Vector{Cchar}(undef, MAX_STR_LENGTH)
+  error_code = LibExodus.ex_get_elem_type(get_file_id(exo), block_id, pointer(element_type))
+  exodus_error_check(exo, error_code, "Exodus.read_element_type -> LibExodus.ex_get_elem_type")
   return unsafe_string(pointer(element_type))
 end
 
@@ -144,13 +139,13 @@ WARNING:
 currently does not support edges, faces and attributes
 """
 function write_block(exo::ExodusDatabase, block::Block)
-  error_code = @ccall libexodus.ex_put_block(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block.id::ex_entity_id,
-    block.elem_type::Ptr{UInt8},
-    block.num_elem::Clonglong, block.num_nodes_per_elem::Clonglong,
-    0::Clonglong, 0::Clonglong, 0::Clonglong
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  error_code = LibExodus.ex_put_block(
+    get_file_id(exo), EX_ELEM_BLOCK, block.id,
+    block.elem_type,
+    block.num_elem, block.num_nodes_per_elem,
+    0, 0, 0
+  )
+  exodus_error_check(exo, error_code, "Exodus.write_element_block -> LibExodus.ex_put_block")
   write_block_connectivity(exo, block.id, block.conn)
 end
 
@@ -160,13 +155,13 @@ $(TYPEDSIGNATURES)
 function write_block(exo::ExodusDatabase, block_id::Integer, elem_type::String, conn::Matrix{I}) where I <: Integer
   num_nodes_per_elem, num_elem = size(conn)
   elem_type = uppercase(elem_type)
-  error_code = @ccall libexodus.ex_put_block(
-    get_file_id(exo)::Cint, EX_ELEM_BLOCK::ex_entity_type, block_id::ex_entity_id,
-    elem_type::Ptr{UInt8},
-    num_elem::Clonglong, num_nodes_per_elem::Clonglong,
-    0::Clonglong, 0::Clonglong, 0::Clonglong
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.write_element_block -> libexodus.ex_put_block")
+  error_code = LibExodus.ex_put_block(
+    get_file_id(exo), EX_ELEM_BLOCK, block_id,
+    elem_type,
+    num_elem, num_nodes_per_elem,
+    0, 0, 0
+  )
+  exodus_error_check(exo, error_code, "Exodus.write_element_block -> LibExodus.ex_put_block")
   write_block_connectivity(exo, block_id, conn)
 end
 
@@ -178,18 +173,3 @@ function write_blocks(exo::ExodusDatabase, blocks::Vector{<:Block})
     write_block(exo, block)
   end
 end
-
-# # some tools below
-# """
-# TODO reduce allocations and check for type instabilities
-# """
-# function collect_block_connectivities(exo::ExodusDatabase, block_ids::Vector{<:Integer})
-#   blocks = Block.((exo,), block_ids)
-#   conns = [block.conn for block in blocks]
-#   return mapreduce(permutedims, vcat, conns)' |> collect
-# end
-
-# """
-# """
-# collect_block_connectivities(exo::ExodusDatabase) = 
-# collect_block_connectivities(exo, read_ids(exo, Block))

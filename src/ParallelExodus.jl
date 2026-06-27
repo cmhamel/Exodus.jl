@@ -2,13 +2,13 @@
 $(TYPEDSIGNATURES)
 """
 function read_init_info(exo::ExodusDatabase)
-  num_proc      = Ref{Cint}(0)
-  num_proc_in_f = Ref{Cint}(0)
-  ftype = Vector{UInt8}(undef, MAX_STR_LENGTH)
-  error_code = @ccall libexodus.ex_get_init_info(
-    get_file_id(exo)::Cint, num_proc::Ptr{Cint}, num_proc_in_f::Ptr{Cint}, ftype::Ptr{UInt8}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.ParallelExodusDatabase -> libexodus.ex_get_init_info")
+  num_proc      = Base.RefValue{Cint}(0)
+  num_proc_in_f = Base.RefValue{Cint}(0)
+  ftype = Vector{Cchar}(undef, MAX_STR_LENGTH)
+  error_code = LibExodus.ex_get_init_info(
+    get_file_id(exo), num_proc, num_proc_in_f, pointer(ftype)
+  )
+  exodus_error_check(exo, error_code, "Exodus.ParallelExodusDatabase -> LibExodus.ex_get_init_info")
   return num_proc[], num_proc_in_f[], unsafe_string(pointer(ftype))
 end
 
@@ -16,16 +16,16 @@ end
 $(TYPEDSIGNATURES)
 """
 function InitializationGlobal(exo::ExodusDatabase{M, I, B, F}) where {M, I, B, F}
-  num_nodes     = Ref{B}(0)
-  num_elem      = Ref{B}(0)
-  num_elem_blk  = Ref{B}(0)
-  num_node_sets = Ref{B}(0)
-  num_side_sets = Ref{B}(0)
-  error_code = @ccall libexodus.ex_get_init_global(
-    get_file_id(exo)::Cint, num_nodes::Ptr{Cint}, num_elem::Ptr{Cint},
-    num_elem_blk::Ptr{Cint}, num_node_sets::Ptr{Cint}, num_side_sets::Ptr{Cint}
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.read_init_global -> libexodus.ex_get_init_global")
+  num_nodes     = Base.RefValue{B}(0)
+  num_elem      = Base.RefValue{B}(0)
+  num_elem_blk  = Base.RefValue{B}(0)
+  num_node_sets = Base.RefValue{B}(0)
+  num_side_sets = Base.RefValue{B}(0)
+  error_code = LibExodus.ex_get_init_global(
+    get_file_id(exo), num_nodes, num_elem,
+    num_elem_blk, num_node_sets, num_side_sets
+  )
+  exodus_error_check(exo, error_code, "Exodus.read_init_global -> LibExodus.ex_get_init_global")
   return Initialization{B}(
     num_dimensions(exo.init), num_nodes[], num_elem[],
     num_elem_blk[], num_node_sets[], num_side_sets[]
@@ -66,21 +66,21 @@ print(
 $(TYPEDSIGNATURES)
 """
 function LoadBalanceParameters(exo::ExodusDatabase{M, I, B, F}, processor::Itype) where {M, I, B, F, Itype <: Integer}
-  num_int_nodes  = Ref{B}(0)
-  num_bor_nodes  = Ref{B}(0)
-  num_ext_nodes  = Ref{B}(0)
-  num_int_elems  = Ref{B}(0)
-  num_bor_elems  = Ref{B}(0)
-  num_node_cmaps = Ref{B}(0)
-  num_elem_cmaps = Ref{B}(0)
-  error_code = @ccall libexodus.ex_get_loadbal_param(
-    get_file_id(exo)::Cint,
-    num_int_nodes::Ptr{B}, num_bor_nodes::Ptr{B}, num_ext_nodes::Ptr{B},
-    num_int_elems::Ptr{B}, num_bor_elems::Ptr{B},
-    num_node_cmaps::Ptr{B}, num_elem_cmaps::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.LoadBalanceParameters -> libexodus.ex_get_loadbal_param")
+  num_int_nodes  = Base.RefValue{B}(0)
+  num_bor_nodes  = Base.RefValue{B}(0)
+  num_ext_nodes  = Base.RefValue{B}(0)
+  num_int_elems  = Base.RefValue{B}(0)
+  num_bor_elems  = Base.RefValue{B}(0)
+  num_node_cmaps = Base.RefValue{B}(0)
+  num_elem_cmaps = Base.RefValue{B}(0)
+  error_code = LibExodus.ex_get_loadbal_param(
+    get_file_id(exo),
+    num_int_nodes, num_bor_nodes, num_ext_nodes,
+    num_int_elems, num_bor_elems,
+    num_node_cmaps, num_elem_cmaps,
+    processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.LoadBalanceParameters -> LibExodus.ex_get_loadbal_param")
   return LoadBalanceParameters{B}(
     num_int_nodes[], num_bor_nodes[], num_ext_nodes[],
     num_int_elems[], num_bor_elems[],
@@ -119,13 +119,13 @@ function CommunicationMapParameters(exo::ExodusDatabase{M, I, B, F}, lb_params::
   node_cmap_node_cnts = Vector{B}(undef, lb_params.num_node_cmaps)
   elem_cmap_ids       = Vector{B}(undef, lb_params.num_elem_cmaps)
   elem_cmap_elem_cnts = Vector{B}(undef, lb_params.num_elem_cmaps)
-  error_code = @ccall libexodus.ex_get_cmap_params(
-    get_file_id(exo)::Cint,
-    node_cmap_ids::Ptr{B}, node_cmap_node_cnts::Ptr{B},
-    elem_cmap_ids::Ptr{B}, elem_cmap_elem_cnts::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.CommunicationMapParameters -> libexodus.ex_get_cmap_params")
+  error_code = LibExodus.ex_get_cmap_params(
+    get_file_id(exo),
+    node_cmap_ids, node_cmap_node_cnts,
+    elem_cmap_ids, elem_cmap_elem_cnts,
+    processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.CommunicationMapParameters -> LibExodus.ex_get_cmap_params")
   return CommunicationMapParameters{B}(
     node_cmap_ids .+ 1, node_cmap_node_cnts,
     elem_cmap_ids .+ 1, elem_cmap_elem_cnts
@@ -150,12 +150,11 @@ function NodeCommunicationMap(exo::ExodusDatabase{M, I, B, F}, node_map_id, node
   node_ids = Vector{B}(undef, node_cnt)
   proc_ids = Vector{B}(undef, node_cnt)
 
-  error_code = @ccall libexodus.ex_get_node_cmap(
-    get_file_id(exo)::Cint, (node_map_id - 1)::Clonglong, # really ex_entity_id
-    node_ids::Ptr{B}, proc_ids::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.NodeCommunicationMap -> libexodus.ex_get_node_cmap")
+  error_code = LibExodus.ex_get_node_cmap(
+    get_file_id(exo), (node_map_id - 1),
+    node_ids, proc_ids, processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.NodeCommunicationMap -> LibExodus.ex_get_node_cmap")
 
   return NodeCommunicationMap{B}(node_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
@@ -179,12 +178,12 @@ function ElementCommunicationMap(exo::ExodusDatabase{M, I, B, F}, elem_map_id::I
   side_ids = Vector{B}(undef, elem_cnt)
   proc_ids = Vector{B}(undef, elem_cnt)
 
-  error_code = @ccall libexodus.ex_get_elem_cmap(
-    get_file_id(exo)::Cint, (elem_map_id - 1)::Clonglong, # really ex_entity_id
-    elem_ids::Ptr{B}, side_ids::Ptr{B}, proc_ids::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.ElementCommunicationMap -> libexodus.ex_get_elem_cmap")
+  error_code = LibExodus.ex_get_elem_cmap(
+    get_file_id(exo), (elem_map_id - 1),
+    elem_ids, side_ids, proc_ids,
+    processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.ElementCommunicationMap -> LibExodus.ex_get_elem_cmap")
   return ElementCommunicationMap{B}(elem_ids, side_ids, proc_ids .+ 1) # note adding 1 to proc ids to make them julia indexed
 end
 
@@ -207,13 +206,13 @@ function ProcessorNodeMaps(exo::ExodusDatabase{M, I, B, F}, processor::Itype) wh
   node_map_internal = Vector{B}(undef, lb_params.num_int_nodes)
   node_map_border   = Vector{B}(undef, lb_params.num_bor_nodes)
   node_map_external = Vector{B}(undef, lb_params.num_ext_nodes)
-  
-  error_code = @ccall libexodus.ex_get_processor_node_maps(
-    get_file_id(exo)::Cint, 
-    node_map_internal::Ptr{B}, node_map_border::Ptr{B}, node_map_external::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.ProcessorNodeMap -> libexodus.ex_get_processor_node_maps")
+
+  error_code = LibExodus.ex_get_processor_node_maps(
+    get_file_id(exo),
+    node_map_internal, node_map_border, node_map_external,
+    processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.ProcessorNodeMap -> LibExodus.ex_get_processor_node_maps")
   return ProcessorNodeMaps{B}(node_map_internal, node_map_border, node_map_external)
 end
 
@@ -235,11 +234,10 @@ function ProcessorElementMaps(exo::ExodusDatabase{M, I, B, F}, processor::Itype)
   elem_map_internal = Vector{B}(undef, lb_params.num_int_elems)
   elem_map_border   = Vector{B}(undef, lb_params.num_bor_elems)
 
-  error_code = @ccall libexodus.ex_get_processor_elem_maps(
-    get_file_id(exo)::Cint,
-    elem_map_internal::Ptr{B}, elem_map_border::Ptr{B},
-    processor::Cint
-  )::Cint
-  exodus_error_check(exo, error_code, "Exodus.ProcessorElementMaps -> libexodus.ex_get_processor_elem_maps")
+  error_code = LibExodus.ex_get_processor_elem_maps(
+    get_file_id(exo),
+    elem_map_internal, elem_map_border, processor
+  )
+  exodus_error_check(exo, error_code, "Exodus.ProcessorElementMaps -> LibExodus.ex_get_processor_elem_maps")
   return ProcessorElementMaps{B}(elem_map_internal, elem_map_border)
 end
