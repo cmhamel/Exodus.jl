@@ -1,6 +1,21 @@
 using Clang.Generators
-# using Clang.LibClang.Clang_unified_jll
 using Exodus_jll
+
+function patch!(ctx)
+    Clang.Generators.walk!(ctx.dag) do node
+        if node isa Clang.Generators.FunctionDecl
+            for arg in node.args
+                if arg.type == :(Ptr{Cvoid})
+                    arg.type = :(Ptr{Cfloat})
+                end
+            end
+
+            if node.rettype == :(Ptr{Cvoid})
+                node.rettype = :(Ptr{Cfloat})
+            end
+        end
+    end
+end
 
 cd(@__DIR__)
 

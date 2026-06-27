@@ -5,6 +5,11 @@ export Exodus_jll
 
 using CEnum: CEnum, @cenum
 
+to_c_type(t::Type) = t
+to_c_type_pairs(va_list) = map(enumerate(to_c_type.(va_list))) do (ind, type)
+    :(va_list[$ind]::$type)
+end
+
 function interface(nvtxs, start, adjacency, vwgts, ewgts, x, y, z, outassignname, outfilename, assignment, architecture, ndims_tot, mesh_dims, goal, global_method, local_method, rqi_flag, vmax, ndims, eigtol, seed)
     @ccall libexodus.interface(nvtxs::Cint, start::Ptr{Cint}, adjacency::Ptr{Cint}, vwgts::Ptr{Cint}, ewgts::Ptr{Cfloat}, x::Ptr{Cfloat}, y::Ptr{Cfloat}, z::Ptr{Cfloat}, outassignname::Cstring, outfilename::Cstring, assignment::Ptr{Cint}, architecture::Cint, ndims_tot::Cint, mesh_dims::Ptr{Cint}, goal::Ptr{Cdouble}, global_method::Cint, local_method::Cint, rqi_flag::Cint, vmax::Cint, ndims::Cint, eigtol::Cdouble, seed::Clong)::Cint
 end
@@ -2257,8 +2262,6 @@ const CHACO_VERSION_MAJOR = 3
 const CHACO_VERSION_MINOR = 0
 
 const CHACO_VERSION_PATCH = 0
-
-# const EX_MAX_NAME = NC_MAX_NAME
 
 const EXODUS_VERSION = "9.04"
 

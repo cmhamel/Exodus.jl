@@ -1,6 +1,6 @@
 name = "Exodus"
 uuid = "f57ae99e-f805-4780-bdca-96e224be1e5a"
-version = "0.14.4"
+version = "0.15.0"
 authors = ["cmhamel <cmhamel32@gmail.com>"]
 
 [deps]
