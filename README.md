@@ -1,99 +1,121 @@
 [![Build Status](https://github.com/cmhamel/Exodus.jl/workflows/CI/badge.svg)](https://github.com/cmhamel/Exodus.jl/actions?query=workflow%3ACI)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
-[![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl) 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cmhamel.github.io/Exodus.jl/dev/) 
-
+[![Coverage](https://codecov.io/gh/cmhamel/Exodus.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/cmhamel/Exodus.jl)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://cmhamel.github.io/Exodus.jl/dev/)
 
 # Exodus.jl
-1. [Description](#description)
-2. [Installation](#installation)
-3. [Package Extensions](#package-extensions)
-4. [Opening Exodus Files]()
+
+A Julia interface to the [ExodusII](https://github.com/sandialabs/seacas) data format used for large-scale finite element simulations. The underlying C library (`libexodus`) is accessed through a pre-built binary (`Exodus_jll`) via `@ccall`, so no separate ExodusII/SEACAS installation is required.
+
+Several helper utilities from [SEACAS](https://github.com/sandialabs/seacas) are also bundled to ease working with ExodusII files in parallel environments (`decomp`, `epu`) and for diffing files (`exodiff`).
+
+📖 **Full documentation:** https://cmhamel.github.io/Exodus.jl/dev/
+
+## Contents
+
+1. [Installation](#installation)
+2. [Package Extensions](#package-extensions)
+3. [Core Concepts](#core-concepts)
+4. [Opening and Closing Files](#opening-and-closing-files)
 5. [Reading Data](#reading-data)
 6. [Writing Data (Read-Write Mode)](#writing-data-read-write-mode)
-7. [Writing Data](#writing-data-write-mode)
-8. [Use With MPI.jl](#use-with-mpijl)
-9. [Use with MPI and juliac --experimental --trim](#use-with-mpi-and-juliac---experimental---trim-requires-julia-112-or-later)
+7. [Writing Data (Write Mode, From Scratch)](#writing-data-write-mode-from-scratch)
+8. [Parallel / Decomposed Meshes](#parallel--decomposed-meshes)
+9. [Use With MPI.jl](#use-with-mpijl)
+10. [Use with MPI and `juliac --experimental --trim`](#use-with-mpi-and-juliac---experimental---trim-requires-julia-112-or-later)
+11. [Documentation](#documentation)
 
-# Description
-A julia interface for accessing the ExodusII data format for large scale finite element simulations. The C library is accessed via a pre-built julia linked library through julia ccalls.
+## Installation
 
-Several helper utilies from [SEACAS](https://github.com/sandialabs/seacas) are also included to aid in using exodusII files in parallel environments and diffing files. 
+From the package manager:
 
-# Installation
-From the package manager simply type
 ```julia
 pkg> add Exodus
 ```
 
-Or from the REPL
+Or from the REPL:
+
 ```julia
 julia> using Pkg
-julia> Pkg.add("Exodus") 
+julia> Pkg.add("Exodus")
 ```
 
-# Package Extensions
-Several package extensions are provided with ```Exodus.jl```. Please note, many of these are still experimental.
+## Package Extensions
 
-The following extensions are provided
-- ```ExodusMeshesExt.jl``` - Provides a simple interface to ```SimpleMesh``` in ```Meshes.jl```.
-- ```ExodusPartitionedArrayExt.jl``` - Provides a lightweight interface to ```PartitionedArrays.jl```. Currently inefficient.
-- ```ExodusUnitfulExt.jl``` - Provides additional read/write methods to work with ```Unitful.jl``` ```Quantity```s
+Several (still experimental) package extensions are provided:
 
-# Opening Exodus Files
-The simplest way to open an exodusII file is to call the following method
-```julia
-mode = "r" # can be "r" for read, "rw" for read write
-           # or "w" for write modes
-exo = ExodusDatabase("/path/to/file/file.e", mode)
-```
-this howewer introduces a type stability however since the storage types different data types are not known until runtime. 
+- `ExodusMeshesExt.jl` — a simple interface to `SimpleMesh` in [Meshes.jl](https://github.com/JuliaGeometry/Meshes.jl).
+- `ExodusUnitfulExt.jl` — additional read/write methods for working with [Unitful.jl](https://github.com/PainterQubits/Unitful.jl) `Quantity`s.
 
-If ahead of time you know the types your data are stored as (typeically 32 bit integers for ids and 64 bit floats for values) you can call this constructor which is type stable (important if you keep reading)
-```julia
-mode = "r" # can be "r" for read, "rw" for read write
-           # or "w" for write modes
-exo = ExodusDatabase{Int32, Int32, Int32, Float64}("/path/to/file/file.e", mode)
-```
-Either way, these constructors return an ```ExodusDatabase``` container which has a field "exo" that is a file id for this now opened exodusII database in "mode" i.e. read/read-write/write format.
+## Core Concepts
 
-The container also contains additional meta-data for the current names of sets, variables, etc. present in the file to allow for a clean and efficient user facing interface.
+Everything in `Exodus.jl` revolves around a handful of types:
 
-# Reading Data
-To read in an exodusII file (typically has a .e or .exo extension) simply do the following
+- **`ExodusDatabase{M, I, B, F}`** — the open file handle. The four type parameters track the integer/float storage modes Exodus negotiated for the file: `M` (map ints), `I` (set/variable IDs), `B` (bulk data, e.g. connectivity), and `F` (field data, `Float32`/`Float64`). It also caches an `Initialization` header (dimension/node/element/block/set counts) and name→ID lookup tables for fast by-name access.
+- **Sets** — `Block`, `NodeSet`, and `SideSet` (all `AbstractExodusSet`) represent element blocks, node sets, and side sets, and share a common ID/name interface (`read_ids`, `read_names`, `write_name`, ...).
+- **Variables** — `GlobalVariable`, `NodalVariable` (alias `NodalScalarVariable`), `NodalVectorVariable`, `ElementVariable`, `NodeSetVariable`, and `SideSetVariable` (all `AbstractExodusVariable`) are dispatch-only marker types used with `read_values`/`write_values` to select which kind of time-dependent field you're reading or writing.
+- **Maps** — `NodeMap`, `ElementMap`, `FaceMap`, `EdgeMap` (all `AbstractExodusMap`) identify the various local↔global numbering maps Exodus stores.
+
+See the [API reference](https://cmhamel.github.io/Exodus.jl/dev/) for the complete type hierarchy and function list.
+
+## Opening and Closing Files
+
+The simplest way to open a file:
 
 ```julia
-exo = ExodusDatabase("/path-to-file/file.e", "r")
+mode = "r" # "r" (read), "rw" (read-write), or "w" (write/create)
+exo = ExodusDatabase("/path/to/file.e", mode)
 ```
 
+This is convenient but type-unstable, since the storage types aren't known until the file is actually opened. If you know your file's storage types ahead of time (commonly 32-bit integers for IDs and 64-bit floats for values), use the explicit, type-stable constructor instead:
 
-For more useful methods, one can fetch the blocks of elements as follows which contains connectivity information for different blocks of elements useful for grouping materials
 ```julia
-blocks = read_sets(exo, Block)
-```
-For boundary conditions one can grab the nodes with the following commands
-```julia
-nsets = read_sets(exo, NodeSet)
+exo = ExodusDatabase{Int32, Int32, Int32, Float64}("/path/to/file.e", mode)
 ```
 
-Full code example:
+Either constructor returns an `ExodusDatabase`, which also carries metadata about the names of sets and variables present in the file, enabling a clean by-name API. Always `close(exo)` when finished, or use the do-block form which closes automatically (even on error):
+
+```julia
+ExodusDatabase("/path/to/file.e", "r") do exo
+    coords = read_coordinates(exo)
+end
+```
+
+## Reading Data
+
 ```julia
 using Exodus
-exo = ExodusDatabase("../path-to-file/file.e", "r") # read only format
-coords          = read_coordinates(exo) # matrix of n_nodes x n_dim
-blocks          = read_sets(exo, Block) # contains connectivity information
-nsets           = read_sets(exo, NodeSet) # contains nodes on boundaries
+
+exo = ExodusDatabase("../path-to-file/file.e", "r") # read-only
+
+coords          = read_coordinates(exo)             # num_dim x num_nodes matrix
+blocks          = read_sets(exo, Block)              # element blocks (connectivity)
+nsets           = read_sets(exo, NodeSet)            # node sets (e.g. boundary nodes)
+ssets           = read_sets(exo, SideSet)            # side sets
 nodal_var_names = read_names(exo, NodalVariable)
 elem_var_names  = read_names(exo, ElementVariable)
-close(exo) # cleanup
+
+displ_x = read_values(exo, NodalVariable, 1, "displ_x")        # time step 1
+stress  = read_values(exo, ElementVariable, 1, 1, "stress_xx") # block 1, time step 1
+
+close(exo) # always clean up
 ```
 
-# Writing Data (Read-Write Mode)
-To write data in read-write mode, it's often common to take a mesh used as input to a simulation, copy it, and then write data to that copied mesh.
+Individual blocks/sets can also be fetched directly by ID or name:
 
-Below is an example which first copies a mesh using the ```copy_mesh``` method, then opens the mesh, writes a t time step, writes variable names, and nodal field data.
+```julia
+block = read_block(exo, 1)
+block = read_block(exo, "block_1")
+nset  = NodeSet(exo, "nset_1")
+```
+
+## Writing Data (Read-Write Mode)
+
+A common workflow: copy an existing mesh, then open it in `"rw"` mode to append time steps and field data.
+
 ```julia
 using Exodus
+
 copy_mesh("./mesh.g", "./temp_element_variables.e")
 exo = ExodusDatabase("./temp_element_variables.e", "rw")
 
@@ -102,14 +124,16 @@ write_time(exo, 1, 0.0)
 write_names(exo, NodalVariable, ["displ_x", "displ_y"])
 write_names(exo, ElementVariable, ["stress_xx", "stress_yy", "stress_xy"])
 
-write_values(exo, NodalVariable, 1, 1, randn(...))
-... # and so on.
+write_values(exo, NodalVariable, 1, "displ_x", randn(num_nodes(exo.init)))
+# ... and so on
 
 close(exo)
 ```
 
-# Writing Data (Write Mode)
-To completely write an exodusII file from a scratch, the following example can be used as a template.
+## Writing Data (Write Mode, From Scratch)
+
+To build a brand-new Exodus file entirely from scratch:
+
 ```julia
 using Exodus
 
@@ -126,59 +150,73 @@ conn = [
   4 3 8 7
 ]
 
-# make some hack variables to write
 v_nodal_1 = rand(9)
 v_nodal_2 = rand(9)
+v_elem_1  = rand(4)
+v_elem_2  = rand(4)
 
-v_elem_1 = rand(4)
-v_elem_2 = rand(4)
-
-# set the types
+# storage types
 maps_int_type = Int32
 ids_int_type  = Int32
 bulk_int_type = Int32
 float_type    = Float64
 
-# initialization parameters
+# initialization (mesh sizing) header
 num_dim, num_nodes = size(coords)
 num_elems          = size(conn, 2)
 num_elem_blks      = 1
-num_side_sets      = 0
 num_node_sets      = 0
+num_side_sets      = 0
 
-# make init
 init = Initialization{bulk_int_type}(
   num_dim, num_nodes, num_elems,
-  num_elem_blks, num_side_sets, num_node_sets
+  num_elem_blks, num_node_sets, num_side_sets
 )
 
-# finally make empty exo database
 exo = ExodusDatabase{maps_int_type, ids_int_type, bulk_int_type, float_type}(
   "test_write.e", "w", init
 )
 
-# how to write coordinates
 write_coordinates(exo, coords)
-# how to write a block
 write_block(exo, 1, "QUAD4", conn)
-# need at least one timestep to output variables
+
+# at least one time step is required before writing variable values
 write_time(exo, 1, 0.0)
-# write number of variables and their names
+
 write_names(exo, NodalVariable, ["v_nodal_1", "v_nodal_2"])
 write_names(exo, ElementVariable, ["v_elem_1", "v_elem_2"])
-# write variable values the 1 is for the time step
+
 write_values(exo, NodalVariable, 1, "v_nodal_1", v_nodal_1)
 write_values(exo, NodalVariable, 1, "v_nodal_2", v_nodal_2)
-# the first 1 is for the time step 
-# and the second 1 is for the block number
+# first 1 = time step, second 1 = block ID
 write_values(exo, ElementVariable, 1, 1, "v_elem_1", v_elem_1)
 write_values(exo, ElementVariable, 1, 1, "v_elem_2", v_elem_2)
-# don't forget to close the exodusdatabase, it can get corrupted otherwise if you're writing
-close(exo)
+
+close(exo) # don't skip this — the file can be corrupted otherwise
 ```
 
-# Use With MPI.jl
-To use ```Exodus.jl``` with [MPI.jl](https://github.com/JuliaParallel/MPI.jl), it is quite simple. The following can be used as a recipe for more complex use cases.
+## Parallel / Decomposed Meshes
+
+`Exodus.jl` wraps the SEACAS command-line tools for mesh decomposition and recombination, and can read the per-rank metadata (load-balance parameters, communication maps, processor-local node/element maps) embedded in decomposed files — all without requiring an MPI build:
+
+```julia
+decomp("mesh.exo", 4)               # partition into 4 per-processor files
+epu("output.exo")                   # recombine per-processor results
+exodiff("a.exo", "b.exo")           # numerically diff two databases
+```
+
+For lower-level access to a given shard's parallel metadata:
+
+```julia
+exo = ExodusDatabase("mesh.exo.4.0", "r")
+lb         = LoadBalanceParameters(exo, 1)
+cmap       = CommunicationMapParameters(exo, lb, 1)
+node_cmap  = NodeCommunicationMap(exo, cmap.node_cmap_ids[1], cmap.node_cmap_node_cnts[1], 1)
+node_maps  = ProcessorNodeMaps(exo, 1)
+```
+
+## Use With MPI.jl
+
 ```julia
 using Exodus
 using MPI
@@ -192,18 +230,18 @@ if MPI.Comm_rank(comm) == 0
 end
 MPI.Barrier(comm)
 
-# Now read the shard for this comm
+# Now read the shard for this rank
 file_name = "hole_array.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))"
 exo = ExodusDatabase(file_name, "r")
 @show exo
 MPI.Barrier(comm)
 
-# Now we can copy a mesh
+# Copy this rank's mesh shard
 new_file_name = "output.exo.$(MPI.Comm_size(comm)).$(MPI.Comm_rank(comm))"
 copy_mesh(file_name, new_file_name)
 MPI.Barrier(comm)
 
-# Now stich the output shards together
+# Stitch the output shards back together
 if MPI.Comm_rank(comm) == 0
     epu("output.exo")
 end
@@ -212,14 +250,18 @@ MPI.Barrier(comm)
 MPI.Finalize()
 ```
 
-# Use with MPI and juliac --experimental --trim (requires julia 1.12 or later)
-```juliac --experimental --trim``` is an exciting new experimental development in julia 1.12 that allows for small binaries to be compiled. It code to have strict static typing to achieve this. ```Exodus.jl``` has recently been updated to work in this setting and the below example shows how this can work with MPI. Currently [MPI.jl](https://github.com/JuliaParallel/MPI.jl) has not played nice ```juliac --experimental --trim``` so the below example uses the system installed MPI and julia ```ccall```s. This may (and probably will) differ on your system. This example was tested on Ubuntu 24.04 with 4 MPI ranks as an example.
+## Use with MPI and `juliac --experimental --trim` (requires Julia 1.12 or later)
 
-First we must decompose the mesh offline from the executable we wish to generate. We can do this as follows
+`juliac --experimental --trim` is an experimental Julia 1.12 feature for compiling small, statically-typed standalone binaries. `Exodus.jl` has been updated to work in this setting. As of now, [MPI.jl](https://github.com/JuliaParallel/MPI.jl) does not play nicely with `--trim`, so the example below calls the system-installed MPI library directly via `ccall`. Paths and library names will likely differ on your system; this was tested on Ubuntu 24.04 with 4 MPI ranks.
+
+First, decompose the mesh offline, outside the trimmed executable:
+
 ```julia
 using Exodus
 decomp("hole_array.exo", 4)
 ```
+
+Then write a `@ccallable` entry point:
 
 ```julia
 using Exodus
@@ -229,10 +271,8 @@ const MPI_Comm = Ptr{Cvoid}
 const MPI_COMM_WORLD = Cint(0x44000000)
 
 Base.@ccallable function main()::Cint
-    # Initialize MPI
     ccall((:MPI_Init, libmpi), Cint, (Ptr{Cvoid}, Ptr{Cvoid}), C_NULL, C_NULL)
 
-    # get rank and total number of ranks
     rank = Ref{Cint}()
     size = Ref{Cint}()
     ccall((:MPI_Comm_rank, libmpi), Cint, (Cint, Ptr{Cint}), MPI_COMM_WORLD, rank)
@@ -240,7 +280,6 @@ Base.@ccallable function main()::Cint
 
     println(Core.stdout, "Hello from rank $(rank[]) of $(size[])")
 
-    # open mesh file
     file_name = "hole_array.exo.$(size[]).$(rank[])"
     exo = ExodusDatabase{Int32, Int32, Int32, Float64}(file_name, "r")
     println(Core.stdout, "$exo")
@@ -248,23 +287,39 @@ Base.@ccallable function main()::Cint
     new_file_name = "output.exo.$(size[]).$(rank[])"
     copy(exo, new_file_name)
 
-    # then do some stuff ...
+    # ... do some work ...
 
-    # Finalize MPI
     ccall((:MPI_Finalize, libmpi), Cint, ())
-
     return 0
 end
 ```
 
-This can then be compiled with ```juliac``` as follows
+Compile it with `juliac`:
+
+```sh
+julia +1.12 --project=@. ~/.julia/juliaup/julia-1.12.0-beta4+0.x64.linux.gnu/share/julia/juliac.jl \
+  --output-exe a.out --compile-ccallable --experimental --trim script.jl
 ```
-julia +1.12 --project=@. ~/.julia/juliaup/julia-1.12.0-beta4+0.x64.linux.gnu/share/julia
-/juliac.jl --output-exe a.out --compile-ccallable --experimental --trim script.jl
-```
-and produces and executable that is 3.7Mb. It then be run as follows
-```
+
+This produces a ~3.7MB executable, runnable as:
+
+```sh
 mpirun -n 4 ./a.out
 ```
 
-Note: this is experimental. Not every piece of the package has been tested here. If you run into bugs, please open an issue.
+> **Note:** this workflow is experimental and not every part of the package has been exercised under `--trim`. Please open an issue if you run into trouble.
+
+## Documentation
+
+This README covers the common workflows. For the complete manual — including the full type hierarchy, every read/write function, and the parallel/communication-map API — see the [documentation site](https://cmhamel.github.io/Exodus.jl/dev/), which includes:
+
+- **Core Types** — `ExodusDatabase`, `Initialization`, the `AbstractExodusMap`/`AbstractExodusSet`/`AbstractExodusVariable` hierarchies, parallel metadata structs, and exception types
+- **The `ExodusDatabase`** — opening, closing, copying, and inspecting databases
+- **Element Blocks**, **Node Sets & Side Sets** — reading and writing mesh topology
+- **Coordinates** — nodal coordinate read/write, including partial/component access
+- **Maps** — node/element/face/edge maps and ID maps
+- **Variables** — global, nodal, element, node set, and side set field data
+- **Time Steps**, **Info & QA Records**
+- **Parallel / Decomposed Databases** — load-balance and communication-map access, `decomp`/`epu`/`exodiff`
+- **Helper Utilities** — connectivity-graph builders (element, node-to-element, element-to-element)
+- **API Reference** — full auto-generated docstring index
