@@ -80,10 +80,11 @@ export exodiff
 using DocStringExtensions
 using Exodus_jll
 
+include("../lib/IncludeMe.jl")
+
 include("Errors.jl")
 
 # exodus constants and type definitions
-include("ExodusConstants.jl")
 include("ExodusTypes.jl")
 
 # record keeping
