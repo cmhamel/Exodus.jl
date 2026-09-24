@@ -3,16 +3,18 @@ $(TYPEDSIGNATURES)
 """
 function read_info(exo::ExodusDatabase)
   num_info = LibExodus.ex_inquire_int(get_file_id(exo), EX_INQ_INFO)
-  info_strs = [Vector{Cchar}(undef, MAX_LINE_LENGTH) for _ in 1:num_info]
+  info_strs = [string_buffer(MAX_LINE_LENGTH) for _ in 1:num_info]
   info = Vector{Cstring}(undef, num_info)
-  for n in eachindex(info_strs)
-    info[n] = pointer(info_strs[n])
+  error_code = GC.@preserve info_strs begin
+    for n in eachindex(info_strs)
+      info[n] = pointer(info_strs[n])
+    end
+    LibExodus.ex_get_info(get_file_id(exo), info)
   end
-  error_code = LibExodus.ex_get_info(get_file_id(exo), info)
   exodus_error_check(exo, error_code, "Exodus.read_info -> LibExodus.ex_get_info")
   new_info = Vector{String}(undef, num_info)
-  for n in eachindex(info)
-    new_info[n] = unsafe_string(pointer(info[n]))
+  for n in eachindex(info_strs)
+    new_info[n] = buffer_string(info_strs[n])
   end
   return new_info
 end

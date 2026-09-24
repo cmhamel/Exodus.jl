@@ -133,16 +133,14 @@ function Initialization(exo::Cint, ::Type{B}) where B
   num_elem_blks = Base.RefValue{B}(0)
   num_node_sets = Base.RefValue{B}(0)
   num_side_sets = Base.RefValue{B}(0)
-  title         = Vector{Cchar}(undef, MAX_LINE_LENGTH)
+  title         = string_buffer(MAX_LINE_LENGTH)
 
-  error_code = LibExodus.ex_get_init(
+  error_code = GC.@preserve title LibExodus.ex_get_init(
     exo, pointer(title),
     num_dim, num_nodes, num_elems,
     num_elem_blks, num_node_sets, num_side_sets
   )
   exodus_error_check(exo, error_code, "Exodus.Initialization -> LibExodus.ex_get_init")
-
-  title = unsafe_string(pointer(title))
 
   return Initialization{B}(
     num_dim[], num_nodes[], num_elems[],
@@ -194,8 +192,10 @@ Used to set up a exodus database in write mode
 The ccall signatures should reall be B (bulk int type of exo) instead of Clonglong
 """
 function write_initialization!(exoid::Cint, init::Initialization)
-  title = Vector{Cchar}(undef, MAX_LINE_LENGTH)
-  error_code = LibExodus.ex_put_init(
+  # An empty title: an uninitialized buffer would write whatever memory it
+  # holds, up to MAX_LINE_LENGTH characters, as the title of the file.
+  title = string_buffer(MAX_LINE_LENGTH)
+  error_code = GC.@preserve title LibExodus.ex_put_init(
     exoid, pointer(title),
     num_dimensions(init), num_nodes(init), num_elements(init),
     num_element_blocks(init), num_node_sets(init), num_side_sets(init)

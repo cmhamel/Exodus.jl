@@ -4,12 +4,12 @@ $(TYPEDSIGNATURES)
 function read_init_info(exo::ExodusDatabase)
   num_proc      = Base.RefValue{Cint}(0)
   num_proc_in_f = Base.RefValue{Cint}(0)
-  ftype = Vector{Cchar}(undef, MAX_STR_LENGTH)
-  error_code = LibExodus.ex_get_init_info(
+  ftype = string_buffer(MAX_STR_LENGTH)
+  error_code = GC.@preserve ftype LibExodus.ex_get_init_info(
     get_file_id(exo), num_proc, num_proc_in_f, pointer(ftype)
   )
   exodus_error_check(exo, error_code, "Exodus.ParallelExodusDatabase -> LibExodus.ex_get_init_info")
-  return num_proc[], num_proc_in_f[], unsafe_string(pointer(ftype))
+  return num_proc[], num_proc_in_f[], buffer_string(ftype)
 end
 
 """

@@ -339,6 +339,7 @@ include("TestHelpers.jl")
 include("TestIO.jl")
 include("TestParallelExodus.jl")
 include("TestRead.jl")
+include("TestStrings.jl")
 include("TestReadWrite.jl")
 include("TestWrite.jl")
 

@@ -130,16 +130,18 @@ Returns a vector of strings
 """
 function read_coordinate_names(exo::ExodusDatabase)
   num_dim = num_dimensions(exo.init)
-  coord_names_strs = [Vector{Cchar}(undef, MAX_LINE_LENGTH) for _ in 1:num_dim]
+  coord_names_strs = [name_buffer(get_file_id(exo)) for _ in 1:num_dim]
   coord_names = Vector{Cstring}(undef, num_dim)
-  for n in eachindex(coord_names)
-    coord_names[n] = pointer(coord_names_strs[n])
+  error_code = GC.@preserve coord_names_strs begin
+    for n in eachindex(coord_names)
+      coord_names[n] = pointer(coord_names_strs[n])
+    end
+    LibExodus.ex_get_coord_names(get_file_id(exo), coord_names)
   end
-  error_code = LibExodus.ex_get_coord_names(get_file_id(exo), coord_names)
   exodus_error_check(exo, error_code, "Exodus.read_coordinate_names -> LibExodus.ex_get_coord_names")
   new_coord_names = Vector{String}(undef, num_dimensions(exo.init))
   for n in 1:num_dimensions(exo.init)
-    new_coord_names[n] = unsafe_string(pointer(coord_names[n]))
+    new_coord_names[n] = buffer_string(coord_names_strs[n])
   end
   return new_coord_names
 end

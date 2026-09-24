@@ -20,16 +20,16 @@ function read_block_parameters(exo::ExodusDatabase{M, I, B, F}, block_id::Intege
   num_edges      = Base.RefValue{B}(0)
   num_faces      = Base.RefValue{B}(0)
   num_attributes = Base.RefValue{B}(0)
-  element_type   = Vector{Cchar}(undef, MAX_STR_LENGTH)
+  element_type   = string_buffer(MAX_STR_LENGTH)
 
-  error_code = LibExodus.ex_get_block(
+  error_code = GC.@preserve element_type LibExodus.ex_get_block(
     get_file_id(exo), EX_ELEM_BLOCK, block_id,
     pointer(element_type),
     num_elem, num_nodes, num_edges,
     num_faces, num_attributes
   )
   exodus_error_check(exo, error_code, "Exodus.read_element_block_parameters -> LibExodus.ex_get_block")
-  element_type_out = unsafe_string(pointer(element_type))
+  element_type_out = buffer_string(element_type)
   return element_type_out, num_elem[], num_nodes[], num_edges[], num_faces[], num_attributes[]
 end
 
@@ -86,10 +86,10 @@ end
 $(TYPEDSIGNATURES)
 """
 function read_element_type(exo::ExodusDatabase, block_id::I) where I <: Integer
-  element_type = Vector{Cchar}(undef, MAX_STR_LENGTH)
-  error_code = LibExodus.ex_get_elem_type(get_file_id(exo), block_id, pointer(element_type))
+  element_type = string_buffer(MAX_STR_LENGTH)
+  error_code = GC.@preserve element_type LibExodus.ex_get_elem_type(get_file_id(exo), block_id, pointer(element_type))
   exodus_error_check(exo, error_code, "Exodus.read_element_type -> LibExodus.ex_get_elem_type")
-  return unsafe_string(pointer(element_type))
+  return buffer_string(element_type)
 end
 
 """

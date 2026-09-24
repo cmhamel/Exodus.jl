@@ -14,6 +14,7 @@ import .LibExodus:
     EX_IDS_INT64_API,
     EX_INQ_DB_FLOAT_SIZE,
     EX_INQ_INFO,
+    EX_INQ_MAX_READ_NAME_LENGTH,
     EX_INQ_QA,
     EX_INQ_TIME,
     EX_MAPS_INT64_API,
