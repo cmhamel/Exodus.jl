@@ -3,24 +3,24 @@ $(TYPEDSIGNATURES)
 """
 function read_qa(exo::ExodusDatabase)
   num_qa_rec = LibExodus.ex_inquire_int(get_file_id(exo), EX_INQ_QA)
+  # The buffers are kept in a matrix, so that they stay alive while the
+  # library writes into them through the pointers in qa_record.
+  buffers = [string_buffer(MAX_STR_LENGTH) for _ in 1:num_qa_rec, _ in 1:4]
   qa_record = Vector{NTuple{4, Cstring}}(undef, num_qa_rec)
-  for n in eachindex(qa_record)
-    qa_record[n] = (
-      pointer(Vector{Cchar}(undef, MAX_STR_LENGTH)),
-      pointer(Vector{Cchar}(undef, MAX_STR_LENGTH)),
-      pointer(Vector{Cchar}(undef, MAX_STR_LENGTH)),
-      pointer(Vector{Cchar}(undef, MAX_STR_LENGTH))
-    )
+  error_code = GC.@preserve buffers begin
+    for n in eachindex(qa_record)
+      qa_record[n] = (
+        pointer(buffers[n, 1]), pointer(buffers[n, 2]), pointer(buffers[n, 3]), pointer(buffers[n, 4])
+      )
+    end
+    LibExodus.ex_get_qa(get_file_id(exo), qa_record)
   end
-  error_code = LibExodus.ex_get_qa(
-    get_file_id(exo), qa_record
-  )
   exodus_error_check(exo, error_code, "Exodus.read_qa -> LibExodus.ex_get_qa")
 
   new_qa_record = Matrix{String}(undef, num_qa_rec, 4)
   for i in 1:num_qa_rec
     for j in 1:4
-      new_qa_record[i, j] = unsafe_string(qa_record[i][j])
+      new_qa_record[i, j] = buffer_string(buffers[i, j])
     end
   end
   return new_qa_record

@@ -51,12 +51,12 @@ julia> read_name(exo, SideSetVariable, 1)
 function read_name(
   exo::ExodusDatabase, ::Type{V}, var_index::Integer
 ) where V <: AbstractExodusVariable
-  var_name = Vector{Cchar}(undef, MAX_STR_LENGTH)
-  error_code = LibExodus.ex_get_variable_name(
+  var_name = name_buffer(get_file_id(exo))
+  error_code = GC.@preserve var_name LibExodus.ex_get_variable_name(
     get_file_id(exo), entity_type(V), var_index, pointer(var_name)
   )
   exodus_error_check(exo, error_code, "Exodus.read_variable_name -> LibExodus.ex_get_variable_name")
-  return unsafe_string(pointer(var_name))
+  return buffer_string(var_name)
 end
 
 """

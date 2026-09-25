@@ -13,10 +13,10 @@ end
 $(TYPEDSIGNATURES)
 """
 function read_name(exo::ExodusDatabase, ::Type{S}, id::Integer) where S <: AbstractExodusSet
-  name = Vector{Cchar}(undef, MAX_STR_LENGTH)
-  error_code = LibExodus.ex_get_name(get_file_id(exo), entity_type(S), id, pointer(name))
+  name = name_buffer(get_file_id(exo))
+  error_code = GC.@preserve name LibExodus.ex_get_name(get_file_id(exo), entity_type(S), id, pointer(name))
   exodus_error_check(exo, error_code, "Exodus.read_name -> LibExodus.ex_get_name")
-  return unsafe_string(pointer(name))
+  return buffer_string(name)
 end
 
 """
@@ -40,8 +40,9 @@ function read_set_parameters(
   set_id::Integer, 
   ::Type{S}
 ) where {M, I, B, F, S <: Union{NodeSet, SideSet}} # TODO there's other sets this method can support
-  num_entries = Base.RefValue{I}(0)
-  num_df = Base.RefValue{I}(0)
+  # void_int: the counts follow the bulk integer size, not the id size
+  num_entries = Base.RefValue{B}(0)
+  num_df = Base.RefValue{B}(0)
   error_code = LibExodus.ex_get_set_param(
     get_file_id(exo), entity_type(S),
     set_id, num_entries, num_df
@@ -85,7 +86,8 @@ $(TYPEDSIGNATURES)
 UNTESTED
 """
 function read_side_set_node_list(exo::ExodusDatabase{M, I, B, F}, side_set_id::Integer) where {M, I, B, F}
-  side_set_node_list_len = Base.RefValue{Cint}(0)
+  # void_int: 64 bits when the database uses 64-bit bulk integers
+  side_set_node_list_len = Base.RefValue{B}(0)
   error_code = LibExodus.ex_get_side_set_node_list_len(
     get_file_id(exo), side_set_id, side_set_node_list_len
   )

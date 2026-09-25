@@ -83,6 +83,7 @@ using Exodus_jll
 include("../lib/IncludeMe.jl")
 
 include("Errors.jl")
+include("Strings.jl")
 
 # exodus constants and type definitions
 include("ExodusTypes.jl")
