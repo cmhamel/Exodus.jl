@@ -1,0 +1,13 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Exodus = "f57ae99e-f805-4780-bdca-96e224be1e5a"
+Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[sources]
+Exodus = {path = ".."}
+
+[compat]
+Aqua = "0.8"
+Test = "1"

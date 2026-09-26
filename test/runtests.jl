@@ -1,7 +1,6 @@
 using Aqua
 using Base
 using Exodus
-using Exodus_jll
 using Meshes
 using Test
 using Unitful
