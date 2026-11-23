@@ -18,7 +18,7 @@ ExodusUnitfulExt = "Unitful"
 
 [compat]
 Aqua = "0.8"
-CEnum = "1"
+CEnum = "0.5, 1"
 DocStringExtensions = "0.9"
 Exodus_jll = "9"
 Meshes = "0.60"
